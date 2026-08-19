@@ -1,8 +1,7 @@
 import Link from 'next/link'
 
 /**
- * En-tete des pages interieures. La home n'en a pas : c'est une landing, pas un
- * menu (QG 6.5). /dossier n'y figure jamais — page non listee.
+ * En-tete du site, home comprise. /dossier n'y figure jamais : page non listee.
  */
 export function SiteHeader() {
   return (

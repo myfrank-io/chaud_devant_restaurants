@@ -18,7 +18,13 @@ CREATE TABLE IF NOT EXISTS subscribers (
   -- (« double opt-in et lien de desinscription des le premier email ») : un
   -- identifiant qui circule dans les URL et les journaux ne fait pas un jeton.
   confirm_token      uuid NOT NULL DEFAULT gen_random_uuid(),
-  unsubscribe_token  uuid NOT NULL DEFAULT gen_random_uuid()
+  unsubscribe_token  uuid NOT NULL DEFAULT gen_random_uuid(),
+
+  -- Consentement distinct de l'inscription elle-meme. S'inscrire vaut accord
+  -- pour recevoir le menu offert — c'est l'objet de la demarche. Recevoir les
+  -- recettes et les nouvelles est autre chose, et se demande a part. Faux par
+  -- defaut : une case pre-cochee ne vaut pas consentement.
+  marketing_opt_in   boolean NOT NULL DEFAULT false
 );
 
 CREATE INDEX IF NOT EXISTS subscribers_city_idx ON subscribers (city);

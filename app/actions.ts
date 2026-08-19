@@ -15,7 +15,7 @@ export async function subscribeAction(
   formData: FormData
 ): Promise<SubscribeState> {
   const email = String(formData.get('email') ?? '').trim().toLowerCase()
-  const city = String(formData.get('city') ?? '').trim()
+  const marketingOptIn = formData.get('nouvelles') === '1'
   const trap = String(formData.get('site-web') ?? '').trim()
 
   // Champ piege, invisible pour un humain : un robot le remplit, on l'ignore
@@ -25,17 +25,11 @@ export async function subscribeAction(
   if (!EMAIL_RE.test(email) || email.length > 254) {
     return { error: "Cette adresse n’a pas l’air d’en être une. Revérifie." }
   }
-  if (city.length < 2) {
-    return { error: "Il nous faut ta ville. C’est elle qui nous dira où ouvrir." }
-  }
-  if (city.length > 80) {
-    return { error: 'Ce nom de ville est un peu long pour être vrai.' }
-  }
 
   let outcome: { alreadyConfirmed: true } | { alreadyConfirmed: false; sent: boolean }
 
   try {
-    const created = await createSubscriber({ email, city })
+    const created = await createSubscriber({ email, marketingOptIn })
 
     if (created.status === 'already_confirmed') {
       outcome = { alreadyConfirmed: true }

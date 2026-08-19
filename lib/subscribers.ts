@@ -12,6 +12,30 @@ export type ConfirmResult =
   | { status: 'already_confirmed' }
   | { status: 'unknown_token' }
 
+/**
+ * Nombre de personnes inscrites, confirmees ou non, desinscrites exclues.
+ *
+ * C'est ce compteur qui s'affiche en page d'accueil. Il compte les inscrits et
+ * non les confirmes : tant qu'aucun mail ne part, personne ne peut confirmer,
+ * et un compteur bloque a zero mentirait davantage sur l'elan reel que le
+ * total brut. Le droit au menu offert, lui, se lit sur confirmed_at — voir
+ * countConfirmed ci-dessous.
+ */
+export async function countInscrits(): Promise<number | null> {
+  const pool = getPool()
+  if (!pool) return null
+
+  try {
+    const { rows } = await pool.query<{ count: string }>(
+      'SELECT count(*) AS count FROM subscribers WHERE unsubscribed_at IS NULL'
+    )
+    return Number(rows[0]?.count ?? 0)
+  } catch (error) {
+    console.error('[subscribers] lecture du compteur impossible', error)
+    return null
+  }
+}
+
 /** Nombre d'inscrits confirmes. null si la base n'est pas joignable. */
 export async function countConfirmed(): Promise<number | null> {
   const pool = getPool()
@@ -40,7 +64,8 @@ export async function countConfirmed(): Promise<number | null> {
  */
 export async function createSubscriber(input: {
   email: string
-  city: string
+  city?: string | null
+  marketingOptIn: boolean
 }): Promise<CreateResult> {
   const pool = getPool()
   if (!pool) throw new Error('DATABASE_URL absent : impossible d\'enregistrer une inscription.')
@@ -51,16 +76,21 @@ export async function createSubscriber(input: {
     confirmed_at: Date | null
     inserted: boolean
   }>(
-    `INSERT INTO subscribers (email, city)
-     VALUES ($1, $2)
+    `INSERT INTO subscribers (email, city, marketing_opt_in)
+     VALUES ($1, $2, $3)
      ON CONFLICT (email) DO UPDATE
        SET city = COALESCE(EXCLUDED.city, subscribers.city),
+           -- Une reinscription qui coche la case ajoute le consentement ; une
+           -- qui ne la coche pas ne retire pas celui deja donne. Se retirer se
+           -- fait par le lien de desinscription, pas par un formulaire rempli
+           -- a la va-vite.
+           marketing_opt_in = subscribers.marketing_opt_in OR EXCLUDED.marketing_opt_in,
            unsubscribed_at = NULL
      RETURNING confirm_token,
                unsubscribe_token,
                confirmed_at,
                (xmax = 0) AS inserted`,
-    [input.email, input.city]
+    [input.email, input.city ?? null, input.marketingOptIn]
   )
 
   const row = rows[0]

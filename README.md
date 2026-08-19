@@ -154,6 +154,25 @@ d'ouverture et les descriptions du futur lieu sont signalés (`lib/garde-fous.ts
 avertissement, jamais un blocage — la règle a déjà connu un écart assumé, et un outil qui refuse
 d'enregistrer force à le contourner.
 
+### Écrire un post depuis une photo
+
+Dans une ligne directrice, « Écrire depuis une photo » ouvre l'appareil photo sur téléphone. La
+photo est réduite à 1568 pixels dans le navigateur avant d'être envoyée — une photo de téléphone
+pèse trois à cinq mégaoctets pour une définition dont le modèle n'exploite rien au-delà, et la
+réduire divise l'attente et le coût sans rien changer à ce qui est lu. Compte environ trois
+centimes par photo.
+
+Le modèle écrit le titre, le format, le hook, le script, le son et la légende. **Il n'écrit pas la
+recette**, et c'est délibéré : une recette déduite d'une photo est une invention plausible — des
+quantités, des temps de cuisson, un tour de main qu'on n'a pas vus. Comme une recette remplie
+paraît toute seule le jour où son post est calé, la lui laisser écrire reviendrait à publier une
+recette inventée sans que personne l'ait relue. La fiche est créée vide ; c'est ce qui l'empêche
+de paraître avant qu'un humain l'écrive.
+
+La charte est dans le prompt système (`lib/redaction.ts`) : les six interdits y figurent en clair,
+et les champs rendus repassent devant les garde-fous de `lib/garde-fous.ts` à l'écran. Sans
+`ANTHROPIC_API_KEY`, le bouton le dit et le reste de l'atelier fonctionne.
+
 La garde de session est posée deux fois, et il le faut : dans `app/atelier/layout.tsx` pour
 l'affichage, et dans chaque action serveur via `exigeLaSession()`. Une action serveur est une URL
 à part entière, appelable sans jamais charger la page qui la contient.
