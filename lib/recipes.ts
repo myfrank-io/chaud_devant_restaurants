@@ -17,10 +17,20 @@ import { getPool } from '@/lib/db'
  */
 
 /**
- * Ce qui est en ligne : une date de parution posee, et deja passee.
+ * Ce qui est en ligne : une date de parution posee, deja passee, et une fiche
+ * qui tient debout.
+ *
+ * La condition de contenu n'est pas un detail de confort. Une fiche est creee
+ * en meme temps que son post, donc vide, et sa date suit celle du post : sans
+ * ce garde-fou, caler un post publierait une page sans ingredients ni etapes.
+ * Mieux vaut ne rien publier qu'une recette qui n'en est pas une.
+ *
  * Une seule definition, partagee par toutes les lectures publiques.
  */
-const EN_LIGNE = 'published_at IS NOT NULL AND published_at <= now()'
+const EN_LIGNE = `published_at IS NOT NULL
+                  AND published_at <= now()
+                  AND cardinality(ingredients) > 0
+                  AND cardinality(steps) > 0`
 
 export type Recipe = {
   id: string
@@ -304,14 +314,70 @@ export async function postQuiPorte(
 }
 
 /** L'etat de parution, tel qu'on l'affiche. */
-export type Parution = 'brouillon' | 'programmee' | 'en-ligne'
+export type Parution = 'brouillon' | 'incomplete' | 'programmee' | 'en-ligne'
 
 export function parution(recette: Recipe): Parution {
   if (!recette.publishedAt) return 'brouillon'
+  if (!estRemplie(recette)) return 'incomplete'
   return recette.publishedAt.getTime() > Date.now() ? 'programmee' : 'en-ligne'
+}
+
+/** Une recette sans ingredients ni etapes n'est pas une recette. */
+export function estRemplie(recette: Recipe): boolean {
+  return recette.ingredients.length > 0 && recette.steps.length > 0
+}
+
+/** Ce qui manque pour qu'elle puisse paraitre. Vide = elle peut. */
+export function ceQuiManque(recette: Recipe): string[] {
+  return [
+    recette.ingredients.length > 0 ? null : 'ingrédients',
+    recette.steps.length > 0 ? null : 'étapes',
+  ].filter((manque): manque is string => manque !== null)
 }
 
 /** AAAA-MM-JJ, ce qu'attend un champ de type date. */
 export function enJour(date: Date | null): string | null {
   return date ? date.toISOString().slice(0, 10) : null
+}
+
+/**
+ * Cree la fiche vide qui accompagne un post, et renvoie son identifiant.
+ *
+ * Un post parle d'un plat ; sa recette doit exister des ce moment-la, sinon
+ * elle s'ecrit la veille au soir ou pas du tout. Elle nait en brouillon : sa
+ * date de parution est posee ensuite, par le calage du post.
+ */
+export async function creeLaFichePourUnPost(titre: string): Promise<string> {
+  const pool = getPool()
+  if (!pool) throw new Error('DATABASE_URL absent : impossible de créer la fiche recette.')
+
+  const { rows } = await pool.query<{ id: string }>(
+    'INSERT INTO recipes (slug, title) VALUES ($1, $2) RETURNING id',
+    [await slugLibre(slugify(titre)), titre]
+  )
+  return rows[0].id
+}
+
+/**
+ * Un slug encore disponible, suffixe si besoin.
+ *
+ * Deux posts peuvent parler du meme plat — la version d'ete et celle d'hiver —
+ * et la colonne est unique. Sans ca, creer le second post echouerait sur une
+ * violation de contrainte, ce qui n'aurait aucun sens a l'ecran.
+ */
+async function slugLibre(souhaite: string): Promise<string> {
+  const pool = getPool()
+  const base = souhaite || 'recette'
+  if (!pool) return base
+
+  const { rows } = await pool.query<{ slug: string }>(
+    "SELECT slug FROM recipes WHERE slug = $1 OR slug LIKE $1 || '-%'",
+    [base]
+  )
+  const pris = new Set(rows.map((ligne) => ligne.slug))
+  if (!pris.has(base)) return base
+
+  let suffixe = 2
+  while (pris.has(`${base}-${suffixe}`)) suffixe += 1
+  return `${base}-${suffixe}`
 }

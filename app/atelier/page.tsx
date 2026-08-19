@@ -100,10 +100,16 @@ export default async function Calendrier({
                         <PastilleFormat format={post.format} />
                         <PastilleStatut statut={post.status} />
                       </span>
-                      {/* Ce jour-la, la recette liee parait sur le site. */}
+                      {/* Ce jour-la, la recette liee parait sur le site — a
+                          condition d'etre remplie. Sinon on le dit ici. */}
                       {post.recipeTitle ? (
-                        <span className="mt-1 block truncate text-[0.7rem] leading-tight text-bois">
-                          → {post.recipeTitle}
+                        <span
+                          className={`mt-1 block truncate text-[0.7rem] leading-tight ${
+                            post.recipePrete ? 'text-bois' : 'text-rouge'
+                          }`}
+                        >
+                          {post.recipePrete ? '→ ' : '⚠ fiche vide : '}
+                          {post.recipeTitle}
                         </span>
                       ) : null}
                     </Link>

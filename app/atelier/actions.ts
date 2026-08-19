@@ -27,6 +27,7 @@ import {
 import { estConnecte, fermeLaSession } from '@/lib/auth'
 import {
   alignerLaParution,
+  creeLaFichePourUnPost,
   creeUneRecette,
   metAJourUneRecette,
   slugify,
@@ -159,6 +160,12 @@ export async function enregistreUnPostAction(formData: FormData): Promise<void> 
   // l'ancienne doit etre relachee, sinon elle resterait programmee par un post
   // qui ne la porte plus.
   const ancienne = id ? (await getPost(id))?.recipeId ?? null : null
+
+  // Un nouveau post ouvre sa fiche recette du meme geste, sauf si on l'a
+  // decoche : tous les posts ne racontent pas un plat.
+  if (!id && !input.recipeId && formData.get('cree_la_fiche') === '1') {
+    input.recipeId = await creeLaFichePourUnPost(input.title)
+  }
 
   if (id) {
     await metAJourUnPost(id, input)
