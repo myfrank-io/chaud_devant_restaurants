@@ -35,6 +35,45 @@ async function testeLaBase(): Promise<{ ok: boolean; detail: string }> {
   }
 }
 
+/**
+ * Ce que la chaine de connexion dit d'elle-meme, mot de passe exclu.
+ *
+ * L'hote et l'utilisateur ne sont pas des secrets, et ce sont eux qui
+ * distinguent « mauvais mot de passe » de « mauvais utilisateur » : le pooler
+ * Supabase attend `postgres.<ref>`, pas `postgres`, et se plaint du mot de
+ * passe dans les deux cas.
+ */
+function decritLaChaine(connectionString: string): { libelle: string; valeur: string; ok: boolean }[] {
+  let url: URL
+  try {
+    url = new URL(connectionString)
+  } catch {
+    return [
+      {
+        libelle: 'Lecture de la chaîne',
+        valeur: 'illisible — un caractère du mot de passe doit être encodé (@ : / ? # %)',
+        ok: false,
+      },
+    ]
+  }
+
+  const utilisateur = decodeURIComponent(url.username)
+  const attendu = utilisateur.includes('.')
+
+  return [
+    {
+      libelle: 'Hôte',
+      valeur: `${url.hostname}:${url.port || '5432'}`,
+      ok: true,
+    },
+    {
+      libelle: 'Utilisateur',
+      valeur: attendu ? utilisateur : `${utilisateur} — le pooler attend postgres.<ref>`,
+      ok: attendu,
+    },
+  ]
+}
+
 export default async function Etat() {
   const base = await testeLaBase()
 
@@ -54,6 +93,7 @@ export default async function Etat() {
       valeur: process.env.DATABASE_URL ? 'présent' : 'absent',
       ok: Boolean(process.env.DATABASE_URL),
     },
+    ...(process.env.DATABASE_URL ? decritLaChaine(process.env.DATABASE_URL) : []),
     {
       libelle: 'Connexion à la base',
       valeur: base.detail,
