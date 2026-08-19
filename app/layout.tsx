@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Fraunces, Inter } from 'next/font/google'
+import { Fraunces, Karla } from 'next/font/google'
 
 import './globals.css'
 import { SITE_DESCRIPTION, SITE_NAME, siteUrl } from '@/lib/site'
@@ -12,9 +12,11 @@ const fraunces = Fraunces({
   display: 'swap',
 })
 
-const inter = Inter({
+// Karla plutot qu'une grotesque d'interface : un peu bancale, chaleureuse,
+// elle ne sonne pas logiciel.
+const karla = Karla({
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-karla',
   display: 'swap',
 })
 
@@ -37,8 +39,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={`${fraunces.variable} ${inter.variable}`}>
-      <body className="bg-creme text-fonte">{children}</body>
+    <html lang="fr" className={`${fraunces.variable} ${karla.variable}`}>
+      <body className="papier text-fonte">{children}</body>
     </html>
   )
 }

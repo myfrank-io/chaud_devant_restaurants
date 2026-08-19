@@ -75,7 +75,7 @@ export default async function Recette({ params }: { params: Promise<{ slug: stri
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <main className="bg-creme px-6 py-12 sm:px-8 sm:py-16">
+      <main className="papier px-6 py-12 sm:px-8 sm:py-16">
         <article className="mx-auto max-w-2xl">
           <Link
             href="/recettes"
@@ -166,7 +166,7 @@ export default async function Recette({ params }: { params: Promise<{ slug: stri
             </p>
           ) : null}
 
-          <aside className="mt-16 rounded-sm border border-fonte/15 bg-creme-sombre p-6">
+          <aside className="mt-16 rounded-sm border border-fonte/15 bg-creme-fonce p-6">
             <p className="font-display text-xl font-bold leading-snug text-fonte">
               Il y en a d&rsquo;autres, et elles arrivent par mail.
             </p>

@@ -43,7 +43,7 @@ export default async function Confirmation({
       </p>
       <p>D&rsquo;ici là, on cuisine. Tu vas nous voir passer.</p>
       {result.status === 'already_confirmed' ? (
-        <p className="text-base text-creme/55">
+        <p className="text-base text-fonte/55">
           Cette inscription était déjà confirmée. Rien de neuf, tout va bien.
         </p>
       ) : null}

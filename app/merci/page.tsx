@@ -50,13 +50,13 @@ export default async function Merci({
 
 function Suivre() {
   return (
-    <ul className="flex flex-wrap gap-4 pt-2">
+    <ul className="flex flex-wrap justify-center gap-4 pt-2">
       {SOCIAL_LINKS.map((lien) => (
         <li key={lien.label}>
           <a
             href={lien.href}
             rel="me noopener"
-            className="rounded-sm border border-creme/25 px-4 py-2 text-base text-creme transition hover:border-creme/60"
+            className="border-2 border-rouge px-4 py-2 font-display text-base text-rouge transition hover:bg-rouge hover:text-creme"
           >
             {lien.label}
           </a>
