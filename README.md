@@ -192,23 +192,39 @@ seule peut atteindre.
 sans date de parution, donc rien ne la met en ligne tant que personne ne lui en donne une.
 
 Ce garde-fou est plus faible que celui qu'on avait tenté : une colonne `reviewed_at` marquant la
-relecture, qui aurait empêché la parution même en cas de calage au calendrier. Elle a été retirée
-faute d'avoir pu appliquer sa migration en production — la déployer sans la colonne avait mis
-`/atelier/recettes` en erreur. À reprendre quand la migration pourra être posée.
+relecture, qui aurait empêché la parution même en cas de calage au calendrier. Elle avait été
+retirée faute de pouvoir appliquer sa migration. Ce n'est plus un obstacle depuis que
+l'application pose son schéma elle-même — la colonne peut revenir quand on le décide.
 
-### Un brouillon écrit ailleurs, ouvert d'un lien
+### Ne pas partir de la page blanche : un lien, ou une photo
 
-La fiche d'un nouveau post accepte ses champs par l'adresse : `titre`, `format`, `hook`, `script`,
-`son_type`, `son`, `caption`, plus `ligne` et `date`.
+Deux chemins mènent à un post rempli. Ils ne remplissent pas les mêmes champs, et c'est voulu.
+
+**Un lien**, depuis l'atelier. Le bouton *Remplir depuis ce lien*, sur `/atelier/post/nouveau`,
+lit le balisage de la page, crée la fiche recette avec ce qu'elle publiait — ingrédients, étapes,
+durées, photo — et rouvre le formulaire avec le titre et la fiche déjà rattachée. Le hook, le
+script, le son et la légende restent vides : un balisage ne contient pas notre voix. La ligne
+directrice et la date du calendrier suivent le lien jusqu'au formulaire.
+
+**Une photo**, par la conversation. On envoie la photo du plat à Claude, il rend une adresse qui
+rouvre le formulaire tout écrit. C'est le seul chemin qui remplit la voix, et il ne coûte rien non
+plus — aucune clé d'API n'est appelée, le travail se fait dans la conversation.
+
+Les deux fiches acceptent leurs champs par l'adresse :
 
 ```
-/atelier/post/nouveau?titre=Le%20gratin%20de%20courge&hook=…&caption=…
+/atelier/post/nouveau?titre=…&format=…&channel=…&status=…&hook=…&script=…
+                     &son_type=…&son=…&caption=…&media_url=…&ligne=…&date=…&recette=…
+/atelier/recettes/nouvelle?titre=…&slug=…&angle=…&categorie=…&prep=…&cuisson=…
+                          &difficulte=…&saisons=automne,hiver&intro=…&ingredients=…&etapes=…
 ```
 
-C'est ainsi qu'un post écrit à partir d'une photo entre dans l'atelier : on envoie la photo à
-Claude dans une conversation, il rend un lien, on l'ouvre sur son téléphone, on relit, on
-enregistre. **Aucune clé d'API, aucune facture** — et rien n'est écrit en base tant qu'on n'a pas
-cliqué sur Enregistrer.
+`intro`, `ingredients` et `etapes` prennent une entrée par ligne ; `saisons` prend des virgules.
+Une valeur inconnue dans un menu déroulant — un `status` qui n'existe pas — est ignorée plutôt
+qu'injectée.
+
+Dans les deux cas **rien n'est écrit en base tant qu'on n'a pas cliqué sur Enregistrer**, et une
+fiche pré-remplie naît sans date de parution : elle ne peut pas paraître toute seule.
 
 La limite est la longueur d'une adresse : un script de plus de mille mots ne passera pas. Au-delà,
 le texte se colle à la main.
