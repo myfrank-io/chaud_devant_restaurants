@@ -51,5 +51,11 @@ Next.js (App Router) + Tailwind · Vercel · Notion comme CMS recettes (ISR) · 
 
 ## État actuel du repo
 
-Page de garde statique (`index.html`) — le nom, rien d'autre. Déployée sur Vercel.
-Le site V1 (Next.js) reste à construire, voir section 6.
+Site V1 en Next.js (App Router) + Tailwind, déployé sur Vercel. Pages en place : `/`,
+`/recettes` et `/recettes/[slug]`, `/le-concept`, `/dossier`, `/merci`, `/confirmation`,
+`/desinscription`, `/mentions-legales`.
+
+Trois branchements manquent avant de rendre le site public — détail dans le README :
+`DATABASE_URL`, `RESEND_API_KEY`, et le PDF du carnet. Deux textes attendent aussi une main
+humaine dans `/mentions-legales` : l'identité de l'éditeur et les conditions des 500 Fondateurs,
+ces dernières devant passer devant un juriste (QG 7.2).

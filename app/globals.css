@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  /* Palette de la charte : rouge fonte, creme, bois, vert bouteille. */
+  --color-fonte: #16110e;
+  --color-fonte-clair: #241b16;
+  --color-rouge: #9a3320;
+  --color-rouge-sombre: #6f2115;
+  --color-rouge-clair: #e08a5c;
+  --color-creme: #f4ede1;
+  --color-creme-sombre: #e4d7c1;
+  --color-bois: #8a6a47;
+  --color-vert: #1e3a2b;
+
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: var(--color-fonte);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Lumiere chaude et laterale, une seule source : la charte visuelle, transposee au web.
+   Sert de fond tant que la vraie photo de cocotte n'est pas livree (voir lib/site.ts). */
+.lumiere-cocotte {
+  background-color: var(--color-fonte);
+  background-image:
+    radial-gradient(ellipse 70% 55% at 22% 18%, rgba(214, 138, 74, 0.34), transparent 62%),
+    radial-gradient(ellipse 60% 50% at 78% 78%, rgba(154, 51, 32, 0.32), transparent 66%),
+    radial-gradient(ellipse 120% 90% at 50% 115%, rgba(10, 7, 5, 0.85), transparent 70%);
+}
+
+/* Grain leger : evite l'aplat numerique, rappelle la matiere. */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.32;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
