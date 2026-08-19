@@ -103,7 +103,90 @@ export function Embleme({ className, title }: { className?: string; title?: stri
   )
 }
 
-/** Le dessin lui-meme, partage par le logotype et l'embleme. */
+/**
+ * Declinaison horizontale. C'est elle qui sert en en-tete, sur une carte de
+ * visite ou une signature : le format portrait ne tient pas dans un bandeau.
+ */
+export function LogoHorizontal({
+  className,
+  title = 'Chaud Devant',
+}: {
+  className?: string
+  title?: string
+}) {
+  return (
+    <svg
+      viewBox="0 0 600 220"
+      role="img"
+      aria-label={title}
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinejoin="round"
+    >
+      <g transform="translate(-59, 14) scale(0.84)">
+        <Cocotte />
+      </g>
+      <path d="M232 42 V178" strokeWidth="2" opacity="0.4" />
+      <g
+        fill="currentColor"
+        stroke="none"
+        fontFamily="var(--font-fraunces), Georgia, 'Times New Roman', serif"
+        fontWeight="900"
+        textAnchor="start"
+      >
+        <text x="262" y="105" fontSize="52" textLength="290" lengthAdjust="spacing">
+          CHAUD
+        </text>
+        <text x="262" y="155" fontSize="46" textLength="290" lengthAdjust="spacing">
+          DEVANT
+        </text>
+        <text
+          x="262"
+          y="190"
+          fontSize="14"
+          fontWeight="700"
+          textLength="160"
+          lengthAdjust="spacing"
+          opacity="0.72"
+        >
+          SINCE 2026
+        </text>
+      </g>
+    </svg>
+  )
+}
+
+/**
+ * Declinaison ronde : la cocotte est evidee dans le disque.
+ *
+ * Une seule couleur d'encre, donc lisible sur n'importe quel fond et
+ * imprimable en une passe. C'est la version des photos de profil et des
+ * favicons, la ou le logotype complet devient une tache.
+ */
+export function Rond({ className, title = 'Chaud Devant' }: { className?: string; title?: string }) {
+  return (
+    <svg
+      viewBox="0 0 400 400"
+      role="img"
+      aria-label={title}
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinejoin="round"
+    >
+      <mask id="cd-rond">
+        <rect x="0" y="0" width="400" height="400" fill="white" />
+        <g fill="none" stroke="black" transform="translate(-14, 76.4) scale(1.07)">
+          <Cocotte />
+        </g>
+      </mask>
+      <circle cx="200" cy="200" r="196" fill="currentColor" stroke="none" mask="url(#cd-rond)" />
+    </svg>
+  )
+}
+
+/** Le dessin lui-meme, partage par toutes les declinaisons. */
 function Cocotte() {
   return (
     <>

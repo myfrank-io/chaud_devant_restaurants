@@ -1,48 +1,50 @@
 # Marques Chaud Devant
 
-La source vit dans le code — `components/Logo.tsx` et `components/Tampon.tsx`.
-Les fichiers de ce dossier en sont des exports, régénérables à tout moment : ne
-les retouchez pas à la main, modifiez le composant.
+Source : `components/Logo.tsx` (logotype, emblème, horizontal, rond) et
+`components/Tampon.tsx`. Les fichiers de ce dossier sont des **exports
+régénérables** — on ne les retouche pas à la main.
 
-## Deux marques, deux rôles
+## Les cinq marques
 
-**Le logotype** est la marque principale : cocotte au couvercle soulevé, logotype
-en deux lignes, millésime. C'est lui partout où la marque se présente.
-
-**Le tampon** est une marque secondaire, dans l'esprit d'un coup de tampon sur un
-carnet de commandes. Il sert là où le logotype ne va pas : un coin de page, un
-sticker, un sceau sur une photo, le dos d'une carte.
-
-Les deux ne s'emploient **jamais ensemble sur un même support**.
-
-## Les fichiers
-
-| Fichier | Usage |
+| Marque | Quand l'utiliser |
 |---|---|
-| `logo-creme-sur-rouge.png` | **Version de référence.** Le négatif tient le mieux en petit |
-| `logo-rouge-sur-creme.png` | Sur fond clair |
-| `logo-creme-sur-fonte.png` | Sur fond brun foncé |
-| `logo-carre-profil.png` | Carré, pour les photos de profil |
-| `chaud-devant-logo.svg` | Vectoriel, pour l'impression |
-| `tampon-creme-sur-rouge.png` | Le tampon, en négatif |
-| `tampon-rouge-sur-creme.png` | Le tampon, sur fond clair |
-| `chaud-devant-tampon.svg` | Le tampon, vectoriel |
-| `tampon-monochrome.svg` | Le tampon en `currentColor`, à colorer soi-même |
+| `logotype` | Par défaut. Partout où la marque se présente |
+| `horizontal` | En-tête de site, carte de visite, signature |
+| `rond` | Photo de profil, favicon, sticker. La cocotte est évidée dans le disque |
+| `embleme` | En dessous de 40 px, et en ornement |
+| `tampon` | Marque secondaire : coin de page, sceau, dos de carte |
 
-Les SVG appellent **Fraunces** (Google Fonts, licence libre) et l'importent
-eux-mêmes : ils s'affichent correctement dans un navigateur. Dans un logiciel de
-création hors ligne, installez la police avant d'ouvrir le fichier, sinon le
-logotype tombera sur une police de substitution.
+Le logotype et le tampon ne s'emploient **jamais ensemble sur un même support**.
+
+## Nommage des fichiers
+
+`png/<marque>-<variante>.png`
+
+**Encres, sur fond transparent** : `-rouge` `-creme` `-fonte` `-noir` `-blanc`
+**Posées sur un aplat** : `-sur-creme` `-sur-rouge` `-sur-fonte`
+
+`svg/<marque>.svg` — vectoriel en rouge, pour l'impression et l'agrandissement.
+
+Choisir l'encre selon le fond, pas selon le goût : `-creme` et `-blanc` sur
+fond sombre, `-rouge` et `-fonte` sur fond clair, `-noir` uniquement pour une
+impression en une seule couleur.
 
 ## Règles d'usage
 
 Zone de protection : au moins la hauteur du mot « CHAUD » tout autour.
 
-Ne pas déformer, ne pas recolorer hors de la palette de la charte.
+**Ne pas redresser le couvercle du logotype, ni remettre le tampon d'aplomb.**
+Ces deux dévers sont le dessin, pas un défaut de tracé.
 
-**Ne pas redresser le couvercle** du logotype ni **remettre le tampon d'aplomb** :
-ces deux dévers sont le dessin, pas un défaut de tracé. C'est la régularité
-parfaite qui trahit une image fabriquée à la chaîne.
+Ne pas déformer, ne pas recolorer hors palette, ne pas poser une marque sur une
+photo chargée sans réserve de couleur derrière.
 
-En dessous de 40 px de large, utiliser l'emblème seul (`Embleme`, dans
-`components/Logo.tsx`) : le logotype et le millésime deviennent illisibles.
+## Régénérer les fichiers
+
+Les SVG et les PNG se rendent depuis les composants React, dans un navigateur,
+pour que la police soit résolue. Le script d'export a besoin d'une page qui
+monte les cinq marques avec un attribut `data-marque` ; elle est créée le temps
+de l'export puis retirée, afin de ne pas partir en production.
+
+Les SVG appellent Fraunces et l'importent depuis Google Fonts : ils s'affichent
+correctement dans un navigateur. Hors ligne, installer la police avant ouverture.
