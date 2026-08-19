@@ -9,8 +9,8 @@ import { COCOTTES_PHOTOS } from '@/lib/site'
 export const metadata: Metadata = {
   title: 'Le concept',
   description:
-    'Des vidéos de cuisine en cocotte, une voix off qui raconte, quatre rendez-vous et des ' +
-    'recettes à refaire chez toi. Et nous, on se prépare à ouvrir des restaurants. C’est tout.',
+    'Des vidéos de cuisine en cocotte, une voix off qui raconte, des recettes à refaire chez ' +
+    'toi. Et un mur de cocottes qui se remplit, pendant qu’on se prépare à ouvrir des restaurants.',
 }
 
 /**
@@ -26,7 +26,6 @@ export default function LeConcept() {
       <SiteHeader />
       <main className="papier">
         <Hero />
-        <RendezVous />
         <Patrimoine />
         <VoixOff />
         <PendantCeTemps />
@@ -68,70 +67,6 @@ function Hero() {
           <div className="mx-auto h-[5px] w-40 bg-rouge-clair/80" />
           <div className="mx-auto h-[3px] w-24 bg-rouge-clair/40" />
         </div>
-      </div>
-    </section>
-  )
-}
-
-function RendezVous() {
-  return (
-    <section className="px-6 py-16 sm:px-8 sm:py-24">
-      <div className="mx-auto max-w-4xl">
-        <p className="font-display text-sm font-bold uppercase tracking-[0.2em] text-bois">
-          Les rendez-vous
-        </p>
-        <h2 className="mt-3 font-display text-3xl font-black leading-tight text-fonte sm:text-4xl">
-          Quatre thèmes. Toujours les mêmes.
-        </h2>
-        <p className="mt-6 max-w-2xl text-lg leading-relaxed text-fonte/75">
-          Pas de tendance suivie au hasard&nbsp;: tout ce qu&rsquo;on publie rentre dans une de
-          ces quatre cases. Comme ça, tu sais pourquoi tu t&rsquo;abonnes.
-        </p>
-
-        <ol className="mt-12 grid gap-10 sm:grid-cols-2 sm:gap-x-12">
-          <li>
-            <span className="font-display text-5xl font-black leading-none text-rouge">1</span>
-            <Filets className="mt-3" />
-            <h3 className="mt-5 font-display text-2xl font-black text-fonte">
-              La cocotte du dimanche
-            </h3>
-            <p className="mt-3 leading-relaxed text-fonte/75">
-              La grande recette mijotée, du début à la levée du couvercle. Celle que tu repères
-              le jeudi pour la réussir le dimanche, quand il y a du monde à table.
-            </p>
-          </li>
-          <li>
-            <span className="font-display text-5xl font-black leading-none text-rouge">2</span>
-            <Filets className="mt-3" />
-            <h3 className="mt-5 font-display text-2xl font-black text-fonte">
-              Les combos de la honte
-            </h3>
-            <p className="mt-3 leading-relaxed text-fonte/75">
-              Les associations qu&rsquo;on fait tous en cachette. Les coquillettes dans le
-              bourguignon, le pain qui saucie. On ne s&rsquo;excuse pas&nbsp;: on revendique.
-            </p>
-          </li>
-          <li>
-            <span className="font-display text-5xl font-black leading-none text-rouge">3</span>
-            <Filets className="mt-3" />
-            <h3 className="mt-5 font-display text-2xl font-black text-fonte">Mémé-tech</h3>
-            <p className="mt-3 leading-relaxed text-fonte/75">
-              Le geste, l&rsquo;astuce, le pourquoi. Pourquoi on farine la viande, comment
-              rattraper une sauce qui a tourné. Trente secondes, et tu sais.
-            </p>
-          </li>
-          <li>
-            <span className="font-display text-5xl font-black leading-none text-rouge">4</span>
-            <Filets className="mt-3" />
-            <h3 className="mt-5 font-display text-2xl font-black text-fonte">
-              Chaud Devant IRL
-            </h3>
-            <p className="mt-3 leading-relaxed text-fonte/75">
-              Les coulisses, sans filtre&nbsp;: les brocantes du samedi matin, les essais, les
-              galères. On construit quelque chose, et on le fait en public.
-            </p>
-          </li>
-        </ol>
       </div>
     </section>
   )
@@ -272,17 +207,15 @@ function PendantCeTemps() {
             Et pendant ce temps
           </p>
           <h2 className="mt-3 font-display text-3xl font-black leading-tight text-creme sm:text-4xl">
-            On se prépare à ouvrir des restaurants. C&rsquo;est tout.
+            On se prépare à ouvrir des restaurants.
           </h2>
           <div className="mt-6 space-y-6 text-lg leading-relaxed text-creme/80">
             <p>
-              Pas de date, pas de ville, pas de grandes annonces. On chine des cocottes et de la
-              vaisselle le samedi matin, on filme ce qu&rsquo;on rapporte, on apprend.
+              Ça commence par le mur des cocottes. Chacune est chinée en brocante — de la
+              fonte, du vécu, des couvercles qui ont déjà beaucoup servi — et gagne sa place une
+              par une.
             </p>
-            <p>
-              Le mur se construit une brocante à la fois. Le jour où tout ça arrive sur une
-              vraie table, tu le sauras avant tout le monde.
-            </p>
+            <p>Tu le verras se remplir dans les vidéos, une trouvaille à la fois.</p>
           </div>
         </div>
 
@@ -311,7 +244,7 @@ function PendantCeTemps() {
             )}
           </div>
           <figcaption className="mt-4 text-center text-sm text-creme/60">
-            Le mur de cocottes, à ce jour. Les cases vides sont honnêtes.
+            Le mur des cocottes, à ce jour.
           </figcaption>
         </figure>
       </div>
@@ -347,7 +280,7 @@ function Invitation() {
           </p>
           <p className="mt-6 text-lg leading-relaxed text-creme/75">
             Laisse ton mail&nbsp;: tu construiras la suite avec nous. Et le jour où on ouvre, tu
-            reçois un menu offert — à utiliser quand ça t&rsquo;arrange.
+            reçois un cadeau&nbsp;: à utiliser quand tu veux.
           </p>
 
           <div className="mx-auto mt-10 max-w-lg border-[3px] border-rouge bg-papier p-1.5 text-left shadow-[6px_6px_0_0_rgba(0,0,0,0.35)]">
