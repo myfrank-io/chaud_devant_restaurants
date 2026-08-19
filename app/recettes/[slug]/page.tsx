@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import { SiteHeader } from '@/components/SiteHeader'
-import { getPublishedRecipes, getRecipeBySlug, isoDuration } from '@/lib/notion'
+import { getPublishedRecipes, getRecipeBySlug, isoDuration } from '@/lib/recipes'
 import { siteUrl } from '@/lib/site'
 
 export const revalidate = 3600

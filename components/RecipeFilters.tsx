@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 
 import { RecipeCardLink } from '@/components/RecipeCardLink'
-import type { RecipeCard } from '@/lib/notion'
+import type { Recipe } from '@/lib/recipes'
 
 const TEMPS = [
   { key: 'court', label: 'Moins de 30 min', test: (m: number) => m < 30 },
@@ -13,7 +13,7 @@ const TEMPS = [
 
 type TempsKey = (typeof TEMPS)[number]['key']
 
-export function RecipeFilters({ recipes }: { recipes: RecipeCard[] }) {
+export function RecipeFilters({ recipes }: { recipes: Recipe[] }) {
   const [category, setCategory] = useState<string | null>(null)
   const [season, setSeason] = useState<string | null>(null)
   const [temps, setTemps] = useState<TempsKey | null>(null)

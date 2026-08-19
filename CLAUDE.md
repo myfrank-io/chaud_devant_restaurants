@@ -33,7 +33,9 @@ Territoire : cocotte, fonte, mijoté, à partager, chez ma grand-mère, le diman
 
 ## Réflexes techniques (section 11.3)
 
-- Tout contenu recette vient de Notion, jamais écrit en dur dans le repo.
+- Tout contenu recette s'écrit dans `/atelier`, jamais en dur dans le repo.
+  → *Écart en vigueur, décidé par Joseph le 19/08 : les recettes vivent en base, pas dans Notion.
+  Notion n'avait jamais été branché. Le principe que la règle protégeait tient : rien en dur.*
 - Le compteur d'inscrits et la carte des villes se lisent dans Postgres, jamais dans Resend.
 - Le droit au menu offert se lit en base : `confirmed_at` renseigné et `unsubscribed_at` nul. Le double opt-in est ce qui l'ouvre — une adresse jamais confirmée n'engage à rien.
 - Balisage `Recipe` schema.org obligatoire sur chaque fiche recette.
@@ -42,8 +44,8 @@ Territoire : cocotte, fonte, mijoté, à partager, chez ma grand-mère, le diman
 
 ## Stack cible (section 6.3)
 
-Next.js (App Router) + Tailwind · Vercel · Notion comme CMS recettes (ISR) · Postgres (Neon/Supabase)
-· Resend + React Email · domaine chauddevant.fr via OVH · Vercel Analytics.
+Next.js (App Router) + Tailwind · Vercel · Postgres (Supabase) pour la liste, les recettes et
+l'atelier · Resend + React Email · domaine chauddevant.fr via OVH · Vercel Analytics.
 
 ## Les deux tests avant de publier (section 11.4)
 

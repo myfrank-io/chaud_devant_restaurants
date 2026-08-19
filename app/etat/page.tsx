@@ -43,7 +43,10 @@ async function testeLaBase(): Promise<{ ok: boolean; detail: string }> {
  * Supabase attend `postgres.<ref>`, pas `postgres`, et se plaint du mot de
  * passe dans les deux cas.
  */
-function decritLaChaine(connectionString: string): { libelle: string; valeur: string; ok: boolean }[] {
+function decritLaChaine(
+  connectionString: string,
+  connexionEchouee: boolean
+): { libelle: string; valeur: string; ok: boolean }[] {
   let url: URL
   try {
     url = new URL(connectionString)
@@ -71,7 +74,41 @@ function decritLaChaine(connectionString: string): { libelle: string; valeur: st
       valeur: attendu ? utilisateur : `${utilisateur} — le pooler attend postgres.<ref>`,
       ok: attendu,
     },
+    // Tant que la connexion echoue, on decrit le mot de passe sans le montrer :
+    // sa longueur et la presence d'espaces suffisent a reperer un copier-coller
+    // tronque ou un saut de ligne colle avec la valeur, qui ne se voient pas
+    // dans le champ de Vercel. La ligne disparait des que la base repond.
+    ...(connexionEchouee ? [decritLeMotDePasse(connectionString, url)] : []),
   ]
+}
+
+function decritLeMotDePasse(
+  connectionString: string,
+  url: URL
+): { libelle: string; valeur: string; ok: boolean } {
+  const motDePasse = decodeURIComponent(url.password)
+  const proprete: string[] = []
+
+  if (connectionString !== connectionString.trim()) {
+    proprete.push('espace ou saut de ligne autour de la valeur entière')
+  }
+  if (motDePasse !== motDePasse.trim()) {
+    proprete.push('espace au début ou à la fin du mot de passe')
+  }
+  if (/\s/.test(motDePasse)) {
+    proprete.push('espace à l’intérieur du mot de passe')
+  }
+  if (!motDePasse) {
+    proprete.push('mot de passe vide')
+  }
+
+  const longueur = `${motDePasse.length} caractères`
+
+  return {
+    libelle: 'Mot de passe envoyé',
+    valeur: proprete.length ? `${longueur} — ${proprete.join(', ')}` : `${longueur}, sans espace`,
+    ok: false,
+  }
 }
 
 export default async function Etat() {
@@ -93,7 +130,7 @@ export default async function Etat() {
       valeur: process.env.DATABASE_URL ? 'présent' : 'absent',
       ok: Boolean(process.env.DATABASE_URL),
     },
-    ...(process.env.DATABASE_URL ? decritLaChaine(process.env.DATABASE_URL) : []),
+    ...(process.env.DATABASE_URL ? decritLaChaine(process.env.DATABASE_URL, !base.ok) : []),
     {
       libelle: 'Connexion à la base',
       valeur: base.detail,

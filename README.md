@@ -54,7 +54,8 @@ devant un juriste avant le lancement.
 |---|---|---|
 | Liste d'inscrits | Postgres, `lib/subscribers.ts` | La liste vit chez nous, pas dans l'outil d'emailing (QG 6.4) |
 | Envoi d'emails | Resend, `lib/email.ts` | Resend n'envoie, il ne stocke pas |
-| Recettes | Notion, `lib/notion.ts` | Aucune double saisie, aucune recette en dur dans le repo |
+| Recettes | Postgres, `lib/recipes.ts` | Écrites dans `/atelier`, aucune recette en dur dans le repo |
+| Atelier | `/login` + `/atelier` | Lignes directrices, posts, idées, recettes — voir plus bas |
 | Textes de marque | `lib/site.ts` | Un seul endroit à relire avant publication |
 
 ### La promesse
@@ -97,3 +98,29 @@ npm run build      # build de production
 npm run typecheck  # TypeScript
 npm run lint       # ESLint
 ```
+
+## L'atelier
+
+`/login` ouvre l'espace privé. Un seul mot de passe partagé, dans `ADMIN_PASSWORD` — pas de
+comptes : on est deux, et un annuaire d'identités serait plus de surface à garder que de
+problème résolu. La clé qui signe la session dérive du mot de passe, donc le changer
+déconnecte tout le monde, ce qu'on veut d'un secret partagé.
+
+Quatre vues sous `/atelier` :
+
+| Vue | À quoi ça sert |
+|---|---|
+| **Calendrier** | Les posts calés, mois par mois. En bas, ceux qui attendent une date. |
+| **À préparer** | Les lignes directrices, chacune un dossier de posts. Ce qui manque à un post se lit dans la liste, sans l'ouvrir. |
+| **Idées** | Une case à cocher par idée. Cocher archive au lieu de supprimer : une idée écartée reste une trace de ce à quoi on a déjà pensé. |
+| **Recettes du site** | Ce qui paraît sur `/recettes`. `published_at` décide seule ; un brouillon n'existe que dans l'atelier. |
+
+Chaque post porte un hook, un script, un son (voix off **ou** musique), une description et un
+format. Les champs de texte se relisent pendant la frappe : le vocabulaire banni, les dates
+d'ouverture et les descriptions du futur lieu sont signalés (`lib/garde-fous.ts`). C'est un
+avertissement, jamais un blocage — la règle a déjà connu un écart assumé, et un outil qui refuse
+d'enregistrer force à le contourner.
+
+La garde de session est posée deux fois, et il le faut : dans `app/atelier/layout.tsx` pour
+l'affichage, et dans chaque action serveur via `exigeLaSession()`. Une action serveur est une URL
+à part entière, appelable sans jamais charger la page qui la contient.
