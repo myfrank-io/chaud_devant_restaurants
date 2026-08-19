@@ -168,22 +168,6 @@ export default async function Recette({ params }: { params: Promise<{ slug: stri
               </a>
             </p>
           ) : null}
-
-          <aside className="mt-16 rounded-sm border border-fonte/15 bg-creme-fonce p-6">
-            <p className="font-display text-xl font-bold leading-snug text-fonte">
-              Il y en a d&rsquo;autres, et elles arrivent par mail.
-            </p>
-            <p className="mt-2 text-base leading-relaxed text-fonte/70">
-              Laisse ton adresse sur la page d&rsquo;accueil : tu reçois la recette du dimanche, et
-              un menu offert le jour où on ouvre.
-            </p>
-            <Link
-              href="/"
-              className="mt-5 inline-block rounded-sm bg-rouge px-5 py-3 font-display text-base font-bold text-creme transition hover:bg-rouge-sombre"
-            >
-              Je laisse mon mail
-            </Link>
-          </aside>
         </article>
       </main>
     </>
