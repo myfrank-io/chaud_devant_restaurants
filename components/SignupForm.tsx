@@ -3,7 +3,8 @@
 import { useActionState } from 'react'
 
 import { subscribeAction } from '@/app/actions'
-import { initialSubscribeState } from '@/lib/subscribe-state'
+import { SOCIAL_LINKS } from '@/lib/site'
+import { initialSubscribeState, type Issue } from '@/lib/subscribe-state'
 
 /**
  * Un champ, un bouton, une case.
@@ -13,6 +14,11 @@ import { initialSubscribeState } from '@/lib/subscribe-state'
  */
 export function SignupForm() {
   const [state, formAction, pending] = useActionState(subscribeAction, initialSubscribeState)
+
+  // Une fois inscrit, le formulaire cede la place au message, au meme endroit.
+  // Changer de page pour trois lignes fait perdre le fil a qui vient de lire
+  // le carton, et ramene au point de depart pour rien.
+  if (state.issue) return <Fait issue={state.issue} />
 
   return (
     <form action={formAction} className="mt-7 space-y-5">
@@ -73,5 +79,47 @@ export function SignupForm() {
         Tu te désinscris en un clic depuis n&rsquo;importe quel mail.
       </p>
     </form>
+  )
+}
+
+const MESSAGES: Record<Issue, { titre: string; texte: string }> = {
+  envoye: {
+    titre: 'Va voir tes mails.',
+    texte:
+      'On vient de t’envoyer un message pour vérifier que cette adresse est bien la tienne. Un clic, et c’est réglé. Regarde dans les indésirables, on n’est jamais à l’abri.',
+  },
+  'sans-mail': {
+    titre: 'C’est noté.',
+    texte:
+      'Ton inscription est enregistrée. Le mail de confirmation part dès que possible — on a un petit souci d’envoi de notre côté, ça ne vient pas de toi.',
+  },
+  connu: {
+    titre: 'Tu y es déjà.',
+    texte: 'Cette adresse est déjà confirmée. Pas besoin de recommencer, ça ne double pas le cadeau.',
+  },
+}
+
+function Fait({ issue }: { issue: Issue }) {
+  const { titre, texte } = MESSAGES[issue]
+
+  return (
+    <div className="mt-7 text-center">
+      <p className="font-display text-2xl font-black leading-tight text-fonte">{titre}</p>
+      <p className="mt-3 text-base leading-relaxed text-fonte/70">{texte}</p>
+
+      <ul className="mt-6 flex flex-wrap justify-center gap-3">
+        {SOCIAL_LINKS.map((lien) => (
+          <li key={lien.label}>
+            <a
+              href={lien.href}
+              rel="me noopener"
+              className="inline-block border-2 border-rouge px-4 py-2 font-display text-base text-rouge transition hover:bg-rouge hover:text-creme"
+            >
+              {lien.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
   )
 }
