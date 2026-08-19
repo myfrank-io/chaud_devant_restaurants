@@ -9,25 +9,27 @@ import { COCOTTES_PHOTOS } from '@/lib/site'
 export const metadata: Metadata = {
   title: 'Le concept',
   description:
-    'La cocotte au milieu de la table, le rituel du couvercle, les hérésies qu’on assume ' +
-    'et le mur de cocottes qui se remplit. L’univers de Chaud Devant.',
+    'Des vidéos de cuisine en cocotte, une voix off qui raconte, quatre rendez-vous et des ' +
+    'recettes à refaire chez toi. Et nous, on se prépare à ouvrir des restaurants. C’est tout.',
 }
 
 /**
- * Page « univers », pas cahier des charges (QG 6.5).
- * Ce qui est interdit ici : une date, une ville, un nombre de couverts, un plan
- * de salle, une véranda ou une cheminée promises, une carte figée.
- * Ce qui est permis : ce qu'on ressent, et ce qui existe déjà pour de vrai.
+ * Page « concept », côté réseaux : ce qu'on publie, comment c'est raconté, et
+ * ce que tu peux en refaire chez toi. Le restaurant n'est pas le sujet — il
+ * tient en une section, sans promesse.
+ * Ce qui reste interdit ici (QG 3.6) : une date, une ville, un nombre de
+ * couverts, un plan de salle, une carte figée. On montre ce qui existe.
  */
 export default function LeConcept() {
   return (
     <>
       <SiteHeader />
       <main className="papier">
-        <Rituel3Temps />
+        <Hero />
+        <RendezVous />
         <Patrimoine />
-        <Heresies />
-        <Decor />
+        <VoixOff />
+        <PendantCeTemps />
         <Invitation />
       </main>
     </>
@@ -35,83 +37,103 @@ export default function LeConcept() {
 }
 
 /** Deux filets de largeur décroissante, le partage horizontal du logo. */
-function Filets({ className = '', couleur = 'bg-rouge' }: { className?: string; couleur?: string }) {
+function Filets({ className = '' }: { className?: string }) {
   return (
     <div aria-hidden="true" className={`space-y-1.5 ${className}`}>
-      <div className={`h-[5px] w-14 ${couleur}`} />
-      <div className={`h-[3px] w-9 ${couleur} opacity-50`} />
+      <div className="h-[5px] w-14 bg-rouge" />
+      <div className="h-[3px] w-9 bg-rouge opacity-50" />
     </div>
   )
 }
 
-function Rituel3Temps() {
+function Hero() {
   return (
-    <>
-      <section className="fonte-chaude grain relative isolate flex min-h-[85svh] flex-col items-center justify-center overflow-hidden px-6 py-20 sm:px-8">
-        <div className="relative mx-auto flex max-w-3xl flex-col items-center text-center">
-          <p className="font-display text-sm font-bold uppercase tracking-[0.3em] text-rouge-clair">
-            Le concept
-          </p>
-          {/* La vapeur de l'emblème est animée : c'est le logo en mouvement. */}
-          <div className="embleme-vivant mt-10">
-            <Embleme className="w-36 text-creme sm:w-44" />
-          </div>
-          <h1 className="mt-8 font-display text-5xl font-black leading-[1.03] text-creme sm:text-7xl">
-            La cocotte au milieu de la table
-          </h1>
-          <p className="mt-8 max-w-xl font-display text-xl leading-snug text-creme/80 sm:text-2xl">
-            On soulève le couvercle, la vapeur monte, et pendant deux secondes personne ne parle.
-            C&rsquo;est ce moment-là qu&rsquo;on construit.
-          </p>
-          <div aria-hidden="true" className="mt-12 space-y-1.5">
-            <div className="mx-auto h-[5px] w-40 bg-rouge-clair/80" />
-            <div className="mx-auto h-[3px] w-24 bg-rouge-clair/40" />
-          </div>
+    <section className="fonte-chaude grain relative isolate flex min-h-[85svh] flex-col items-center justify-center overflow-hidden px-6 py-20 sm:px-8">
+      <div className="relative mx-auto flex max-w-3xl flex-col items-center text-center">
+        <p className="font-display text-sm font-bold uppercase tracking-[0.3em] text-rouge-clair">
+          Le concept
+        </p>
+        {/* La vapeur de l'emblème est animée : c'est le logo en mouvement. */}
+        <div className="embleme-vivant mt-10">
+          <Embleme className="w-36 text-creme sm:w-44" />
         </div>
-      </section>
-
-      <section className="px-6 py-16 sm:px-8 sm:py-24">
-        <div className="mx-auto max-w-4xl">
-          <p className="font-display text-sm font-bold uppercase tracking-[0.2em] text-bois">
-            Le rituel
-          </p>
-          <h2 className="mt-3 font-display text-3xl font-black leading-tight text-fonte sm:text-4xl">
-            Trois temps. Pas un de plus.
-          </h2>
-
-          <ol className="mt-12 grid gap-10 sm:grid-cols-3 sm:gap-8">
-            <li>
-              <span className="font-display text-5xl font-black leading-none text-rouge">1</span>
-              <Filets className="mt-3" />
-              <h3 className="mt-5 font-display text-2xl font-black text-fonte">On pose</h3>
-              <p className="mt-3 leading-relaxed text-fonte/75">
-                La cocotte arrive encore en train de gronder et se pose au milieu, sur le
-                dessous-de-plat qui a déjà tout vu. Quelqu&rsquo;un crie
-                «&nbsp;chaud devant&nbsp;». Forcément.
-              </p>
-            </li>
-            <li>
-              <span className="font-display text-5xl font-black leading-none text-rouge">2</span>
-              <Filets className="mt-3" />
-              <h3 className="mt-5 font-display text-2xl font-black text-fonte">On soulève</h3>
-              <p className="mt-3 leading-relaxed text-fonte/75">
-                Le couvercle fait son clonk de fonte et la vapeur monte droit. C&rsquo;est le seul
-                moment du repas où tout le monde se tait.
-              </p>
-            </li>
-            <li>
-              <span className="font-display text-5xl font-black leading-none text-rouge">3</span>
-              <Filets className="mt-3" />
-              <h3 className="mt-5 font-display text-2xl font-black text-fonte">On se sert</h3>
-              <p className="mt-3 leading-relaxed text-fonte/75">
-                Pas d&rsquo;assiette dressée&nbsp;: une cuillère dans le plat, et tu prends ce que
-                tu veux. Le rab n&rsquo;est pas un accident, c&rsquo;est le principe.
-              </p>
-            </li>
-          </ol>
+        <h1 className="mt-8 font-display text-5xl font-black leading-[1.03] text-creme sm:text-7xl">
+          On cuisine sur Internet
+        </h1>
+        <p className="mt-8 max-w-xl font-display text-xl leading-snug text-creme/80 sm:text-2xl">
+          La cuisine de nos grands-mères, filmée comme en 2026, racontée comme un pote qui
+          déconne. Et à la fin de chaque vidéo, le couvercle se soulève.
+        </p>
+        <div aria-hidden="true" className="mt-12 space-y-1.5">
+          <div className="mx-auto h-[5px] w-40 bg-rouge-clair/80" />
+          <div className="mx-auto h-[3px] w-24 bg-rouge-clair/40" />
         </div>
-      </section>
-    </>
+      </div>
+    </section>
+  )
+}
+
+function RendezVous() {
+  return (
+    <section className="px-6 py-16 sm:px-8 sm:py-24">
+      <div className="mx-auto max-w-4xl">
+        <p className="font-display text-sm font-bold uppercase tracking-[0.2em] text-bois">
+          Les rendez-vous
+        </p>
+        <h2 className="mt-3 font-display text-3xl font-black leading-tight text-fonte sm:text-4xl">
+          Quatre thèmes. Toujours les mêmes.
+        </h2>
+        <p className="mt-6 max-w-2xl text-lg leading-relaxed text-fonte/75">
+          Pas de tendance suivie au hasard&nbsp;: tout ce qu&rsquo;on publie rentre dans une de
+          ces quatre cases. Comme ça, tu sais pourquoi tu t&rsquo;abonnes.
+        </p>
+
+        <ol className="mt-12 grid gap-10 sm:grid-cols-2 sm:gap-x-12">
+          <li>
+            <span className="font-display text-5xl font-black leading-none text-rouge">1</span>
+            <Filets className="mt-3" />
+            <h3 className="mt-5 font-display text-2xl font-black text-fonte">
+              La cocotte du dimanche
+            </h3>
+            <p className="mt-3 leading-relaxed text-fonte/75">
+              La grande recette mijotée, du début à la levée du couvercle. Celle que tu repères
+              le jeudi pour la réussir le dimanche, quand il y a du monde à table.
+            </p>
+          </li>
+          <li>
+            <span className="font-display text-5xl font-black leading-none text-rouge">2</span>
+            <Filets className="mt-3" />
+            <h3 className="mt-5 font-display text-2xl font-black text-fonte">
+              Les combos de la honte
+            </h3>
+            <p className="mt-3 leading-relaxed text-fonte/75">
+              Les associations qu&rsquo;on fait tous en cachette. Les coquillettes dans le
+              bourguignon, le pain qui saucie. On ne s&rsquo;excuse pas&nbsp;: on revendique.
+            </p>
+          </li>
+          <li>
+            <span className="font-display text-5xl font-black leading-none text-rouge">3</span>
+            <Filets className="mt-3" />
+            <h3 className="mt-5 font-display text-2xl font-black text-fonte">Mémé-tech</h3>
+            <p className="mt-3 leading-relaxed text-fonte/75">
+              Le geste, l&rsquo;astuce, le pourquoi. Pourquoi on farine la viande, comment
+              rattraper une sauce qui a tourné. Trente secondes, et tu sais.
+            </p>
+          </li>
+          <li>
+            <span className="font-display text-5xl font-black leading-none text-rouge">4</span>
+            <Filets className="mt-3" />
+            <h3 className="mt-5 font-display text-2xl font-black text-fonte">
+              Chaud Devant IRL
+            </h3>
+            <p className="mt-3 leading-relaxed text-fonte/75">
+              Les coulisses, sans filtre&nbsp;: les brocantes du samedi matin, les essais, les
+              galères. On construit quelque chose, et on le fait en public.
+            </p>
+          </li>
+        </ol>
+      </div>
+    </section>
   )
 }
 
@@ -161,10 +183,10 @@ function Patrimoine() {
 
       <div className="mx-auto max-w-4xl px-6 sm:px-8">
         <p className="mt-10 max-w-2xl text-lg leading-relaxed text-fonte/75">
-          Des plats qui ont mijoté trois heures et qu&rsquo;on pose au centre, pas des assiettes
-          dressées à la pince. Tout le monde les a mangés chez sa grand-mère. Presque plus
-          personne ne sait les refaire. C&rsquo;est exactement pour ça qu&rsquo;on les filme — et
-          qu&rsquo;on te donne les recettes.
+          Des plats que tout le monde a mangés chez sa grand-mère et que presque plus personne
+          n&rsquo;ose refaire. C&rsquo;est pourtant fait pour être refait&nbsp;: dans les vidéos,
+          les quantités s&rsquo;écrivent à l&rsquo;écran, et sur le site, chaque recette est
+          posée en entier. Chez toi, sans école de cuisine.
         </p>
         <Link
           href="/recettes"
@@ -177,49 +199,46 @@ function Patrimoine() {
   )
 }
 
-function Heresies() {
+function VoixOff() {
   return (
     <section className="overflow-hidden px-6 py-16 sm:px-8 sm:py-24">
       <div className="mx-auto max-w-4xl">
         <p className="font-display text-sm font-bold uppercase tracking-[0.2em] text-bois">
-          Les combos de la honte
+          La voix off
         </p>
         <h2 className="mt-3 font-display text-3xl font-black leading-tight text-fonte sm:text-4xl">
-          On assume les hérésies
+          On raconte, on ne dicte pas
         </h2>
         <p className="mt-6 max-w-2xl text-lg leading-relaxed text-fonte/75">
-          Il y a la cuisine du dimanche. Et il y a ce qu&rsquo;on fait tous quand la sauce est
-          trop bonne. Ici, on ne s&rsquo;excuse pas&nbsp;: on revendique.
+          Pas de chef qui t&rsquo;explique la vie. Une voix qui raconte ce qui se passe dans la
+          cocotte — et qui vanne, mais jamais toi.
         </p>
 
         <ul className="mt-14 grid gap-8 sm:grid-cols-3 sm:gap-6">
           {[
             {
-              titre: 'Les coquillettes dans le bourguignon',
-              vanne: 'Reste. Tu vas comprendre.',
+              replique:
+                'On part sur un truc simple. Enfin, simple… il y a trois heures de cuisson, mais c’est simple.',
               rotation: '-rotate-2',
             },
             {
-              titre: 'Le pain qui saucie',
-              vanne: 'Si tu mets pas ton pain dans la sauce, on n’a rien à se dire.',
+              replique: 'Là, normalement, il faut attendre. Personne n’attend. Moi non plus.',
               rotation: 'rotate-1',
             },
             {
-              titre: 'Le fromage râpé',
-              vanne: 'Sur des trucs qui n’en demandaient pas. Personne n’a porté plainte.',
+              replique: 'C’est pas beau. C’est bon. C’est pas pareil.',
               rotation: '-rotate-1',
             },
-          ].map((combo) => (
+          ].map((extrait) => (
             <li
-              key={combo.titre}
-              className={`${combo.rotation} border-[3px] border-rouge bg-papier p-1.5 shadow-[6px_6px_0_0_var(--color-creme-fonce)] transition-transform duration-300 hover:rotate-0`}
+              key={extrait.replique}
+              className={`${extrait.rotation} border-[3px] border-rouge bg-papier p-1.5 shadow-[6px_6px_0_0_var(--color-creme-fonce)] transition-transform duration-300 hover:rotate-0`}
             >
-              <div className="flex h-full flex-col justify-between gap-4 border border-rouge/30 px-5 py-7 text-center">
-                <p className="font-display text-2xl font-black leading-tight text-fonte">
-                  {combo.titre}
+              <blockquote className="flex h-full flex-col justify-center border border-rouge/30 px-5 py-8 text-center">
+                <p className="font-display text-xl font-black leading-snug text-fonte">
+                  «&nbsp;{extrait.replique}&nbsp;»
                 </p>
-                <p className="text-sm leading-relaxed text-fonte/65">{combo.vanne}</p>
-              </div>
+              </blockquote>
             </li>
           ))}
         </ul>
@@ -244,27 +263,25 @@ const MUR: ({ couleur: string; rotation: string } | 'vide' | 'a-chiner')[] = [
   'a-chiner',
 ]
 
-function Decor() {
+function PendantCeTemps() {
   return (
     <section className="bg-vert px-6 py-16 sm:px-8 sm:py-24">
       <div className="mx-auto grid max-w-4xl gap-12 lg:grid-cols-[1fr_minmax(0,20rem)] lg:items-center">
         <div>
           <p className="font-display text-sm font-bold uppercase tracking-[0.2em] text-creme/55">
-            Le décor
+            Et pendant ce temps
           </p>
           <h2 className="mt-3 font-display text-3xl font-black leading-tight text-creme sm:text-4xl">
-            Du bordel, mais du bordel rangé
+            On se prépare à ouvrir des restaurants. C&rsquo;est tout.
           </h2>
           <div className="mt-6 space-y-6 text-lg leading-relaxed text-creme/80">
             <p>
-              Du bois, de la faïence ancienne, des saladiers art déco et des cocottes qui ont
-              déjà nourri trois générations. On chine le samedi matin, pour de vrai, et on filme
-              ce qu&rsquo;on rapporte.
+              Pas de date, pas de ville, pas de grandes annonces. On chine des cocottes et de la
+              vaisselle le samedi matin, on filme ce qu&rsquo;on rapporte, on apprend.
             </p>
             <p>
-              Rien n&rsquo;est un décor d&rsquo;architecte&nbsp;: tout ce qu&rsquo;on montre
-              existe déjà, quelque part chez nous. Le reste, tu le verras se construire en
-              public, une trouvaille à la fois.
+              Le mur se construit une brocante à la fois. Le jour où tout ça arrive sur une
+              vraie table, tu le sauras avant tout le monde.
             </p>
           </div>
         </div>
@@ -294,7 +311,7 @@ function Decor() {
             )}
           </div>
           <figcaption className="mt-4 text-center text-sm text-creme/60">
-            Le mur de cocottes se remplit une brocante à la fois.
+            Le mur de cocottes, à ce jour. Les cases vides sont honnêtes.
           </figcaption>
         </figure>
       </div>
