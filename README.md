@@ -170,24 +170,22 @@ seule peut atteindre.
 tient ce garde-fou : nul tant que personne n'a ouvert la fiche et enregistré, et une recette non
 relue ne paraît jamais — même calée, même remplie. Enregistrer vaut relecture.
 
-### Écrire un post depuis une photo
+### Un brouillon écrit ailleurs, ouvert d'un lien
 
-Dans une ligne directrice, « Écrire depuis une photo » ouvre l'appareil photo sur téléphone. La
-photo est réduite à 1568 pixels dans le navigateur avant d'être envoyée — une photo de téléphone
-pèse trois à cinq mégaoctets pour une définition dont le modèle n'exploite rien au-delà, et la
-réduire divise l'attente et le coût sans rien changer à ce qui est lu. Compte environ trois
-centimes par photo.
+La fiche d'un nouveau post accepte ses champs par l'adresse : `titre`, `format`, `hook`, `script`,
+`son_type`, `son`, `caption`, plus `ligne` et `date`.
 
-Le modèle écrit le titre, le format, le hook, le script, le son et la légende. **Il n'écrit pas la
-recette**, et c'est délibéré : une recette déduite d'une photo est une invention plausible — des
-quantités, des temps de cuisson, un tour de main qu'on n'a pas vus. Comme une recette remplie
-paraît toute seule le jour où son post est calé, la lui laisser écrire reviendrait à publier une
-recette inventée sans que personne l'ait relue. La fiche est créée vide ; c'est ce qui l'empêche
-de paraître avant qu'un humain l'écrive.
+```
+/atelier/post/nouveau?titre=Le%20gratin%20de%20courge&hook=…&caption=…
+```
 
-La charte est dans le prompt système (`lib/redaction.ts`) : les six interdits y figurent en clair,
-et les champs rendus repassent devant les garde-fous de `lib/garde-fous.ts` à l'écran. Sans
-`ANTHROPIC_API_KEY`, le bouton le dit et le reste de l'atelier fonctionne.
+C'est ainsi qu'un post écrit à partir d'une photo entre dans l'atelier : on envoie la photo à
+Claude dans une conversation, il rend un lien, on l'ouvre sur son téléphone, on relit, on
+enregistre. **Aucune clé d'API, aucune facture** — et rien n'est écrit en base tant qu'on n'a pas
+cliqué sur Enregistrer.
+
+La limite est la longueur d'une adresse : un script de plus de mille mots ne passera pas. Au-delà,
+le texte se colle à la main.
 
 La garde de session est posée deux fois, et il le faut : dans `app/atelier/layout.tsx` pour
 l'affichage, et dans chaque action serveur via `exigeLaSession()`. Une action serveur est une URL
