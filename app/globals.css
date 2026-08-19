@@ -55,6 +55,35 @@ body {
     radial-gradient(ellipse 60% 50% at 85% 85%, rgba(181, 58, 36, 0.28), transparent 66%);
 }
 
+/* La vapeur du logo, en mouvement. C'est la signature visuelle de la marque
+   (QG 2) : le couvercle qu'on souleve et la vapeur qui monte. Les trois filets
+   montent en boucle, decales, et disparaissent avant de reapparaitre en bas —
+   la boucle est invisible parce que l'opacite est nulle aux deux bouts. */
+.embleme-vivant svg > g:first-of-type path {
+  transform-box: fill-box;
+  animation: vapeur-monte 3.6s ease-in-out infinite;
+}
+.embleme-vivant svg > g:first-of-type path:nth-of-type(2) { animation-delay: 1.2s; }
+.embleme-vivant svg > g:first-of-type path:nth-of-type(3) { animation-delay: 2.2s; }
+
+@keyframes vapeur-monte {
+  0%   { opacity: 0; transform: translateY(7px); }
+  35%  { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(-9px); }
+}
+
+/* Le defile des plats : deux pistes identiques bout a bout, chacune glisse de
+   sa propre largeur. Quand la premiere sort, la seconde est exactement a sa
+   place — la boucle ne se voit pas. */
+.defile { display: flex; overflow: hidden; }
+.defile-piste {
+  display: flex;
+  flex-shrink: 0;
+  min-width: 100%;
+  animation: defile 44s linear infinite;
+}
+@keyframes defile { to { transform: translateX(-100%); } }
+
 .grain::after {
   content: "";
   position: absolute;
@@ -71,4 +100,8 @@ body {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+  /* Une duree quasi nulle fige les boucles sur leur premiere image, ou la
+     vapeur est a opacite zero : on coupe l'animation pour retrouver le dessin
+     d'origine, immobile mais complet. */
+  .embleme-vivant svg > g:first-of-type path { animation: none !important; }
 }
