@@ -15,9 +15,6 @@ export const metadata: Metadata = {
 // Rien ici ne doit etre mis en cache : le contenu depend du cookie de session.
 export const dynamic = 'force-dynamic'
 
-// Rediger un post depuis une photo demande un aller-retour au modele, qui prend
-// plus que les dix secondes accordees par defaut a une fonction serverless.
-export const maxDuration = 60
 
 const ONGLETS = [
   { href: '/atelier', libelle: 'Calendrier' },

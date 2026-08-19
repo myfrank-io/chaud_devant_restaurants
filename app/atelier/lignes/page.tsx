@@ -2,7 +2,6 @@ import Link from 'next/link'
 
 import { BaseAbsente } from '@/components/atelier/BaseAbsente'
 import { Bouton } from '@/components/atelier/Champs'
-import { DepuisUnePhoto } from '@/components/atelier/DepuisUnePhoto'
 import { PastilleFormat, PastilleStatut } from '@/components/atelier/Pastille'
 import { listeLesLignes, tousLesPosts, type Ligne, type Post } from '@/lib/atelier'
 import { isDatabaseConfigured } from '@/lib/db'
@@ -179,8 +178,7 @@ function Dossier({ ligne, posts }: { ligne: Ligne; posts: Post[] }) {
         </div>
       </header>
 
-      <div className="space-y-4 px-4 pb-4 pt-4">
-        <DepuisUnePhoto ligneId={ligne.id} />
+      <div className="px-4 pb-4">
         <ListePosts posts={posts} />
       </div>
     </section>
