@@ -41,7 +41,13 @@ if (hote.includes('pooler.supabase.com') && port !== '6543') {
   console.warn(`\nAttention : port ${port}. Le pooler transactionnel, celui qui convient au serverless, ecoute sur 6543.`)
 }
 
-const client = new Client({ connectionString: url, connectionTimeoutMillis: 10_000 })
+// Meme reglage TLS que lib/db.ts : Supabase signe avec sa propre autorite.
+const supabase = /\.supabase\.(com|co)$/.test(hote)
+const client = new Client({
+  connectionString: url,
+  ssl: supabase ? { rejectUnauthorized: false } : undefined,
+  connectionTimeoutMillis: 10_000,
+})
 
 try {
   await client.connect()
@@ -63,6 +69,8 @@ try {
     console.error('Mot de passe refuse.')
   } else if (error.code === '42P01') {
     console.error("La table subscribers n'existe pas dans cette base. Applique db/schema.sql.")
+  } else if (error.code === 'SELF_SIGNED_CERT_IN_CHAIN') {
+    console.error('Certificat non verifiable. Ajoute ?sslmode=require a la fin de la chaine.')
   } else if (error.message.includes('Tenant or user not found')) {
     console.error("Le pooler ne connait pas ce projet : mauvais numero de pool (aws-0 / aws-1) ou")
     console.error("nom d'utilisateur incomplet — il doit valoir postgres.<ref>, pas postgres.")
