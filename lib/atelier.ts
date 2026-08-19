@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { getPool } from '@/lib/db'
+import { basePrete } from '@/lib/db'
 
 /**
  * Lignes directrices et posts.
@@ -135,7 +135,7 @@ function versPost(ligne: LignePost): Post {
 /* -------------------------------------------------------------- lignes --- */
 
 export async function listeLesLignes(): Promise<Ligne[]> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) return []
 
   const { rows } = await pool.query<{
@@ -154,7 +154,7 @@ export async function listeLesLignes(): Promise<Ligne[]> {
 }
 
 export async function creeUneLigne(name: string, intention: string | null): Promise<void> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) throw new Error('DATABASE_URL absent : impossible de créer une ligne.')
 
   await pool.query(
@@ -169,7 +169,7 @@ export async function metAJourUneLigne(
   name: string,
   intention: string | null
 ): Promise<void> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) throw new Error('DATABASE_URL absent : impossible de modifier une ligne.')
   await pool.query('UPDATE lignes SET name = $1, intention = $2 WHERE id = $3', [
     name,
@@ -179,7 +179,7 @@ export async function metAJourUneLigne(
 }
 
 export async function archiveUneLigne(id: string, archivee: boolean): Promise<void> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) throw new Error('DATABASE_URL absent : impossible d\'archiver une ligne.')
   await pool.query('UPDATE lignes SET archived_at = CASE WHEN $1 THEN now() END WHERE id = $2', [
     archivee,
@@ -188,7 +188,7 @@ export async function archiveUneLigne(id: string, archivee: boolean): Promise<vo
 }
 
 export async function supprimeUneLigne(id: string): Promise<void> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) throw new Error('DATABASE_URL absent : impossible de supprimer une ligne.')
   // Les posts ne suivent pas : ON DELETE SET NULL les laisse remonter dans les
   // posts sans ligne plutot que de les faire disparaitre avec le dossier.
@@ -199,7 +199,7 @@ export async function supprimeUneLigne(id: string): Promise<void> {
 
 /** Tous les posts, ranges par ligne. C'est la vue « ce qu'on doit préparer ». */
 export async function tousLesPosts(): Promise<Post[]> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) return []
 
   const { rows } = await pool.query<LignePost>(
@@ -211,7 +211,7 @@ export async function tousLesPosts(): Promise<Post[]> {
 
 /** Les posts cales sur un mois donne. `mois` au format AAAA-MM. */
 export async function postsDuMois(mois: string): Promise<Post[]> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) return []
 
   const { rows } = await pool.query<LignePost>(
@@ -224,7 +224,7 @@ export async function postsDuMois(mois: string): Promise<Post[]> {
 }
 
 export async function getPost(id: string): Promise<Post | null> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) return null
 
   const { rows } = await pool.query<LignePost>(`SELECT ${SELECTION} ${JOINTURES} WHERE p.id = $1`, [
@@ -250,7 +250,7 @@ export type PostInput = {
 }
 
 export async function creeUnPost(input: PostInput): Promise<string> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) throw new Error('DATABASE_URL absent : impossible d\'enregistrer un post.')
 
   const { rows } = await pool.query<{ id: string }>(
@@ -264,7 +264,7 @@ export async function creeUnPost(input: PostInput): Promise<string> {
 }
 
 export async function metAJourUnPost(id: string, input: PostInput): Promise<void> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) throw new Error('DATABASE_URL absent : impossible d\'enregistrer un post.')
 
   await pool.query(
@@ -278,14 +278,14 @@ export async function metAJourUnPost(id: string, input: PostInput): Promise<void
 }
 
 export async function supprimeUnPost(id: string): Promise<void> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) throw new Error('DATABASE_URL absent : impossible de supprimer un post.')
   await pool.query('DELETE FROM posts WHERE id = $1', [id])
 }
 
 /** Caler ou decaler un post sans rouvrir sa fiche. */
 export async function caleUnPost(id: string, jour: string | null): Promise<void> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) throw new Error('DATABASE_URL absent : impossible de caler un post.')
   await pool.query('UPDATE posts SET scheduled_on = $1, updated_at = now() WHERE id = $2', [
     jour,
@@ -322,7 +322,7 @@ export type Idee = {
 }
 
 export async function listeLesIdees(): Promise<Idee[]> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) return []
 
   const { rows } = await pool.query<{ id: string; texte: string; archived_at: Date | null }>(
@@ -335,14 +335,14 @@ export async function listeLesIdees(): Promise<Idee[]> {
 }
 
 export async function creeUneIdee(texte: string): Promise<void> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) throw new Error('DATABASE_URL absent : impossible d\'ajouter une idée.')
   await pool.query('INSERT INTO idees (texte) VALUES ($1)', [texte])
 }
 
 /** Cocher archive, decocher remet dans la liste. */
 export async function archiveUneIdee(id: string, archivee: boolean): Promise<void> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) throw new Error('DATABASE_URL absent : impossible de modifier une idée.')
   await pool.query('UPDATE idees SET archived_at = CASE WHEN $1 THEN now() END WHERE id = $2', [
     archivee,
@@ -351,7 +351,7 @@ export async function archiveUneIdee(id: string, archivee: boolean): Promise<voi
 }
 
 export async function supprimeUneIdee(id: string): Promise<void> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) throw new Error('DATABASE_URL absent : impossible de supprimer une idée.')
   await pool.query('DELETE FROM idees WHERE id = $1', [id])
 }
