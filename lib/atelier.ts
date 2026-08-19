@@ -53,6 +53,8 @@ export type Post = {
   ligneName: string | null
   recipeId: string | null
   recipeTitle: string | null
+  /** null s'il n'y a pas de recette liee. false = elle ne peut pas paraitre. */
+  recipePrete: boolean | null
   title: string
   channel: string
   format: Format
@@ -73,6 +75,7 @@ type LignePost = {
   ligne_name: string | null
   recipe_id: string | null
   recipe_title: string | null
+  recipe_prete: boolean | null
   title: string
   channel: string
   format: string
@@ -89,7 +92,11 @@ type LignePost = {
 // scheduled_on est une date sans fuseau. La lire en texte evite qu'un serveur
 // en UTC et un navigateur en Europe/Paris ne tombent pas d'accord sur le jour.
 const SELECTION = `p.id, p.ligne_id, l.name AS ligne_name, p.recipe_id,
-                   r.title AS recipe_title, p.title, p.channel, p.format, p.hook,
+                   r.title AS recipe_title,
+                   -- Une fiche sans ingredients ni etapes ne paraitra pas, meme
+                   -- calee : le dire ici evite de le decouvrir le jour J.
+                   (cardinality(r.ingredients) > 0 AND cardinality(r.steps) > 0) AS recipe_prete,
+                   p.title, p.channel, p.format, p.hook,
                    p.script, p.son_type, p.son, p.caption, p.media_url,
                    p.scheduled_on::text AS scheduled_on, p.status`
 
@@ -108,6 +115,7 @@ function versPost(ligne: LignePost): Post {
     ligneName: ligne.ligne_name,
     recipeId: ligne.recipe_id,
     recipeTitle: ligne.recipe_title,
+    recipePrete: ligne.recipe_prete,
     title: ligne.title,
     channel: ligne.channel,
     format: dans(FORMATS, ligne.format, 'reel'),

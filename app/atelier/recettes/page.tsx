@@ -2,14 +2,17 @@ import Link from 'next/link'
 
 import { BaseAbsente } from '@/components/atelier/BaseAbsente'
 import { isDatabaseConfigured } from '@/lib/db'
-import { listeToutesLesRecettes } from '@/lib/recipes'
+import { ceQuiManque, enJour, listeToutesLesRecettes, parution } from '@/lib/recipes'
+import { jourEnToutesLettres } from '@/lib/mois'
 
 export default async function Recettes() {
   if (!isDatabaseConfigured()) return <BaseAbsente />
 
   const recettes = await listeToutesLesRecettes()
-  const brouillons = recettes.filter((recette) => !recette.publishedAt)
-  const publiees = recettes.filter((recette) => recette.publishedAt)
+  const brouillons = recettes.filter((recette) => parution(recette) === 'brouillon')
+  const aFinir = recettes.filter((recette) => parution(recette) === 'incomplete')
+  const programmees = recettes.filter((recette) => parution(recette) === 'programmee')
+  const publiees = recettes.filter((recette) => parution(recette) === 'en-ligne')
 
   return (
     <>
@@ -34,9 +37,9 @@ export default async function Recettes() {
         </p>
       ) : null}
 
-      {brouillons.length > 0 ? (
-        <Groupe titre="Brouillons" recettes={brouillons} />
-      ) : null}
+      {aFinir.length > 0 ? <Groupe titre="À finir — elles ne paraîtront pas" recettes={aFinir} /> : null}
+      {programmees.length > 0 ? <Groupe titre="Programmées" recettes={programmees} /> : null}
+      {brouillons.length > 0 ? <Groupe titre="Brouillons" recettes={brouillons} /> : null}
       {publiees.length > 0 ? <Groupe titre="En ligne" recettes={publiees} /> : null}
     </>
   )
@@ -56,10 +59,10 @@ function Groupe({
         {recettes.map((recette) => {
           // Ce qui empêcherait la fiche d'être présentable, listé ici plutôt
           // que découvert en la relisant sur le site.
+          // Ce qui bloque la parution passe devant ; le reste est du confort.
+          const bloquant = ceQuiManque(recette)
           const manques = [
             recette.cover ? null : 'photo',
-            recette.ingredients.length > 0 ? null : 'ingrédients',
-            recette.steps.length > 0 ? null : 'étapes',
             recette.minutes ? null : 'durée',
           ].filter(Boolean)
 
@@ -72,6 +75,14 @@ function Groupe({
                 <span className="font-display text-lg text-fonte">{recette.title}</span>
                 {recette.category ? (
                   <span className="text-sm text-fonte/50">{recette.category}</span>
+                ) : null}
+                {bloquant.length > 0 ? (
+                  <span className="text-sm text-rouge">sans {bloquant.join(', ')}</span>
+                ) : null}
+                {parution(recette) === 'programmee' ? (
+                  <span className="text-sm text-bois">
+                    paraît le {jourEnToutesLettres(enJour(recette.publishedAt)!)}
+                  </span>
                 ) : null}
                 {manques.length > 0 ? (
                   <span className="text-xs uppercase tracking-wider text-fonte/35">

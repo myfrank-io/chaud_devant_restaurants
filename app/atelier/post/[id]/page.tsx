@@ -153,16 +153,41 @@ export default async function FichePost({
               valeur={post?.scheduledOn ?? date}
               aide="Vide tant que ce n’est pas calé."
             />
-            <Choix
-              nom="recipe_id"
-              libelle="Recette du site liée"
-              valeur={post?.recipeId}
-              vide="— aucune —"
-              options={recettes.map((r) => ({
-                valeur: r.id,
-                libelle: r.publishedAt ? r.title : `${r.title} (brouillon)`,
-              }))}
-            />
+            <div>
+              <Choix
+                nom="recipe_id"
+                libelle="Recette du site liée"
+                valeur={post?.recipeId}
+                vide="— aucune —"
+                options={recettes.map((r) => ({
+                  valeur: r.id,
+                  libelle: r.publishedAt ? r.title : `${r.title} (brouillon)`,
+                }))}
+              />
+              <p className="mt-1.5 text-sm text-fonte/55">
+                Elle paraîtra sur le site le jour où ce post est calé. Pas besoin d’y revenir.
+              </p>
+
+              {/* Seulement a la creation : ensuite la fiche existe, ou on a
+                  choisi de s'en passer, et reposer la question serait du bruit. */}
+              {nouveau ? (
+                <label className="mt-2 flex items-start gap-2 text-sm text-fonte">
+                  <input
+                    type="checkbox"
+                    name="cree_la_fiche"
+                    value="1"
+                    defaultChecked
+                    className="mt-0.5 size-4 accent-[var(--color-rouge)]"
+                  />
+                  <span>
+                    Ouvrir sa fiche recette maintenant, avec ce titre.{' '}
+                    <span className="text-fonte/50">
+                      Décoche si ce post ne raconte pas un plat.
+                    </span>
+                  </span>
+                </label>
+              ) : null}
+            </div>
           </div>
 
           <Texte
