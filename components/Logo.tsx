@@ -16,7 +16,22 @@
  * `textLength` : c'est ce qui donne le bloc compact du style, que « CHAUD » et
  * « DEVANT » n'auraient jamais eu a chasse naturelle.
  */
-export function Logo({ className, title = 'Chaud Devant' }: { className?: string; title?: string }) {
+export function Logo({
+  className,
+  title = 'Chaud Devant',
+  mention = 'since',
+}: {
+  className?: string
+  title?: string
+  /**
+   * Mention de millesime. `since` est la version du site : rien n'est ouvert,
+   * et « Restaurants » affirmerait le contraire. `restaurants` existe pour les
+   * supports ou la marque se presente comme une maison de restauration.
+   */
+  mention?: 'since' | 'restaurants'
+}) {
+  const millesime = mention === 'restaurants' ? 'RESTAURANTS SINCE 2026' : 'SINCE 2026'
+
   return (
     <svg
       viewBox="0 0 400 440"
@@ -51,13 +66,13 @@ export function Logo({ className, title = 'Chaud Devant' }: { className?: string
         <text
           x="200"
           y="408"
-          fontSize="14"
-          textLength="128"
+          fontSize={mention === 'restaurants' ? 13 : 14}
+          textLength={mention === 'restaurants' ? 196 : 128}
           lengthAdjust="spacing"
           fontWeight="700"
           opacity="0.72"
         >
-          SINCE 2026
+          {millesime}
         </text>
       </g>
 
