@@ -49,6 +49,45 @@ export type Options = {
   emojiInterdits?: boolean
 }
 
+/**
+ * Le tic a chasser : « X. Y. Z. T. » — quatre bouts secs a la suite.
+ *
+ * Chaque morceau respecte « phrases courtes » (QG 11.2) et l'ensemble sonne
+ * quand meme faux, parce que personne ne parle comme ca a un pote. L'oral
+ * avance d'un souffle, avec des liaisons, et la chute tombe a la fin.
+ *
+ * Le seuil est a quatre, pas a trois : la punchline maison — « C'est pas beau.
+ * C'est bon. C'est pas pareil. » — en compte trois et c'est du Chaud Devant,
+ * pas du remplissage. On compte par ligne, sinon une conduite de tournage,
+ * qui est une suite de lignes courtes par construction, se ferait signaler
+ * pour rien.
+ */
+const HACHE_MINIMUM = 4
+const HACHE_LONGUEUR = 30
+
+function phrasesHachees(texte: string): string[] {
+  const trouves: string[] = []
+
+  for (const ligne of texte.split('\n')) {
+    const bouts = ligne
+      .split(/(?<=[.!?])\s+/)
+      .map((bout) => bout.trim())
+      .filter(Boolean)
+
+    let suite: string[] = []
+    for (const bout of [...bouts, '']) {
+      if (bout && bout.length <= HACHE_LONGUEUR && /[.!?]$/.test(bout)) {
+        suite.push(bout)
+        continue
+      }
+      if (suite.length >= HACHE_MINIMUM) trouves.push(suite.join(' '))
+      suite = []
+    }
+  }
+
+  return trouves
+}
+
 export function verifie(texte: string, options: Options = {}): Alerte[] {
   if (!texte.trim()) return []
 
@@ -66,6 +105,10 @@ export function verifie(texte: string, options: Options = {}): Alerte[] {
   for (const { motif, expression } of [...PROMESSES_DE_DATE, ...DESCRIPTIONS_DU_LIEU]) {
     const trouve = expression.exec(texte)
     if (trouve) alertes.push({ motif, extrait: trouve[0].trim() })
+  }
+
+  for (const extrait of phrasesHachees(texte)) {
+    alertes.push({ motif: 'phrasé haché — ça se dit, ça ne se récite pas', extrait })
   }
 
   if (options.emojiInterdits) {

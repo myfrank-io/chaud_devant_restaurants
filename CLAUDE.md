@@ -31,6 +31,29 @@ Pas d'emoji dans les textes de site.
 
 Territoire : cocotte, fonte, mijoté, à partager, chez ma grand-mère, le dimanche, généreux, régressif, franc.
 
+### Interdit de forme : le phrasé haché
+
+**Jamais de « X. Y. Z. T. »** — quatre bouts secs à la suite, dans quoi que ce soit de généré
+pour ce projet : texte de site, légende, email, hook, script, message. C'est le tic d'écriture
+qui trahit une machine, et il passe entre les gouttes parce que chaque morceau respecte
+« phrases courtes ».
+
+```
+✗ 6 ingrédients. Compte-les. Il y en a 6. C'est tout.
+✓ J'ai compté trois fois parce que j'y croyais pas, mais ouais, 6 ingrédients.
+```
+
+On écrit comme on parle à un pote : **une phrase d'un souffle, la chute au bout**, avec des
+liaisons — « et », « mais », « alors », « franchement », « en vrai ». La vanne tombe à la fin,
+pas à chaque point.
+
+Le seuil est à quatre et pas à trois : la punchline maison — « C'est pas beau. C'est bon. C'est
+pas pareil. » — en compte trois, et c'est du Chaud Devant. Trois temps voulus, ça se garde ;
+quatre bouts alignés par réflexe, jamais.
+
+`lib/garde-fous.ts` le signale à l'écran, au même titre que le vocabulaire banni. C'est un
+avertissement, pas un blocage — mais pour du texte généré, la règle est absolue.
+
 ## Réflexes techniques (section 11.3)
 
 - Tout contenu recette s'écrit dans `/atelier`, jamais en dur dans le repo.
