@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import { Cocotte } from '@/components/Cocotte'
+import { Embleme } from '@/components/Logo'
 import type { RecipeCard } from '@/lib/notion'
 
 /** Carte de recette, partagee par la home et le hub : une seule mise en forme a maintenir. */
@@ -17,7 +17,7 @@ export function RecipeCardLink({ recipe }: { recipe: RecipeCard }) {
         <img src={recipe.cover} alt="" loading="lazy" className="aspect-[4/5] w-full object-cover" />
       ) : (
         <div className="nappe flex aspect-[4/5] w-full items-center justify-center">
-          <Cocotte className="w-1/2 text-papier" />
+          <Embleme className="w-1/2 text-papier" />
         </div>
       )}
       <div className="border-t-2 border-fonte/15 p-5">
