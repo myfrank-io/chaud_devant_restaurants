@@ -4,21 +4,29 @@ import Link from 'next/link'
 import { Embleme, Logo } from '@/components/Logo'
 import { RecipeCardLink } from '@/components/RecipeCardLink'
 import { SignupForm } from '@/components/SignupForm'
+import { SiteHeader } from '@/components/SiteHeader'
 import { getLatestRecipes } from '@/lib/recipes'
 import { HERO_IMAGE, SOCIAL_LINKS } from '@/lib/site'
+import { countInscrits } from '@/lib/subscribers'
 
-export const revalidate = 3600
+// Une minute : le compteur d'inscrits est le seul contenu qui bouge vite, et
+// une page servie depuis le cache reste plus rapide qu'une page recalculee a
+// chaque visite. Personne ne verra la difference entre « live » et « il y a
+// cinquante secondes ».
+export const revalidate = 60
 
 export default async function Home() {
-  const recipes = await getLatestRecipes(6)
+  const [recipes, inscrits] = await Promise.all([getLatestRecipes(6), countInscrits()])
 
   return (
-    <main>
-      <Nappe />
-      <Hero />
-      <Contenu recipes={recipes} />
-      <Pied />
-    </main>
+    <>
+      <SiteHeader />
+      <main>
+        <Hero inscrits={inscrits} />
+        <Contenu recipes={recipes} />
+        <Pied />
+      </main>
+    </>
   )
 }
 
@@ -27,7 +35,7 @@ function Nappe({ className = '' }: { className?: string }) {
   return <div aria-hidden="true" className={`nappe h-4 w-full ${className}`} />
 }
 
-function Hero() {
+function Hero({ inscrits }: { inscrits: number | null }) {
   return (
     <section className="papier grain relative isolate overflow-hidden px-6 py-16 sm:px-8 sm:py-24">
       {HERO_IMAGE ? (
@@ -55,17 +63,36 @@ function Hero() {
             <p className="text-center font-display text-3xl font-black leading-[1.05] text-fonte sm:text-4xl">
               Le jour où on ouvre,
               <br />
-              tu manges offert.
+              c&rsquo;est nous qui régalons.
             </p>
             <p className="mt-4 text-center text-base leading-relaxed text-fonte/70">
-              Laisse ton mail. On t&rsquo;envoie un menu offert le jour de l&rsquo;ouverture, à
-              utiliser quand tu veux.
+              Laisse ton mail, c&rsquo;est tout. Le jour de l&rsquo;ouverture, tu reçois un menu
+              offert — à utiliser quand ça t&rsquo;arrange.
             </p>
             <SignupForm />
+            <Compteur inscrits={inscrits} />
           </div>
         </div>
       </div>
     </section>
+  )
+}
+
+/**
+ * Le compteur ne s'affiche que s'il a quelque chose a dire : base injoignable
+ * ou liste vide, il disparait. Un « 0 inscrit » affiche fierement fait le
+ * contraire de ce qu'un compteur est cense faire.
+ */
+function Compteur({ inscrits }: { inscrits: number | null }) {
+  if (!inscrits) return null
+
+  return (
+    <p className="mt-6 border-t border-fonte/10 pt-4 text-center text-sm text-fonte/55">
+      <span className="font-display text-base font-bold text-rouge">
+        {inscrits.toLocaleString('fr-FR')}
+      </span>{' '}
+      {inscrits > 1 ? 'ont déjà laissé leur mail' : 'a déjà laissé son mail'}.
+    </p>
   )
 }
 
