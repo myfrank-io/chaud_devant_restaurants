@@ -137,6 +137,11 @@ Quatre vues sous `/atelier` :
 | **Idées** | Une case à cocher par idée. Cocher archive au lieu de supprimer : une idée écartée reste une trace de ce à quoi on a déjà pensé. |
 | **Recettes du site** | Ce qui paraît sur `/recettes`. `published_at` décide seule ; un brouillon n'existe que dans l'atelier. |
 
+Un post porte un titre, une ligne directrice, un format, un statut, un hook, un script, un son,
+une légende, une date et un média. **Pas de réseau** : on publie sur les deux, donc le demander
+post par post ne répondait à aucune question qu'on se posait. La colonne `channel` reste en base
+avec ce qu'elle contenait — on ne jette pas des données pour retirer un champ d'un formulaire.
+
 ### La fiche recette naît avec le post
 
 Créer un post ouvre sa fiche recette du même geste, avec le même titre, en brouillon. Une case
@@ -202,18 +207,28 @@ Deux chemins mènent à un post rempli. Ils ne remplissent pas les mêmes champs
 
 **Un lien**, depuis l'atelier. Le bouton *Remplir depuis ce lien*, sur `/atelier/post/nouveau`,
 lit le balisage de la page, crée la fiche recette avec ce qu'elle publiait — ingrédients, étapes,
-durées, photo — et rouvre le formulaire avec le titre et la fiche déjà rattachée. Le hook, le
-script, le son et la légende restent vides : un balisage ne contient pas notre voix. La ligne
+durées, photo — et rouvre le formulaire dessus, **hook, conduite et légende compris**. La ligne
 directrice et la date du calendrier suivent le lien jusqu'au formulaire.
 
+Ces trois champs ne sortent pas d'un modèle : [`lib/brouillon.ts`](./lib/brouillon.ts) met en
+forme ce que la page donnait déjà. Le hook part du fait le plus fort disponible — une cuisson
+longue, une liste d'ingrédients courte, un nombre d'étapes ridicule ; la conduite convertit les
+étapes en plans ; la légende se construit sur des faits, jamais sur les phrases du site d'origine,
+parce que c'est elle qui part en public. Deux règles tiennent le fichier : **rien n'est promis**
+(aucun gabarit ne parle d'ouverture, de date, de ville ni du lieu) et **rien n'est inventé** (un
+gabarit qui aurait besoin d'un chiffre absent n'est pas choisi ; à défaut, le champ dit ce qu'il
+reste à écrire). Le même plat rend toujours le même brouillon.
+
+C'est un point de départ, pas un texte fini, et les deux écrans le disent.
+
 **Une photo**, par la conversation. On envoie la photo du plat à Claude, il rend une adresse qui
-rouvre le formulaire tout écrit. C'est le seul chemin qui remplit la voix, et il ne coûte rien non
+rouvre le formulaire tout écrit. C'est le chemin qui écrit vraiment, et il ne coûte rien non
 plus — aucune clé d'API n'est appelée, le travail se fait dans la conversation.
 
 Les deux fiches acceptent leurs champs par l'adresse :
 
 ```
-/atelier/post/nouveau?titre=…&format=…&channel=…&status=…&hook=…&script=…
+/atelier/post/nouveau?titre=…&format=…&status=…&hook=…&script=…
                      &son_type=…&son=…&caption=…&media_url=…&ligne=…&date=…&recette=…
 /atelier/recettes/nouvelle?titre=…&slug=…&angle=…&categorie=…&prep=…&cuisson=…
                           &difficulte=…&saisons=automne,hiver&intro=…&ingredients=…&etapes=…

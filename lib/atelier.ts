@@ -30,7 +30,6 @@ export const LIBELLE_FORMAT: Record<Format, string> = {
   story: 'Story',
 }
 
-export const CANAUX = ['instagram', 'tiktok', 'youtube'] as const
 
 export const SONS = ['voix', 'musique'] as const
 export type Son = (typeof SONS)[number]
@@ -56,7 +55,6 @@ export type Post = {
   /** null s'il n'y a pas de recette liee. false = elle ne peut pas paraitre. */
   recipePrete: boolean | null
   title: string
-  channel: string
   format: Format
   hook: string | null
   script: string | null
@@ -77,7 +75,6 @@ type LignePost = {
   recipe_title: string | null
   recipe_prete: boolean | null
   title: string
-  channel: string
   format: string
   hook: string | null
   script: string | null
@@ -96,7 +93,7 @@ const SELECTION = `p.id, p.ligne_id, l.name AS ligne_name, p.recipe_id,
                    -- Une fiche sans ingredients ni etapes ne paraitra pas, meme
                    -- calee : le dire ici evite de le decouvrir le jour J.
                    (cardinality(r.ingredients) > 0 AND cardinality(r.steps) > 0) AS recipe_prete,
-                   p.title, p.channel, p.format, p.hook,
+                   p.title, p.format, p.hook,
                    p.script, p.son_type, p.son, p.caption, p.media_url,
                    p.scheduled_on::text AS scheduled_on, p.status`
 
@@ -117,7 +114,6 @@ function versPost(ligne: LignePost): Post {
     recipeTitle: ligne.recipe_title,
     recipePrete: ligne.recipe_prete,
     title: ligne.title,
-    channel: ligne.channel,
     format: dans(FORMATS, ligne.format, 'reel'),
     hook: ligne.hook,
     script: ligne.script,
@@ -237,7 +233,6 @@ export type PostInput = {
   ligneId: string | null
   recipeId: string | null
   title: string
-  channel: string
   format: Format
   hook: string | null
   script: string | null
@@ -254,9 +249,9 @@ export async function creeUnPost(input: PostInput): Promise<string> {
   if (!pool) throw new Error('DATABASE_URL absent : impossible d\'enregistrer un post.')
 
   const { rows } = await pool.query<{ id: string }>(
-    `INSERT INTO posts (ligne_id, recipe_id, title, channel, format, hook, script,
+    `INSERT INTO posts (ligne_id, recipe_id, title, format, hook, script,
                         son_type, son, caption, media_url, scheduled_on, status)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
      RETURNING id`,
     valeurs(input)
   )
@@ -269,10 +264,10 @@ export async function metAJourUnPost(id: string, input: PostInput): Promise<void
 
   await pool.query(
     `UPDATE posts
-        SET ligne_id = $1, recipe_id = $2, title = $3, channel = $4, format = $5,
-            hook = $6, script = $7, son_type = $8, son = $9, caption = $10,
-            media_url = $11, scheduled_on = $12, status = $13, updated_at = now()
-      WHERE id = $14`,
+        SET ligne_id = $1, recipe_id = $2, title = $3, format = $4,
+            hook = $5, script = $6, son_type = $7, son = $8, caption = $9,
+            media_url = $10, scheduled_on = $11, status = $12, updated_at = now()
+      WHERE id = $13`,
     [...valeurs(input), id]
   )
 }
@@ -298,7 +293,6 @@ function valeurs(input: PostInput) {
     input.ligneId,
     input.recipeId,
     input.title,
-    input.channel,
     input.format,
     input.hook,
     input.script,
