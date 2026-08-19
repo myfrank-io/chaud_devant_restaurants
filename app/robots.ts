@@ -7,9 +7,10 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      // /dossier est non listee ; les trois autres sont des pages de parcours
-      // qui n'ont aucune raison de remonter dans une recherche.
-      disallow: ['/atelier', '/dossier', '/etat', '/login', '/merci', '/confirmation', '/desinscription'],
+      // /dossier, /etat et /atelier ne sont pas listees ; les deux dernieres
+      // sont des pages de parcours qui n'ont aucune raison de remonter dans
+      // une recherche.
+      disallow: ['/atelier', '/dossier', '/etat', '/login', '/confirmation', '/desinscription'],
     },
     sitemap: `${siteUrl()}/sitemap.xml`,
   }
