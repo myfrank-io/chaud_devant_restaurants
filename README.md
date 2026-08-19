@@ -214,9 +214,10 @@ Ces trois champs ne sortent pas d'un modèle : [`lib/brouillon.ts`](./lib/brouil
 forme ce que la page donnait déjà, **au format de la bible** (QG 4.2, 4.3, 4.5).
 
 - **Le hook** part du fait le plus fort disponible — une cuisson longue, une liste courte, une
-  liste à rallonge, un nombre d'étapes ridicule — et l'assume dans la voix de la maison plutôt que
-  de l'annoncer platement. Un mijoté de trois heures à six ingrédients, la forme du pilier héros,
-  a dix tournures possibles : sans ça, tous les jeudis se ressembleraient.
+  liste à rallonge, un nombre d'étapes ridicule — et le raconte comme on le dirait à un pote :
+  « Alors oui c'est 3 h 30 de cuisson, mais tu fais quoi de mieux un dimanche. » Un mijoté de trois
+  heures à six ingrédients, la forme du pilier héros, a dix tournures possibles : sans ça, tous les
+  jeudis se ressembleraient.
 - **La conduite** suit l'anatomie du Reel, minutage compris : hook à 0-3 s sur le couvercle qu'on
   soulève, promesse à 3-10 s, étapes coupées serré, « chaud devant » quand la cocotte arrive sur la
   table, punchline de fin, plan fixe muet qui fait reboucler la lecture auto.
@@ -228,7 +229,8 @@ Quatre règles tiennent le fichier :
 
 | Règle | Ce que ça donne |
 |---|---|
-| **La vanne ne vise jamais le lecteur** (QG 4.2, règle 4) | « Je me suis quand même loupé la première fois », pas « tu peux pas te louper » |
+| **Ça se dit, ça ne se récite pas** | Une phrase d'un souffle avec la chute au bout, pas « X. Y. Z. » — trois bouts secs à la suite sonnent faux même quand chacun respecte « phrases courtes » |
+| **La vanne ne vise jamais le lecteur** (QG 4.2, règle 4) | « Je me suis quand même planté la première fois », pas « tu peux pas te louper » |
 | **Rien n'est promis** | Aucun gabarit ne parle d'ouverture, de date, de ville ni du lieu |
 | **Rien n'est inventé** | Un gabarit qui aurait besoin d'un chiffre absent n'est pas proposé ; sans aucun chiffre, le champ dit ce qu'il reste à écrire |
 | **Aucun article devant le nom du plat** | Le genre d'un nom français ne se devine pas, et « le tarte » se voit tout de suite |

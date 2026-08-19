@@ -59,47 +59,51 @@ export function brouillonDePost(recette: RecetteImportee): Brouillon {
 /* ------------------------------------------------------------------ hook --- */
 
 /**
- * Les trois premieres secondes. Une phrase, pas deux (QG 4.3).
+ * Les trois premieres secondes (QG 4.3).
  *
- * On rassemble tous les gabarits dont les conditions sont remplies, puis on en
- * tire un. Les combinaisons passent devant : « 3 h de cuisson. 4 ingredients.
- * Zero technique. » dit plus que chacune de ses moities.
+ * Le piege, c'est le rythme hache : « 6 ingredients. Compte-les. Il y en a 6.
+ * C'est tout. » Chaque morceau est court, la charte dit « phrases courtes », et
+ * pourtant ca sonne faux — parce que personne ne parle comme ca a un pote.
+ * L'oral avance d'un souffle, avec des « et », des « mais », des « genre », et
+ * la vanne tombe a la fin, pas a chaque point.
  *
- * Aucun chiffre disponible — aucun gabarit ne se declenche : le champ dit ce
- * qu'il reste a ecrire. Un hook est une affirmation, et on n'affirme pas a la
- * place de quelqu'un qui n'a pas les faits.
+ * Donc : une phrase qui se dit en respirant une fois, la chute au bout. Les
+ * gabarits ci-dessous sont ecrits pour etre lus a voix haute — si ca coince
+ * dans la bouche, ca coince a l'ecran.
+ *
+ * On rassemble tous ceux dont les conditions sont remplies, puis on en tire un.
+ * Aucun chiffre disponible, aucun gabarit : le champ dit ce qu'il reste a
+ * ecrire. Un hook est une affirmation, et on n'affirme pas a la place de
+ * quelqu'un qui n'a pas les faits.
  */
 function hook(recette: RecetteImportee, dose: number): string {
   const { minutes, ingredients, etapes } = recette
   const combles = ingredients.length
   const gestes = etapes.length
+  const temps = minutes === null ? '' : duree(minutes)
 
   const candidats: string[] = []
 
   // Le mijote : la duree est le sujet, et on l'assume au lieu de s'en excuser.
   if (minutes !== null && minutes >= 120) {
-    // La combinaison dit plus que chacune de ses moities. Elle reste un
-    // gabarit parmi les autres : le pilier heros a toujours cette forme —
-    // cuisson longue, liste courte — et le mettre devant en ferait le meme
-    // hook toutes les semaines.
     if (combles > 0 && combles <= 6) {
       candidats.push(
-        `${duree(minutes)} de cuisson. ${combles} ingrédients. Zéro technique.`,
-        `${combles} ingrédients, ${duree(minutes)}, une cocotte. Fin de la liste.`
+        `${combles} ingrédients, ${temps} de cuisson, et rien d’autre à faire qu’attendre.`,
+        `${temps} de cuisson pour ${combles} ingrédients, franchement le rapport est indécent.`
       )
     }
     candidats.push(
-      `On part sur un truc simple. Enfin, simple : ${duree(minutes)} de cuisson. Mais simple.`,
-      `${duree(minutes)} de cuisson. Tu fais quoi pendant ce temps-là ? Rien. C’est ça le luxe.`,
-      `${duree(minutes)}. Non, il n’y a pas de version rapide. J’ai cherché pour toi.`,
-      `Ta grand-mère faisait ça sans thermomètre et sans minuteur. Nous, il nous faut ${duree(minutes)}.`
+      `Alors oui c’est ${temps} de cuisson, mais tu fais quoi de mieux un dimanche.`,
+      `${temps} au four et t’as juste à pas y toucher, le plat le plus fainéant du monde.`,
+      `Non j’ai pas de version express, j’ai cherché, c’est ${temps} ou rien.`,
+      `Ta grand-mère faisait ça sans minuteur et sans chaleur tournante, nous on galère avec ${temps}.`
     )
   }
 
   if (combles > 0 && combles <= 6) {
     candidats.push(
-      `${combles} ingrédients. Compte-les. Il y en a ${combles}. C’est tout.`,
-      `${combles} ingrédients, et ça met la moitié des restos d’accord. Je pèse mes mots.`
+      `${combles} ingrédients et t’as un truc qui met la moitié des restos au chômage.`,
+      `J’ai compté trois fois parce que j’y croyais pas, mais ouais, ${combles} ingrédients.`
     )
   }
 
@@ -107,31 +111,30 @@ function hook(recette: RecetteImportee, dose: number): string {
   // excuse a presenter.
   if (combles >= 12) {
     candidats.push(
-      `${combles} ingrédients. Oui, ça fait beaucoup. Non, on n’en enlève aucun.`,
-      `${combles} ingrédients. On a essayé d’en virer. On a arrêté d’essayer.`
+      `On a essayé d’enlever des trucs de la liste, on s’est fâchés, on a gardé les ${combles}.`,
+      `Ouais y’a ${combles} ingrédients, et non on peut rien enlever, j’ai déjà essayé.`
     )
   }
 
   if (gestes > 0 && gestes <= 4) {
-    candidats.push(`${gestes} étapes. Je me suis quand même loupé la première fois.`)
-    // « Une étape qui consiste à ne rien faire » : vrai quand il y a une
-    // attente, faux sur une omelette. On ne le propose que s'il y a de quoi
-    // attendre.
+    candidats.push(`${gestes} étapes et je me suis quand même planté la première fois, donc bon.`)
+    // « Une etape ou tu ne fais rien » : vrai quand il y a une attente, faux
+    // sur une omelette. On ne le propose que s'il y a de quoi attendre.
     if (minutes !== null && minutes >= 60) {
-      candidats.push(`${gestes} étapes, dont une où tu ne fais rien. C’est ma préférée.`)
+      candidats.push(`${gestes} étapes dont une où t’as littéralement rien à faire, ma préférée.`)
     }
   }
 
   if (minutes !== null && minutes <= 30) {
     candidats.push(
-      `${duree(minutes)}. Le temps de mettre la table.`,
-      `${duree(minutes)} montre en main. La livraison met plus longtemps.`
+      `${temps} chrono, le temps que les autres finissent de choisir sur l’appli de livraison.`,
+      `${temps} montre en main, j’ai fait la course avec un livreur et je l’ai eu.`
     )
   }
 
   return candidats.length
     ? choisit(dose, candidats)
-    : 'À écrire : la phrase qui empêche de scroller. Une seule, pas deux.'
+    : 'À écrire : le truc qui fait qu’on scrolle pas. Une phrase, pas trois.'
 }
 
 /* ---------------------------------------------------------------- script --- */
@@ -156,25 +159,25 @@ function script(recette: RecetteImportee, dose: number): string {
         restantes > 0
           ? `  (+ ${restantes} étape${restantes > 1 ? 's' : ''}, dans la fiche recette.)`
           : null,
-        '  → Une vanne toutes les 8-10 s. Les quantités à l’écran, pas dans la voix.',
-        '  → Les étapes viennent du site d’origine. Redis-les avec tes mots.',
+        '  → Une vanne toutes les 8-10 s, et les quantités à l’écran plutôt que dans la voix.',
+        '  → Ces étapes viennent du site d’origine, redis-les avec tes mots avant de tourner.',
       ].filter((ligne) => ligne !== null)
     : ['  À écrire : les étapes, un plan chacune, jamais plus de 3 s.']
 
   return [
-    '0-3 s — Le plat fini. On soulève le couvercle, la vapeur monte.',
-    '  → Le hook, celui d’au-dessus. Une phrase.',
+    '0-3 s — Le plat fini, on soulève le couvercle et la vapeur monte.',
+    '  → Le hook d’au-dessus, tel quel. Une phrase, pas trois.',
     '',
-    '3-10 s — Retour au début. Les ingrédients posés sur le bois.',
-    '  → La promesse : ce qu’on va manger, et pourquoi ça vaut le coup.',
+    '3-10 s — Retour au début, les ingrédients posés sur le bois.',
+    '  → Tu dis ce qu’on va manger et pourquoi ça vaut le détour.',
     '',
     '10-45 s — Les étapes, coupées serré.',
     ...etapes,
     '',
-    '45-60 s — La cocotte sur la table. Les mains qui se servent.',
+    '45-60 s — La cocotte sur la table, les mains qui se servent dedans.',
     `  → « Chaud devant. » Puis : ${punchline(dose)}`,
     '',
-    'Fin — Plan fixe du plat, 1,5 s. Silence. C’est là que ça reboucle.',
+    'Fin — Plan fixe sur le plat, 1,5 s, silence. C’est là que ça reboucle tout seul.',
   ].join('\n')
 }
 
@@ -210,8 +213,7 @@ function caption(recette: RecetteImportee, plat: string, dose: number): string {
   if (minutes !== null) faits.push(`${duree(minutes)} de cuisson`)
 
   const morceaux: (string | null)[] = [
-    `${majuscule(plat)}.`,
-    faits.length ? `${majuscule(faits.join(', '))}.` : null,
+    faits.length ? `${majuscule(plat)} — ${faits.join(', ')}.` : `${majuscule(plat)}.`,
   ]
 
   if (ingredients.length > 0) {
@@ -234,10 +236,10 @@ function caption(recette: RecetteImportee, plat: string, dose: number): string {
 /** Fermee, toujours : c'est ce qui fait descendre en commentaires. */
 function question(dose: number): string {
   return choisit(dose, [
-    'Team pain dans la sauce, ou team assiette qui brille ?',
-    'Fonte ou inox ? Réponds, c’est important.',
-    'Tu le fais comme ça toi, ou pas du tout comme ça ?',
-    'Le lendemain c’est meilleur : vrai ou faux ?',
+    'Team pain dans la sauce ou team assiette qui brille ? Faut choisir.',
+    'Fonte ou inox ? Attention, y’a une bonne réponse.',
+    'Toi tu fais pareil ou t’as ta version à toi ?',
+    'Meilleur réchauffé le lendemain : vrai ou faux ?',
   ])
 }
 
