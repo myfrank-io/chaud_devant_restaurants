@@ -69,6 +69,10 @@ export default async function FicheRecette({
   )
   const prerempli = Boolean(donne.ingredients || donne.etapes || donne.angle)
 
+  // Meme raison que sur la fiche d'un post : sans cette cle, arriver ici par
+  // une redirection depuis la meme adresse laisserait les champs tels quels.
+  const cle = new URLSearchParams(donne as Record<string, string>).toString()
+
   const recette: Recipe | null = nouvelle ? null : await getRecipeById(id)
   if (!nouvelle && !recette) notFound()
 
@@ -110,7 +114,7 @@ export default async function FicheRecette({
         </p>
       ) : null}
 
-      <form action={enregistreUneRecetteAction} className="mt-7 space-y-8 pb-16">
+      <form key={cle} action={enregistreUneRecetteAction} className="mt-7 space-y-8 pb-16">
         {recette ? <input type="hidden" name="id" value={recette.id} /> : null}
 
         <section className="space-y-5">

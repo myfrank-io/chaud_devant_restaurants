@@ -6,7 +6,6 @@ import { Bouton, Choix, Texte } from '@/components/atelier/Champs'
 import { ChampRelu } from '@/components/atelier/ChampRelu'
 import { DepuisUnLien } from '@/components/atelier/DepuisUnLien'
 import {
-  CANAUX,
   FORMATS,
   getPost,
   LIBELLE_FORMAT,
@@ -47,7 +46,6 @@ type Prerempli = {
   retour?: string
   titre?: string
   format?: string
-  channel?: string
   status?: string
   hook?: string
   script?: string
@@ -83,6 +81,16 @@ export default async function FichePost({
   const retourVers = retour ?? '/atelier/lignes'
   const prerempli = Boolean(donne.hook || donne.script || donne.caption)
 
+  /**
+   * Remonter le formulaire quand le pre-remplissage change.
+   *
+   * On arrive ici par une redirection depuis la meme adresse, donc React
+   * reconcilie au lieu de remonter : un champ non controle garde la valeur
+   * qu'il avait au montage, et l'etat interne d'un champ relu encore plus.
+   * Sans cette cle, l'import remplissait l'adresse et laissait l'ecran vide.
+   */
+  const cle = new URLSearchParams(donne as Record<string, string>).toString()
+
   return (
     <>
       <Link
@@ -99,7 +107,8 @@ export default async function FichePost({
       {nouveau && prerempli ? (
         <p className="mt-3 max-w-lg border-l-4 border-bois bg-creme/50 px-3 py-2 text-sm text-fonte/70">
           Ce brouillon vient d’un lien pré-rempli. Rien n’est enregistré tant que tu n’as pas
-          cliqué sur Enregistrer — relis, corrige, puis valide.
+          cliqué sur Enregistrer — relis, corrige, puis valide. Le hook et la légende sont une
+          proposition, pas une signature : mets-y tes mots.
         </p>
       ) : null}
 
@@ -116,8 +125,9 @@ export default async function FichePost({
               <>
                 On lit le balisage que la page publie : titre, ingrédients, étapes, durée, photo.
                 La fiche recette est créée et rattachée à ce post, et le formulaire se rouvre
-                dessus. Le hook, le script, le son et la légende restent vides — un balisage ne
-                contient pas notre voix.
+                dessus — <strong className="font-bold text-fonte/75">hook, conduite et légende
+                compris</strong>, écrits à partir de ce que la page donnait. C’est un point de
+                départ, pas un texte fini : relis-le, il n’attend que ça.
               </>
             }
           />
@@ -132,7 +142,7 @@ export default async function FichePost({
       ) : null}
 
 
-      <form action={enregistreUnPostAction} className="mt-7 space-y-8 pb-16">
+      <form key={cle} action={enregistreUnPostAction} className="mt-7 space-y-8 pb-16">
         {post ? <input type="hidden" name="id" value={post.id} /> : null}
         <input type="hidden" name="retour" value={retourVers} />
 
@@ -145,7 +155,7 @@ export default async function FichePost({
             placeholder="Bœuf bourguignon de mémé"
           />
 
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             <Choix
               nom="ligne_id"
               libelle="Ligne directrice"
@@ -160,12 +170,6 @@ export default async function FichePost({
               libelle="Format"
               valeur={post?.format ?? donne.format ?? 'reel'}
               options={FORMATS.map((f) => ({ valeur: f, libelle: LIBELLE_FORMAT[f] }))}
-            />
-            <Choix
-              nom="channel"
-              libelle="Où"
-              valeur={post?.channel ?? donne.channel ?? 'instagram'}
-              options={CANAUX.map((c) => ({ valeur: c, libelle: c }))}
             />
             <Choix
               nom="status"

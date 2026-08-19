@@ -25,6 +25,7 @@ import {
   type Statut,
 } from '@/lib/atelier'
 import { estConnecte, fermeLaSession } from '@/lib/auth'
+import { brouillonDePost } from '@/lib/brouillon'
 import { importeDepuisUnLien } from '@/lib/lien'
 import {
   alignerLaParution,
@@ -145,7 +146,6 @@ function postDepuisLeFormulaire(formData: FormData): PostInput | null {
     ligneId: texte(formData, 'ligne_id'),
     recipeId: texte(formData, 'recipe_id'),
     title: titre,
-    channel: texte(formData, 'channel') ?? 'instagram',
     format: parmi<Format>(FORMATS, texte(formData, 'format'), 'reel'),
     hook: texte(formData, 'hook'),
     script: texte(formData, 'script'),
@@ -331,9 +331,13 @@ export async function importeUneRecetteAction(formData: FormData): Promise<strin
  * Le meme lien, mais pour ouvrir un post.
  *
  * La fiche recette est creee avec ce que la page publiait — ingredients,
- * etapes, durees, photo — et le formulaire de post s'ouvre avec le titre et la
- * fiche deja rattachee. Ce qui reste vide reste vide : le hook, le script, le
- * son et la legende sont notre voix, et aucun balisage ne les contient.
+ * etapes, durees, photo — et le formulaire de post s'ouvre dessus, hook,
+ * conduite et legende compris.
+ *
+ * Ces trois-la ne sont pas generes par un modele : `lib/brouillon.ts` met en
+ * forme ce que la page donnait deja. C'est un point de depart, pas un texte
+ * fini, et l'ecran le dit — mais relire trois champs remplis coute deux
+ * minutes la ou les inventer en coute vingt.
  *
  * Rien n'est enregistre cote post tant qu'on n'a pas clique sur Enregistrer.
  */
@@ -355,11 +359,16 @@ export async function importeUnPostDepuisUnLienAction(
   const recetteId = await creeUneRecetteARelire(importee)
   await rafraichitLeSite()
 
+  const propose = brouillonDePost(importee)
+
   const champs = new URLSearchParams({
     titre: importee.titre,
     recette: recetteId,
     // La fiche existe deja : la recreer en ferait une seconde, vide.
     fiche: '0',
+    hook: propose.hook,
+    script: propose.script,
+    caption: propose.caption,
   })
   for (const nom of ['ligne', 'date', 'retour'] as const) {
     const valeur = texte(formData, nom)

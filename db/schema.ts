@@ -30,7 +30,7 @@
  * rien. Sans elle, chaque demarrage a froid repasserait sur tout le DDL pour
  * ne rien faire.
  */
-export const VERSION = 3
+export const VERSION = 4
 
 export const SCHEMA = `
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
@@ -135,7 +135,11 @@ CREATE TABLE IF NOT EXISTS posts (
   ligne_id      uuid REFERENCES lignes (id) ON DELETE SET NULL,
   recipe_id     uuid REFERENCES recipes (id) ON DELETE SET NULL,
   title         text NOT NULL,
-  channel       text NOT NULL DEFAULT 'instagram',
+  -- Plus lue ni ecrite depuis qu'on publie partout : choisir un reseau post
+  -- par post ne repondait a aucune question qu'on se posait vraiment. La
+  -- colonne reste, avec ce qu'elle contenait — on ne jette pas des donnees
+  -- pour retirer un champ d'un formulaire.
+  channel       text NOT NULL DEFAULT 'partout',
   format        text NOT NULL DEFAULT 'reel',
   hook          text,
   script        text,
@@ -153,6 +157,11 @@ CREATE TABLE IF NOT EXISTS posts (
   created_at    timestamptz NOT NULL DEFAULT now(),
   updated_at    timestamptz NOT NULL DEFAULT now()
 );
+
+-- Le formulaire ne demande plus le reseau ; les bases qui existaient deja
+-- gardent 'instagram' par defaut sans ca, et les nouveaux posts naitraient
+-- avec une valeur qui ne veut plus rien dire.
+ALTER TABLE posts ALTER COLUMN channel SET DEFAULT 'partout';
 
 CREATE INDEX IF NOT EXISTS posts_scheduled_on_idx ON posts (scheduled_on);
 CREATE INDEX IF NOT EXISTS posts_ligne_id_idx ON posts (ligne_id);
