@@ -24,8 +24,8 @@ Le logotype et le tampon ne s'emploient **jamais ensemble sur un même support**
 **Posées sur un aplat** : `-sur-creme` `-sur-rouge` `-sur-fonte`
 
 `svg/<marque>.svg` — vectoriel en rouge, pour l'impression et l'agrandissement.
-**Ces fichiers sont autonomes** : la police Fraunces y est embarquée. Ils
-s'ouvrent correctement hors ligne, sans rien installer.
+**Le texte y est vectorisé en tracés** : aucune police n'est requise, nulle
+part. Les fichiers s'ouvrent à l'identique partout, hors ligne compris.
 
 Choisir l'encre selon le fond, pas selon le goût : `-creme` et `-blanc` sur
 fond sombre, `-rouge` et `-fonte` sur fond clair, `-noir` uniquement pour une
@@ -48,5 +48,6 @@ pour que la police soit résolue. Le script d'export a besoin d'une page qui
 monte les cinq marques avec un attribut `data-marque` ; elle est créée le temps
 de l'export puis retirée, afin de ne pas partir en production.
 
-Les SVG portant du texte embarquent la police en base64 — d'où leur poids
-(~110 Ko). L'emblème et le rond n'ont pas de texte et restent sous 2 Ko.
+Les lettres des SVG ne sont plus du texte : on ne peut donc plus les
+ré-éditer dans le fichier. Pour changer un mot, il faut modifier le composant
+React et ré-exporter — c'est voulu, un logo ne se corrige pas à la volée.
