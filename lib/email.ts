@@ -12,8 +12,8 @@ function getResend(): Resend | null {
 }
 
 /**
- * Mail de confirmation (double opt-in). Le carnet n'est envoye qu'apres le clic,
- * jamais avant : c'est ce clic qui vaut consentement.
+ * Mail de confirmation (double opt-in). C'est ce clic qui vaut consentement, et
+ * lui seul qui ouvre droit au menu offert.
  *
  * Renvoie false si Resend n'est pas configure ou si l'envoi echoue. L'inscrit
  * reste enregistre en base dans tous les cas — on ne perd jamais une adresse.
@@ -37,7 +37,7 @@ export async function sendConfirmationEmail(params: {
     const { error } = await resend.emails.send({
       from: FROM,
       to: params.email,
-      subject: 'Confirme ton inscription, et le carnet arrive',
+      subject: 'Confirme ton inscription, et ta place est gardée',
       headers: { 'List-Unsubscribe': `<${unsubscribeUrl}>` },
       text: [
         'Salut,',
@@ -45,7 +45,8 @@ export async function sendConfirmationEmail(params: {
         "Un dernier clic et c’est bon. On veut juste être sûrs que cette adresse est bien la tienne :",
         confirmUrl,
         '',
-        `Ensuite tu reçois le carnet de ${SITE_NAME} : dix recettes de cocotte, tout de suite.`,
+        `Ensuite c'est réglé : le jour où ${SITE_NAME} ouvre, tu reçois ton menu offert par mail,`,
+        'à utiliser quand tu veux.',
         '',
         "Si tu n’as rien demandé, ignore ce message, il ne se passera rien.",
         '',
@@ -83,7 +84,8 @@ function confirmationHtml(params: { confirmUrl: string; unsubscribeUrl: string }
           </a>
         </p>
         <p style="font-size:17px;line-height:1.6;margin:0 0 28px">
-          Ensuite tu reçois le carnet : dix recettes de cocotte, tout de suite.
+          Ensuite c'est réglé : le jour où on ouvre, tu reçois ton menu offert par mail, à
+          utiliser quand tu veux.
         </p>
         <p style="font-size:14px;line-height:1.6;color:#6b5a4a;margin:0 0 8px">
           Si tu n’as rien demandé, ignore ce message, il ne se passera rien.

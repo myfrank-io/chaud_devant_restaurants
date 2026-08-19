@@ -18,6 +18,7 @@ Où chercher quoi :
 3. **Jamais décrire le futur lieu au futur** : pas de nombre de couverts, pas de véranda, pas de cheminée, pas de plan de salle, pas de carte figée. Ça vit ici et sur `/dossier`, pas en public.
 4. **Jamais conditionner une récompense à un follow Instagram.**
 5. **Jamais promettre un avantage non plafonné.** Tout cadeau est borné et écrit.
+   → *Écart en vigueur, décidé par Joseph le 19/08 : le menu offert à l'ouverture vaut pour tous les inscrits confirmés, sans plafond. Ne pas le « recorriger » sans lui demander.*
 6. **Vocabulaire banni** : healthy, light, détox, protéiné, gourmet, gastronomique, revisité, déconstruit, foodie, food porn, yummy.
 
 Principe qui les résume : **précis sur l'univers, muet sur les specs.** Montrer n'est pas promettre.
@@ -33,8 +34,8 @@ Territoire : cocotte, fonte, mijoté, à partager, chez ma grand-mère, le diman
 ## Réflexes techniques (section 11.3)
 
 - Tout contenu recette vient de Notion, jamais écrit en dur dans le repo.
-- Le compteur de Fondateurs et la carte des villes se lisent dans Postgres, jamais dans Resend.
-- Le numéro de Fondateur s'attribue à la confirmation, en transaction, plafonné à 500, jamais réattribué.
+- Le compteur d'inscrits et la carte des villes se lisent dans Postgres, jamais dans Resend.
+- Le droit au menu offert se lit en base : `confirmed_at` renseigné et `unsubscribed_at` nul. Le double opt-in est ce qui l'ouvre — une adresse jamais confirmée n'engage à rien.
 - Balisage `Recipe` schema.org obligatoire sur chaque fiche recette.
 - Médias en 9:16, images optimisées, pas de dépendance lourde.
 - Double opt-in et lien de désinscription dès le premier email.
@@ -55,7 +56,12 @@ Site V1 en Next.js (App Router) + Tailwind, déployé sur Vercel. Pages en place
 `/recettes` et `/recettes/[slug]`, `/le-concept`, `/dossier`, `/merci`, `/confirmation`,
 `/desinscription`, `/mentions-legales`.
 
-Trois branchements manquent avant de rendre le site public — détail dans le README :
-`DATABASE_URL`, `RESEND_API_KEY`, et le PDF du carnet. Deux textes attendent aussi une main
-humaine dans `/mentions-legales` : l'identité de l'éditeur et les conditions des 500 Fondateurs,
-ces dernières devant passer devant un juriste (QG 7.2).
+L'offre a été simplifiée sur décision de Joseph : **un seul avantage, sans plafond** — tout
+inscrit confirmé reçoit un menu offert le jour de l'ouverture, à utiliser quand il veut. La
+mécanique des 500 Fondateurs a été retirée. C'est un écart assumé par rapport à l'interdit n° 5
+ci-dessus, arbitré en connaissance de cause ; le reste des interdits continue de s'appliquer.
+
+Deux branchements manquent avant de rendre le site public — détail dans le README :
+`DATABASE_URL` et `RESEND_API_KEY`. Deux textes attendent aussi une main humaine dans
+`/mentions-legales` : l'identité de l'éditeur et les conditions du menu offert, ces dernières
+devant passer devant un juriste.

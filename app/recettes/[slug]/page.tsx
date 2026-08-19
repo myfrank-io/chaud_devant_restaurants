@@ -171,8 +171,8 @@ export default async function Recette({ params }: { params: Promise<{ slug: stri
               Il y en a d&rsquo;autres, et elles arrivent par mail.
             </p>
             <p className="mt-2 text-base leading-relaxed text-fonte/70">
-              Laisse ton adresse sur la page d&rsquo;accueil, tu reçois le carnet et la recette du
-              dimanche.
+              Laisse ton adresse sur la page d&rsquo;accueil : tu reçois la recette du dimanche, et
+              un menu offert le jour où on ouvre.
             </p>
             <Link
               href="/"

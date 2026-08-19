@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 
-import { FOUNDERS_CAP } from '@/lib/site'
 import { getSubscriberStats } from '@/lib/subscribers'
 
 export const metadata: Metadata = {
@@ -42,10 +41,9 @@ export default async function Dossier() {
             La liste
           </h2>
           {stats ? (
-            <dl className="mt-6 grid gap-6 sm:grid-cols-3">
+            <dl className="mt-6 grid gap-6 sm:grid-cols-2">
               <Stat label="Inscrits" value={stats.total} />
-              <Stat label="Confirmés" value={stats.confirmed} />
-              <Stat label={`Fondateurs sur ${FOUNDERS_CAP}`} value={stats.founders} />
+              <Stat label="Confirmés — menus dus à l’ouverture" value={stats.confirmed} />
             </dl>
           ) : (
             <p className="mt-6 text-lg text-creme/60">

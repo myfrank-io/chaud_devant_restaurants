@@ -10,7 +10,8 @@ export const SITE_NAME = 'Chaud Devant'
 
 export const SITE_DESCRIPTION =
   'La cuisine de nos grands-mères, filmée comme en 2026. Des plats mijotés servis dans la ' +
-  'cocotte, posée au milieu de la table. Laisse ton mail, reçois le carnet de Chaud Devant.'
+  'cocotte, posée au milieu de la table. Laisse ton mail : le jour où on ouvre, tu reçois ' +
+  'un menu offert.'
 
 /**
  * Photo de couverture : cocotte ouverte, vapeur qui monte.
@@ -19,8 +20,16 @@ export const SITE_DESCRIPTION =
  */
 export const HERO_IMAGE: string | null = null
 
-/** Plafond des Fondateurs (section 7.2). Borne la dette : ne jamais l'augmenter apres coup. */
-export const FOUNDERS_CAP = 500
+/**
+ * La promesse faite en echange d'une adresse. Un seul avantage, sans palier ni
+ * plafond : tout inscrit confirme recoit un menu offert le jour de l'ouverture.
+ *
+ * Ecart assume par rapport a la section 7.2 du QG, qui borne tout cadeau — arbitre
+ * en connaissance de cause. Consequence a garder en tete : l'engagement grandit
+ * avec la liste, donc les conditions d'utilisation comptent plus que jamais
+ * (voir /mentions-legales, a faire relire par un juriste).
+ */
+export const OFFRE = 'un menu offert le jour de l\u2019ouverture, a utiliser quand tu veux'
 
 /**
  * Photos des cocottes et de la vaisselle deja chinees, pour /le-concept.

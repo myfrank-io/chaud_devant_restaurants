@@ -16,7 +16,6 @@ export default async function Confirmation({
   searchParams: Promise<{ token?: string }>
 }) {
   const { token } = await searchParams
-
   if (!token) return <LienInvalide />
 
   let result: Awaited<ReturnType<typeof confirmSubscriber>>
@@ -36,30 +35,13 @@ export default async function Confirmation({
 
   if (result.status === 'unknown_token') return <LienInvalide />
 
-  const { founderNumber } = result
-
   return (
-    <PageSimple titre={founderNumber ? `Tu es Fondateur n° ${founderNumber}.` : 'C’est confirmé.'}>
-      {founderNumber ? (
-        <>
-          <p>
-            Ton prénom sera gravé sur le mur de cocottes, et il y aura une cocotte offerte à ta
-            table le soir de l&rsquo;ouverture. Garde ce numéro, il ne bougera plus.
-          </p>
-          <p>Le carnet arrive dans ta boîte mail. Dix recettes, rien à faire de plus.</p>
-        </>
-      ) : (
-        <>
-          <p>
-            Les 500 places de Fondateurs sont prises — tu es arrivé après, et on ne va pas te
-            raconter d&rsquo;histoires là-dessus.
-          </p>
-          <p>
-            Tu restes sur la liste, et tu réserveras avant tout le monde le soir de
-            l&rsquo;ouverture. Le carnet arrive dans ta boîte mail.
-          </p>
-        </>
-      )}
+    <PageSimple titre="C’est bon, tu es sur la liste.">
+      <p>
+        Le jour où on ouvre, tu reçois ton menu offert par mail. Tu l&rsquo;utilises quand tu veux —
+        on ne te mettra pas la pression.
+      </p>
+      <p>D&rsquo;ici là, on cuisine. Tu vas nous voir passer.</p>
       {result.status === 'already_confirmed' ? (
         <p className="text-base text-creme/55">
           Cette inscription était déjà confirmée. Rien de neuf, tout va bien.
