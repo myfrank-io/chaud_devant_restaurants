@@ -11,6 +11,7 @@ import {
   creeUneIdee,
   creeUneLigne,
   FORMATS,
+  getPost,
   metAJourUnPost,
   metAJourUneLigne,
   SONS,
@@ -25,6 +26,7 @@ import {
 } from '@/lib/atelier'
 import { estConnecte, fermeLaSession } from '@/lib/auth'
 import {
+  alignerLaParution,
   creeUneRecette,
   metAJourUneRecette,
   slugify,
@@ -58,6 +60,23 @@ function lignes(formData: FormData, champ: string): string[] {
 
 function parmi<T extends string>(valeurs: readonly T[], brut: string | null, defaut: T): T {
   return (valeurs as readonly string[]).includes(brut ?? '') ? (brut as T) : defaut
+}
+
+/**
+ * Repurge les pages touchees par une parution.
+ *
+ * Elle ne suffit pas a elle seule, et c'est voulu : une recette programmee
+ * parait un jour ou personne n'aura clique sur « Enregistrer ». C'est la
+ * revalidation periodique de /recettes qui la fait apparaitre ce jour-la.
+ */
+async function rafraichitLeSite(slugs: (string | null)[] = []): Promise<void> {
+  revalidatePath('/')
+  revalidatePath('/recettes')
+  // Une page de recette visitee avant sa parution a mis son 404 en cache.
+  for (const slug of slugs) if (slug) revalidatePath(`/recettes/${slug}`)
+  revalidatePath('/atelier')
+  revalidatePath('/atelier/lignes')
+  revalidatePath('/atelier/recettes')
 }
 
 /* ------------------------------------------------------------- session --- */
@@ -136,14 +155,22 @@ export async function enregistreUnPostAction(formData: FormData): Promise<void> 
   if (!input) return
 
   const id = texte(formData, 'id')
+  // La recette d'avant, lue avant l'ecriture : si le post change de recette,
+  // l'ancienne doit etre relachee, sinon elle resterait programmee par un post
+  // qui ne la porte plus.
+  const ancienne = id ? (await getPost(id))?.recipeId ?? null : null
+
   if (id) {
     await metAJourUnPost(id, input)
   } else {
     await creeUnPost(input)
   }
 
-  revalidatePath('/atelier')
-  revalidatePath('/atelier/lignes')
+  const touchees: (string | null)[] = []
+  if (ancienne && ancienne !== input.recipeId) touchees.push(await alignerLaParution(ancienne, null))
+  if (input.recipeId) touchees.push(await alignerLaParution(input.recipeId, input.scheduledOn))
+
+  await rafraichitLeSite(touchees)
   redirect(texte(formData, 'retour') ?? '/atelier/lignes')
 }
 
@@ -152,9 +179,11 @@ export async function supprimeUnPostAction(formData: FormData): Promise<void> {
   const id = texte(formData, 'id')
   if (!id) return
 
+  const portee = (await getPost(id))?.recipeId ?? null
   await supprimeUnPost(id)
-  revalidatePath('/atelier')
-  revalidatePath('/atelier/lignes')
+  const slug = portee ? await alignerLaParution(portee, null) : null
+
+  await rafraichitLeSite([slug])
   redirect(texte(formData, 'retour') ?? '/atelier/lignes')
 }
 
@@ -164,9 +193,13 @@ export async function caleUnPostAction(formData: FormData): Promise<void> {
   const id = texte(formData, 'id')
   if (!id) return
 
-  await caleUnPost(id, texte(formData, 'scheduled_on'))
-  revalidatePath('/atelier')
-  revalidatePath('/atelier/lignes')
+  const jour = texte(formData, 'scheduled_on')
+  await caleUnPost(id, jour)
+
+  const portee = (await getPost(id))?.recipeId ?? null
+  const slug = portee ? await alignerLaParution(portee, jour) : null
+
+  await rafraichitLeSite([slug])
 }
 
 /* ------------------------------------------------------------- recettes --- */
@@ -192,7 +225,7 @@ function recetteDepuisLeFormulaire(formData: FormData): RecipeInput | null {
     intro: lignes(formData, 'intro'),
     ingredients: lignes(formData, 'ingredients'),
     steps: lignes(formData, 'steps'),
-    published: formData.get('published') === '1',
+    publishedAt: texte(formData, 'published_at'),
   }
 }
 
@@ -210,10 +243,7 @@ export async function enregistreUneRecetteAction(formData: FormData): Promise<vo
 
   // Le site public sert des pages mises en cache : sans ca, la recette
   // publiee n'apparait qu'a la prochaine revalidation, une heure plus tard.
-  revalidatePath('/recettes')
-  revalidatePath(`/recettes/${input.slug}`)
-  revalidatePath('/')
-  revalidatePath('/atelier/recettes')
+  await rafraichitLeSite([input.slug])
   redirect('/atelier/recettes')
 }
 
@@ -223,9 +253,7 @@ export async function supprimeUneRecetteAction(formData: FormData): Promise<void
   if (!id) return
 
   await supprimeUneRecette(id)
-  revalidatePath('/recettes')
-  revalidatePath('/')
-  revalidatePath('/atelier/recettes')
+  await rafraichitLeSite()
   redirect('/atelier/recettes')
 }
 

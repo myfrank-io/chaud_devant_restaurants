@@ -115,6 +115,27 @@ Quatre vues sous `/atelier` :
 | **Idées** | Une case à cocher par idée. Cocher archive au lieu de supprimer : une idée écartée reste une trace de ce à quoi on a déjà pensé. |
 | **Recettes du site** | Ce qui paraît sur `/recettes`. `published_at` décide seule ; un brouillon n'existe que dans l'atelier. |
 
+### La parution se déclenche toute seule
+
+Caler au calendrier un post qui porte une recette fixe la date de parution de cette recette. Le
+jour venu, elle apparaît sur `/recettes` sans que personne n'ait rien à relancer.
+
+Il n'y a **aucune tâche planifiée** derrière : `published_at` peut être dans le futur, et les
+lectures publiques filtrent sur `published_at <= now()`. La parution est donc dans la requête, pas
+dans un travail de fond — elle ne peut pas « ne pas s'être déclenchée », et rien ne se rattrape
+après une panne puisqu'il n'y a rien à rattraper.
+
+Ce que ça coûte : les pages publiques sont en cache, revalidées toutes les 15 minutes. C'est le
+retard maximum d'une parution programmée.
+
+Trois règles, et elles comptent :
+
+- Une recette **déjà en ligne** n'est jamais retirée par un décalage du post. Une page partagée
+  reste une page partagée.
+- Une recette **encore programmée** redevient brouillon si son post perd sa date.
+- Changer la recette liée d'un post **relâche l'ancienne**, pour qu'elle ne reste pas programmée
+  par un post qui ne la porte plus.
+
 Chaque post porte un hook, un script, un son (voix off **ou** musique), une description et un
 format. Les champs de texte se relisent pendant la frappe : le vocabulaire banni, les dates
 d'ouverture et les descriptions du futur lieu sont signalés (`lib/garde-fous.ts`). C'est un

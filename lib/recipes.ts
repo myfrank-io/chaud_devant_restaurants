@@ -10,9 +10,17 @@ import { getPool } from '@/lib/db'
  * tenir n'apportait rien qu'une table ne fasse. Le principe que la regle
  * protegeait tient toujours : aucune recette n'est ecrite en dur dans le repo.
  *
- * `published_at` decide seule de la presence sur le site. Un brouillon n'existe
- * que dans l'atelier.
+ * `published_at` decide seule de la presence sur le site, et peut etre dans le
+ * futur : la recette parait toute seule ce jour-la. Pas de tache planifiee a
+ * surveiller — la date est dans la requete, donc la parution ne peut pas « ne
+ * pas s'etre declenchee ». Un brouillon n'existe que dans l'atelier.
  */
+
+/**
+ * Ce qui est en ligne : une date de parution posee, et deja passee.
+ * Une seule definition, partagee par toutes les lectures publiques.
+ */
+const EN_LIGNE = 'published_at IS NOT NULL AND published_at <= now()'
 
 export type Recipe = {
   id: string
@@ -78,7 +86,7 @@ export async function getPublishedRecipes(): Promise<Recipe[]> {
   try {
     const { rows } = await pool.query<Ligne>(
       `SELECT ${COLONNES} FROM recipes
-        WHERE published_at IS NOT NULL
+        WHERE ${EN_LIGNE}
         ORDER BY published_at DESC`
     )
     return rows.map(versRecette)
@@ -96,7 +104,7 @@ export async function getLatestRecipes(limite = 3): Promise<Recipe[]> {
   try {
     const { rows } = await pool.query<Ligne>(
       `SELECT ${COLONNES} FROM recipes
-        WHERE published_at IS NOT NULL
+        WHERE ${EN_LIGNE}
         ORDER BY published_at DESC
         LIMIT $1`,
       [limite]
@@ -114,7 +122,7 @@ export async function getRecipeBySlug(slug: string): Promise<Recipe | null> {
 
   try {
     const { rows } = await pool.query<Ligne>(
-      `SELECT ${COLONNES} FROM recipes WHERE slug = $1 AND published_at IS NOT NULL`,
+      `SELECT ${COLONNES} FROM recipes WHERE slug = $1 AND ${EN_LIGNE}`,
       [slug]
     )
     return rows[0] ? versRecette(rows[0]) : null
@@ -157,7 +165,8 @@ export type RecipeInput = {
   intro: string[]
   ingredients: string[]
   steps: string[]
-  published: boolean
+  /** AAAA-MM-JJ. null = brouillon. Une date future programme la parution. */
+  publishedAt: string | null
 }
 
 export async function creeUneRecette(input: RecipeInput): Promise<string> {
@@ -167,7 +176,7 @@ export async function creeUneRecette(input: RecipeInput): Promise<string> {
   const { rows } = await pool.query<{ id: string }>(
     `INSERT INTO recipes (slug, title, category, seasons, minutes, difficulty, angle,
                           cover, post_url, intro, ingredients, steps, published_at)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12, CASE WHEN $13 THEN now() END)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12, $13::date)
      RETURNING id`,
     valeurs(input)
   )
@@ -183,9 +192,7 @@ export async function metAJourUneRecette(id: string, input: RecipeInput): Promis
         SET slug = $1, title = $2, category = $3, seasons = $4, minutes = $5,
             difficulty = $6, angle = $7, cover = $8, post_url = $9, intro = $10,
             ingredients = $11, steps = $12,
-            -- Republier ne doit pas repousser la date : c'est elle qui ordonne
-            -- la liste, et une correction de coquille n'est pas une parution.
-            published_at = CASE WHEN $13 THEN COALESCE(published_at, now()) END,
+            published_at = $13::date,
             updated_at = now()
       WHERE id = $14`,
     [...valeurs(input), id]
@@ -212,7 +219,7 @@ function valeurs(input: RecipeInput) {
     input.intro,
     input.ingredients,
     input.steps,
-    input.published,
+    input.publishedAt,
   ]
 }
 
@@ -237,4 +244,74 @@ export function isoDuration(minutes: number): string {
   const h = Math.floor(minutes / 60)
   const m = minutes % 60
   return `PT${h > 0 ? `${h}H` : ''}${m > 0 || h === 0 ? `${m}M` : ''}`
+}
+
+/**
+ * Aligne la parution d'une recette sur la date du post qui la porte.
+ *
+ * Trois cas, et ils comptent :
+ *
+ * - Le post a une date, la recette n'est pas encore parue → elle parait ce
+ *   jour-la. C'est le comportement demande : caler un post au calendrier
+ *   publie la recette le jour J.
+ * - La recette est deja en ligne → on n'y touche pas. Decaler un post ne doit
+ *   jamais retirer du site une page deja partagee.
+ * - Le post perd sa date → la recette redevient brouillon, mais seulement si
+ *   elle n'etait pas encore parue. Meme raison.
+ */
+export async function alignerLaParution(
+  recipeId: string,
+  jour: string | null
+): Promise<string | null> {
+  const pool = getPool()
+  if (!pool) return null
+
+  // Le slug revient : l'appelant doit purger le cache de cette page precise.
+  // Une page visitee avant la parution a mis son 404 en cache, et le laisser
+  // la ferait rater le jour J a qui suit le lien.
+  const { rows } = await pool.query<{ slug: string }>(
+    `UPDATE recipes
+        SET published_at = CASE
+              WHEN ${EN_LIGNE} THEN published_at
+              ELSE $2::date
+            END,
+            updated_at = now()
+      WHERE id = $1
+     RETURNING slug`,
+    [recipeId, jour]
+  )
+  return rows[0]?.slug ?? null
+}
+
+/** Le post qui porte cette recette, s'il y en a un. Sert a l'expliquer dans l'atelier. */
+export async function postQuiPorte(
+  recipeId: string
+): Promise<{ id: string; title: string; scheduledOn: string | null } | null> {
+  const pool = getPool()
+  if (!pool) return null
+
+  const { rows } = await pool.query<{ id: string; title: string; scheduled_on: string | null }>(
+    `SELECT id, title, scheduled_on::text AS scheduled_on
+       FROM posts
+      WHERE recipe_id = $1
+      ORDER BY scheduled_on NULLS LAST
+      LIMIT 1`,
+    [recipeId]
+  )
+  return rows[0]
+    ? { id: rows[0].id, title: rows[0].title, scheduledOn: rows[0].scheduled_on }
+    : null
+}
+
+/** L'etat de parution, tel qu'on l'affiche. */
+export type Parution = 'brouillon' | 'programmee' | 'en-ligne'
+
+export function parution(recette: Recipe): Parution {
+  if (!recette.publishedAt) return 'brouillon'
+  return recette.publishedAt.getTime() > Date.now() ? 'programmee' : 'en-ligne'
+}
+
+/** AAAA-MM-JJ, ce qu'attend un champ de type date. */
+export function enJour(date: Date | null): string | null {
+  return date ? date.toISOString().slice(0, 10) : null
 }

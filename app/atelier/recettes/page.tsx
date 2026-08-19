@@ -2,14 +2,16 @@ import Link from 'next/link'
 
 import { BaseAbsente } from '@/components/atelier/BaseAbsente'
 import { isDatabaseConfigured } from '@/lib/db'
-import { listeToutesLesRecettes } from '@/lib/recipes'
+import { enJour, listeToutesLesRecettes, parution } from '@/lib/recipes'
+import { jourEnToutesLettres } from '@/lib/mois'
 
 export default async function Recettes() {
   if (!isDatabaseConfigured()) return <BaseAbsente />
 
   const recettes = await listeToutesLesRecettes()
-  const brouillons = recettes.filter((recette) => !recette.publishedAt)
-  const publiees = recettes.filter((recette) => recette.publishedAt)
+  const brouillons = recettes.filter((recette) => parution(recette) === 'brouillon')
+  const programmees = recettes.filter((recette) => parution(recette) === 'programmee')
+  const publiees = recettes.filter((recette) => parution(recette) === 'en-ligne')
 
   return (
     <>
@@ -34,9 +36,8 @@ export default async function Recettes() {
         </p>
       ) : null}
 
-      {brouillons.length > 0 ? (
-        <Groupe titre="Brouillons" recettes={brouillons} />
-      ) : null}
+      {programmees.length > 0 ? <Groupe titre="Programmées" recettes={programmees} /> : null}
+      {brouillons.length > 0 ? <Groupe titre="Brouillons" recettes={brouillons} /> : null}
       {publiees.length > 0 ? <Groupe titre="En ligne" recettes={publiees} /> : null}
     </>
   )
@@ -72,6 +73,11 @@ function Groupe({
                 <span className="font-display text-lg text-fonte">{recette.title}</span>
                 {recette.category ? (
                   <span className="text-sm text-fonte/50">{recette.category}</span>
+                ) : null}
+                {parution(recette) === 'programmee' ? (
+                  <span className="text-sm text-bois">
+                    paraît le {jourEnToutesLettres(enJour(recette.publishedAt)!)}
+                  </span>
                 ) : null}
                 {manques.length > 0 ? (
                   <span className="text-xs uppercase tracking-wider text-fonte/35">

@@ -153,16 +153,28 @@ export default async function FichePost({
               valeur={post?.scheduledOn ?? date}
               aide="Vide tant que ce n’est pas calé."
             />
-            <Choix
-              nom="recipe_id"
-              libelle="Recette du site liée"
-              valeur={post?.recipeId}
-              vide="— aucune —"
-              options={recettes.map((r) => ({
-                valeur: r.id,
-                libelle: r.publishedAt ? r.title : `${r.title} (brouillon)`,
-              }))}
-            />
+            <div>
+              <Choix
+                nom="recipe_id"
+                libelle="Recette du site liée"
+                valeur={post?.recipeId}
+                vide="— aucune —"
+                options={recettes.map((r) => ({
+                  valeur: r.id,
+                  libelle: r.publishedAt ? r.title : `${r.title} (brouillon)`,
+                }))}
+              />
+              <p className="mt-1.5 text-sm text-fonte/55">
+                Elle paraîtra sur le site le jour où ce post est calé. Pas besoin d’y revenir.{' '}
+                <Link
+                  href="/atelier/recettes/nouvelle"
+                  className="text-rouge underline underline-offset-4"
+                >
+                  En écrire une
+                </Link>
+                .
+              </p>
+            </div>
           </div>
 
           <Texte

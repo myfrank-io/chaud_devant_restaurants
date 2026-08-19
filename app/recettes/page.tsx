@@ -11,7 +11,10 @@ export const metadata: Metadata = {
     'les gestes de mémé. Ingrédients, étapes, et la vidéo qui va avec.',
 }
 
-export const revalidate = 3600
+// Quinze minutes : c'est le retard maximum d'une recette programmee. Une
+// parution ne passe par aucune tache planifiee — la date est dans la requete —
+// mais la page servie est en cache, et c'est cette fenetre qui la rafraichit.
+export const revalidate = 900
 
 export default async function Recettes() {
   const recipes = await getPublishedRecipes()

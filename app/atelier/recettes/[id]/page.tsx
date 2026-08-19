@@ -2,10 +2,11 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import { BaseAbsente } from '@/components/atelier/BaseAbsente'
-import { Bouton, Choix, Etiquette, Liste, Texte } from '@/components/atelier/Champs'
+import { Bouton, Choix, Liste, Texte } from '@/components/atelier/Champs'
 import { ChampRelu } from '@/components/atelier/ChampRelu'
 import { isDatabaseConfigured } from '@/lib/db'
-import { getRecipeById, type Recipe } from '@/lib/recipes'
+import { enJour, getRecipeById, parution, postQuiPorte, type Recipe } from '@/lib/recipes'
+import { jourEnToutesLettres } from '@/lib/mois'
 
 import { enregistreUneRecetteAction, supprimeUneRecetteAction } from '../../actions'
 
@@ -24,6 +25,9 @@ export default async function FicheRecette({ params }: { params: Promise<{ id: s
   const recette: Recipe | null = nouvelle ? null : await getRecipeById(id)
   if (!nouvelle && !recette) notFound()
 
+  const porteur = recette ? await postQuiPorte(recette.id) : null
+  const etat = recette ? parution(recette) : 'brouillon'
+
   return (
     <>
       <Link
@@ -37,13 +41,18 @@ export default async function FicheRecette({ params }: { params: Promise<{ id: s
         <h1 className="font-display text-3xl font-black text-fonte">
           {nouvelle ? 'Nouvelle recette' : recette!.title}
         </h1>
-        {recette?.publishedAt ? (
+        {etat === 'en-ligne' ? (
           <Link
-            href={`/recettes/${recette.slug}`}
+            href={`/recettes/${recette!.slug}`}
             className="text-base text-rouge underline underline-offset-4"
           >
             Voir en ligne ↗
           </Link>
+        ) : null}
+        {etat === 'programmee' ? (
+          <span className="text-base text-bois">
+            Paraît le {jourEnToutesLettres(enJour(recette!.publishedAt)!)}
+          </span>
         ) : null}
       </div>
 
@@ -178,22 +187,36 @@ export default async function FicheRecette({ params }: { params: Promise<{ id: s
         </section>
 
         <section className="border-t-2 border-fonte/10 pt-7">
-          <Etiquette pour="published">Publication</Etiquette>
-          <label className="mt-2 flex items-center gap-3 text-base text-fonte">
-            <input
-              id="published"
-              type="checkbox"
-              name="published"
-              value="1"
-              defaultChecked={Boolean(recette?.publishedAt)}
-              className="size-4 accent-[var(--color-rouge)]"
+          <h2 className="font-display text-xl font-black text-fonte">Parution</h2>
+
+          <div className="mt-4 max-w-sm">
+            <Texte
+              nom="published_at"
+              libelle="Mise en ligne le"
+              type="date"
+              valeur={enJour(recette?.publishedAt ?? null)}
             />
-            En ligne sur le site
-          </label>
-          <p className="mt-1.5 max-w-lg text-sm text-fonte/50">
-            Décochée, la recette redevient un brouillon et disparaît du site. Le lien déjà partagé
-            renverra vers une page introuvable.
+          </div>
+
+          <p className="mt-2 max-w-lg text-sm text-fonte/55">
+            Vide, c’est un brouillon : la recette n’existe que dans l’atelier. Une date à venir la
+            fait paraître toute seule ce jour-là — rien à relancer.
           </p>
+
+          {porteur?.scheduledOn ? (
+            <p className="mt-3 max-w-lg text-sm text-bois">
+              Cette date suit le post «&nbsp;{porteur.title}&nbsp;», calé au{' '}
+              {jourEnToutesLettres(porteur.scheduledOn)}. La changer ici sera écrasé au prochain
+              enregistrement du post.
+            </p>
+          ) : null}
+
+          {etat === 'en-ligne' ? (
+            <p className="mt-3 max-w-lg text-sm text-rouge">
+              La recette est en ligne. Vider la date la retire du site, et le lien déjà partagé
+              renverra vers une page introuvable.
+            </p>
+          ) : null}
         </section>
 
         <div className="flex flex-wrap items-center gap-4">

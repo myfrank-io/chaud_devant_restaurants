@@ -100,6 +100,12 @@ export default async function Calendrier({
                         <PastilleFormat format={post.format} />
                         <PastilleStatut statut={post.status} />
                       </span>
+                      {/* Ce jour-la, la recette liee parait sur le site. */}
+                      {post.recipeTitle ? (
+                        <span className="mt-1 block truncate text-[0.7rem] leading-tight text-bois">
+                          → {post.recipeTitle}
+                        </span>
+                      ) : null}
                     </Link>
                   </li>
                 ))}

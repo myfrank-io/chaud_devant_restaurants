@@ -6,7 +6,10 @@ import { SiteHeader } from '@/components/SiteHeader'
 import { getPublishedRecipes, getRecipeBySlug, isoDuration } from '@/lib/recipes'
 import { siteUrl } from '@/lib/site'
 
-export const revalidate = 3600
+// Quinze minutes : c'est le retard maximum d'une recette programmee. Une
+// parution ne passe par aucune tache planifiee — la date est dans la requete —
+// mais la page servie est en cache, et c'est cette fenetre qui la rafraichit.
+export const revalidate = 900
 
 export async function generateStaticParams() {
   const recipes = await getPublishedRecipes()
