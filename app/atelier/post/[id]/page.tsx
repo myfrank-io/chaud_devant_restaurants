@@ -4,7 +4,6 @@ import { notFound } from 'next/navigation'
 import { BaseAbsente } from '@/components/atelier/BaseAbsente'
 import { Bouton, Choix, Texte } from '@/components/atelier/Champs'
 import { ChampRelu } from '@/components/atelier/ChampRelu'
-import { DepuisUnePhoto } from '@/components/atelier/DepuisUnePhoto'
 import {
   CANAUX,
   FORMATS,
@@ -22,17 +21,40 @@ import { listeToutesLesRecettes } from '@/lib/recipes'
 
 import { enregistreUnPostAction, supprimeUnPostAction } from '../../actions'
 
+/**
+ * Champs pre-remplis par l'adresse.
+ *
+ * C'est ainsi qu'un brouillon ecrit ailleurs — par Claude dans une
+ * conversation, par nous dans un carnet — entre dans l'atelier : un lien qu'on
+ * ouvre, des champs deja remplis, et rien en base tant qu'on n'a pas
+ * enregistre. Pas de cle d'API, pas de facture, et la relecture reste le
+ * dernier geste.
+ */
+type Prerempli = {
+  date?: string
+  ligne?: string
+  retour?: string
+  titre?: string
+  format?: string
+  hook?: string
+  script?: string
+  son_type?: string
+  son?: string
+  caption?: string
+}
+
 export default async function FichePost({
   params,
   searchParams,
 }: {
   params: Promise<{ id: string }>
-  searchParams: Promise<{ date?: string; ligne?: string; retour?: string; titre?: string }>
+  searchParams: Promise<Prerempli>
 }) {
   if (!isDatabaseConfigured()) return <BaseAbsente />
 
   const { id } = await params
-  const { date, ligne, retour, titre } = await searchParams
+  const donne = await searchParams
+  const { date, ligne, retour } = donne
   const nouveau = id === 'nouveau'
 
   const post: Post | null = nouveau ? null : await getPost(id)
@@ -41,6 +63,7 @@ export default async function FichePost({
   const [lignes, recettes] = await Promise.all([listeLesLignes(), listeToutesLesRecettes()])
 
   const retourVers = retour ?? '/atelier/lignes'
+  const prerempli = Boolean(donne.hook || donne.script || donne.caption)
 
   return (
     <>
@@ -55,11 +78,13 @@ export default async function FichePost({
         {nouveau ? 'Nouveau post' : post!.title}
       </h1>
 
-      {nouveau ? (
-        <div className="mt-6">
-          <DepuisUnePhoto ligneId={ligne} />
-        </div>
+      {nouveau && prerempli ? (
+        <p className="mt-3 max-w-lg border-l-4 border-bois bg-creme/50 px-3 py-2 text-sm text-fonte/70">
+          Ce brouillon vient d’un lien pré-rempli. Rien n’est enregistré tant que tu n’as pas
+          cliqué sur Enregistrer — relis, corrige, puis valide.
+        </p>
       ) : null}
+
 
       <form action={enregistreUnPostAction} className="mt-7 space-y-8 pb-16">
         {post ? <input type="hidden" name="id" value={post.id} /> : null}
@@ -70,7 +95,7 @@ export default async function FichePost({
             nom="title"
             libelle="Le plat, ou l’idée"
             requis
-            valeur={post?.title ?? titre}
+            valeur={post?.title ?? donne.titre}
             placeholder="Bœuf bourguignon de mémé"
           />
 
@@ -87,7 +112,7 @@ export default async function FichePost({
             <Choix
               nom="format"
               libelle="Format"
-              valeur={post?.format ?? 'reel'}
+              valeur={post?.format ?? donne.format ?? 'reel'}
               options={FORMATS.map((f) => ({ valeur: f, libelle: LIBELLE_FORMAT[f] }))}
             />
             <Choix
@@ -112,7 +137,7 @@ export default async function FichePost({
             nom="hook"
             libelle="Le hook"
             aide="Les trois premières secondes. Ce qui empêche de scroller."
-            valeurInitiale={post?.hook}
+            valeurInitiale={post?.hook ?? donne.hook}
             lignes={2}
           />
 
@@ -120,7 +145,7 @@ export default async function FichePost({
             nom="script"
             libelle="Le script"
             aide="Ce qui se dit et ce qui se montre, dans l’ordre."
-            valeurInitiale={post?.script}
+            valeurInitiale={post?.script ?? donne.script}
             lignes={8}
           />
 
@@ -128,7 +153,7 @@ export default async function FichePost({
             <Choix
               nom="son_type"
               libelle="Le son"
-              valeur={post?.sonType}
+              valeur={post?.sonType ?? donne.son_type}
               vide="— à décider —"
               options={SONS.map((s) => ({ valeur: s, libelle: LIBELLE_SON[s] }))}
             />
@@ -136,7 +161,7 @@ export default async function FichePost({
               nom="son"
               libelle="Précision"
               aide="Le texte de la voix off, ou la piste choisie."
-              valeur={post?.son}
+              valeur={post?.son ?? donne.son}
             />
           </div>
 
@@ -144,7 +169,7 @@ export default async function FichePost({
             nom="caption"
             libelle="La description du post"
             aide="La légende telle qu’elle sera publiée."
-            valeurInitiale={post?.caption}
+            valeurInitiale={post?.caption ?? donne.caption}
             lignes={6}
           />
         </section>

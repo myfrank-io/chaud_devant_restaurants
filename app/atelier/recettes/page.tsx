@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
 import { BaseAbsente } from '@/components/atelier/BaseAbsente'
+import { DepuisUnLien } from '@/components/atelier/DepuisUnLien'
 import { isDatabaseConfigured } from '@/lib/db'
 import { ceQuiManque, enJour, listeToutesLesRecettes, parution } from '@/lib/recipes'
 import { jourEnToutesLettres } from '@/lib/mois'
@@ -25,6 +26,10 @@ export default async function Recettes() {
         >
           Nouvelle recette
         </Link>
+      </div>
+
+      <div className="mt-6">
+        <DepuisUnLien />
       </div>
 
       {recettes.length === 0 ? (

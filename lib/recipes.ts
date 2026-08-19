@@ -387,3 +387,43 @@ async function slugLibre(souhaite: string): Promise<string> {
   while (pris.has(`${base}-${suffixe}`)) suffixe += 1
   return `${base}-${suffixe}`
 }
+
+/**
+ * Enregistre une recette importee depuis un lien.
+ *
+ * La fiche nait sans date de parution : le texte vient d'ailleurs, il n'a pas
+ * encore ete reecrit, et rien ne le met en ligne tant que personne ne lui
+ * donne de date. C'est plus faible qu'une relecture tracee en base — voir le
+ * README — mais ca ne demande aucune colonne.
+ */
+export async function creeUneRecetteARelire(input: {
+  titre: string
+  angle: string | null
+  minutes: number | null
+  categorie: string | null
+  ingredients: string[]
+  etapes: string[]
+  photo: string | null
+  source: string
+}): Promise<string> {
+  const pool = getPool()
+  if (!pool) throw new Error('DATABASE_URL absent : impossible d\'enregistrer la recette.')
+
+  const { rows } = await pool.query<{ id: string }>(
+    `INSERT INTO recipes (slug, title, angle, minutes, category, ingredients, steps, cover, post_url)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+     RETURNING id`,
+    [
+      await slugLibre(slugify(input.titre)),
+      input.titre,
+      input.angle,
+      input.minutes,
+      input.categorie,
+      input.ingredients,
+      input.etapes,
+      input.photo,
+      input.source,
+    ]
+  )
+  return rows[0].id
+}
