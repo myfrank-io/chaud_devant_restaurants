@@ -30,7 +30,7 @@ export default async function Merci({
   }
 
   return (
-    <PageSimple titre="Va voir tes mails.">
+    <PageSimple titre={mailEnvoye ? 'Va voir tes mails.' : 'C’est noté.'}>
       {mailEnvoye ? (
         <p>
           On vient de t&rsquo;envoyer un message pour vérifier que cette adresse est bien la tienne.
