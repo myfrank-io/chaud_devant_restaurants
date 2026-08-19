@@ -67,6 +67,12 @@ function parmi<T extends string>(valeurs: readonly T[], brut: string | null, def
   return (valeurs as readonly string[]).includes(brut ?? '') ? (brut as T) : defaut
 }
 
+/** Une duree en minutes : entiere et positive, sinon rien. */
+function duree(formData: FormData, champ: string): number | null {
+  const brut = Number(texte(formData, champ))
+  return Number.isFinite(brut) && brut > 0 ? Math.round(brut) : null
+}
+
 /**
  * Repurge les pages touchees par une parution.
  *
@@ -219,14 +225,13 @@ function recetteDepuisLeFormulaire(formData: FormData): RecipeInput | null {
   const titre = texte(formData, 'title')
   if (!titre) return null
 
-  const minutes = Number(texte(formData, 'minutes'))
-
   return {
     slug: slugify(texte(formData, 'slug') ?? titre),
     title: titre,
     category: texte(formData, 'category'),
     seasons: (formData.getAll('seasons') as string[]).filter(Boolean),
-    minutes: Number.isFinite(minutes) && minutes > 0 ? Math.round(minutes) : null,
+    minutes: duree(formData, 'minutes'),
+    prepMinutes: duree(formData, 'prep_minutes'),
     difficulty: texte(formData, 'difficulty'),
     angle: texte(formData, 'angle'),
     cover: texte(formData, 'cover'),

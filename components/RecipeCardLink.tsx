@@ -23,8 +23,14 @@ export function RecipeCardLink({ recipe }: { recipe: Recipe }) {
       )}
       <div className="border-t-2 border-fonte/15 p-5">
         <p className="font-display text-xl font-bold leading-snug text-fonte">{recipe.title}</p>
+        {/* La carte affiche le temps total : preparation + cuisson. */}
         <p className="mt-2 text-sm uppercase tracking-wide text-bois">
-          {[recipe.category, recipe.minutes ? `${recipe.minutes} min` : null]
+          {[
+            recipe.category,
+            recipe.minutes || recipe.prepMinutes
+              ? `${(recipe.minutes ?? 0) + (recipe.prepMinutes ?? 0)} min`
+              : null,
+          ]
             .filter(Boolean)
             .join(' · ')}
         </p>

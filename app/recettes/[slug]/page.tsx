@@ -55,7 +55,11 @@ export default async function Recette({ params }: { params: Promise<{ slug: stri
     url: `${siteUrl()}/recettes/${recipe.slug}`,
     ...(recipe.cover ? { image: [recipe.cover] } : {}),
     ...(recipe.angle ? { description: recipe.angle } : {}),
-    ...(recipe.minutes ? { totalTime: isoDuration(recipe.minutes) } : {}),
+    ...(recipe.prepMinutes ? { prepTime: isoDuration(recipe.prepMinutes) } : {}),
+    ...(recipe.minutes ? { cookTime: isoDuration(recipe.minutes) } : {}),
+    ...(recipe.minutes || recipe.prepMinutes
+      ? { totalTime: isoDuration((recipe.minutes ?? 0) + (recipe.prepMinutes ?? 0)) }
+      : {}),
     ...(recipe.category ? { recipeCategory: recipe.category } : {}),
     recipeCuisine: 'Française',
     author: { '@type': 'Organization', name: 'Chaud Devant' },
@@ -94,7 +98,8 @@ export default async function Recette({ params }: { params: Promise<{ slug: stri
           <p className="mt-4 text-sm text-fonte/60">
             {[
               recipe.category,
-              recipe.minutes ? `${recipe.minutes} min` : null,
+              recipe.prepMinutes ? `Préparation ${recipe.prepMinutes} min` : null,
+              recipe.minutes ? `Cuisson ${recipe.minutes} min` : null,
               recipe.difficulty,
               recipe.seasons.length > 0 ? recipe.seasons.join(', ') : null,
             ]

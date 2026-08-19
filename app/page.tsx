@@ -127,7 +127,7 @@ function Contenu({ recipes }: { recipes: Awaited<ReturnType<typeof getLatestReci
             <Embleme className="mx-auto w-24 text-rouge/45" />
             <p className="mt-6 font-display text-xl leading-relaxed text-fonte/80">
               Blanquette, bourguignon, hachis de queue de bœuf, tarte tatin retournée dans la
-              cocotte. Et les combos qu&rsquo;on fait tous en cachette.
+              cocotte.
             </p>
             <p className="mt-3 text-sm uppercase tracking-[0.18em] text-bois">Ça arrive</p>
           </div>

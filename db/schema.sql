@@ -67,7 +67,10 @@ CREATE TABLE IF NOT EXISTS recipes (
   title         text NOT NULL,
   category      text,
   seasons       text[] NOT NULL DEFAULT '{}',
+  -- Le temps de cuisson. Le temps de preparation vit a part : les deux se
+  -- filtrent separement sur /recettes, et s'additionnent pour le total.
   minutes       integer,
+  prep_minutes  integer,
   difficulty    text,
   angle         text,
   cover         text,

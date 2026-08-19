@@ -80,7 +80,14 @@ const PLATS = [
   'Pot-au-feu',
   'Tajine du dimanche',
   'Coq au vin',
+  'Chou farci',
+  'Gratin dauphinois',
+  'Ratatouille confite',
+  'Purée maison',
+  'Taboulé du saladier',
   'Tarte tatin',
+  'Riz au lait',
+  'Gâteau au yaourt',
 ] as const
 
 function Patrimoine() {
@@ -188,13 +195,13 @@ function VoixOff() {
  */
 const MUR: ({ couleur: string; rotation: string } | 'vide' | 'a-chiner')[] = [
   { couleur: 'text-rouge', rotation: 'rotate-1' },
-  { couleur: 'text-bois', rotation: '-rotate-2' },
-  { couleur: 'text-vert', rotation: 'rotate-0' },
-  { couleur: 'text-fonte', rotation: 'rotate-2' },
-  { couleur: 'text-rouge', rotation: '-rotate-1' },
   'vide',
-  { couleur: 'text-vert', rotation: '-rotate-1' },
-  { couleur: 'text-rouge', rotation: 'rotate-1' },
+  'vide',
+  'vide',
+  'vide',
+  'vide',
+  'vide',
+  'vide',
   'a-chiner',
 ]
 
