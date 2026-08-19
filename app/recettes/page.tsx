@@ -28,8 +28,8 @@ export default async function Recettes() {
             Les recettes
           </h1>
           <p className="mt-4 max-w-xl text-lg leading-relaxed text-fonte/70">
-            Tout ce qui est passé dans la cocotte finit ici, écrit noir sur blanc. Tu peux les
-            refaire sans remettre la vidéo en pause toutes les huit secondes.
+            Tout ce qui est passé sur les réseaux finit ici. Tu peux les refaire sans remettre
+            la vidéo en pause toutes les 5 secondes.
           </p>
 
           {recipes.length === 0 ? (
