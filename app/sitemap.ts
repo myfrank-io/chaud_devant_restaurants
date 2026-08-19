@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 
-import { getPublishedRecipes } from '@/lib/notion'
+import { getPublishedRecipes } from '@/lib/recipes'
 import { siteUrl } from '@/lib/site'
 
 export const revalidate = 3600

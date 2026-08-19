@@ -1,18 +1,19 @@
 import Link from 'next/link'
 
 import { Embleme } from '@/components/Logo'
-import type { RecipeCard } from '@/lib/notion'
+import type { Recipe } from '@/lib/recipes'
 
 /** Carte de recette, partagee par la home et le hub : une seule mise en forme a maintenir. */
-export function RecipeCardLink({ recipe }: { recipe: RecipeCard }) {
+export function RecipeCardLink({ recipe }: { recipe: Recipe }) {
   return (
     <Link
       href={`/recettes/${recipe.slug}`}
       className="group block h-full border-2 border-fonte/15 bg-papier transition hover:border-rouge hover:shadow-[5px_5px_0_0_var(--color-creme-fonce)]"
     >
       {recipe.cover ? (
-        // Les URL de fichiers Notion expirent : pas d'optimisation en cache
-        // derriere, on sert la source telle quelle.
+        // La photo est une adresse saisie dans l'atelier : on sert la source
+        // telle quelle plutot que de la passer par l'optimiseur, qui exigerait
+        // de declarer chaque domaine autorise.
         // eslint-disable-next-line @next/next/no-img-element
         <img src={recipe.cover} alt="" loading="lazy" className="aspect-[4/5] w-full object-cover" />
       ) : (

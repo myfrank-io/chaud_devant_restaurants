@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { Embleme, Logo } from '@/components/Logo'
 import { RecipeCardLink } from '@/components/RecipeCardLink'
 import { SignupForm } from '@/components/SignupForm'
-import { getLatestRecipes } from '@/lib/notion'
+import { getLatestRecipes } from '@/lib/recipes'
 import { HERO_IMAGE, SOCIAL_LINKS } from '@/lib/site'
 
 export const revalidate = 3600

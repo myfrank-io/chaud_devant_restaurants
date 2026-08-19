@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 import { RecipeFilters } from '@/components/RecipeFilters'
 import { SiteHeader } from '@/components/SiteHeader'
-import { getPublishedRecipes } from '@/lib/notion'
+import { getPublishedRecipes } from '@/lib/recipes'
 
 export const metadata: Metadata = {
   title: 'Les recettes',
