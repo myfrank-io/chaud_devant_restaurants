@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { BaseAbsente } from '@/components/atelier/BaseAbsente'
 import { Bouton, Choix, Texte } from '@/components/atelier/Champs'
 import { ChampRelu } from '@/components/atelier/ChampRelu'
+import { DepuisUnePhoto } from '@/components/atelier/DepuisUnePhoto'
 import {
   CANAUX,
   FORMATS,
@@ -53,6 +54,12 @@ export default async function FichePost({
       <h1 className="mt-4 font-display text-3xl font-black text-fonte">
         {nouveau ? 'Nouveau post' : post!.title}
       </h1>
+
+      {nouveau ? (
+        <div className="mt-6">
+          <DepuisUnePhoto ligneId={ligne} />
+        </div>
+      ) : null}
 
       <form action={enregistreUnPostAction} className="mt-7 space-y-8 pb-16">
         {post ? <input type="hidden" name="id" value={post.id} /> : null}

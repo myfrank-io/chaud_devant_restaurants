@@ -26,6 +26,10 @@ import {
 } from '@/lib/atelier'
 import { estConnecte, fermeLaSession } from '@/lib/auth'
 import {
+  isRedactionConfigured,
+  redigeDepuisUnePhoto,
+} from '@/lib/redaction'
+import {
   alignerLaParution,
   creeLaFichePourUnPost,
   creeUneRecette,
@@ -291,4 +295,56 @@ export async function supprimeUneIdeeAction(formData: FormData): Promise<void> {
 
   await supprimeUneIdee(id)
   revalidatePath('/atelier/idees')
+}
+
+/* --------------------------------------------------------- depuis photo --- */
+
+/**
+ * Ecrit un post a partir d'une photo, puis ouvre sa fiche.
+ *
+ * Renvoie un message d'erreur, ou rien et redirige. On cree l'objet plutot que
+ * de remplir un formulaire a l'ecran : le brouillon est en base, donc il
+ * survit a un onglet ferme, et la fiche qui s'ouvre est celle qu'on relira.
+ */
+export async function redigeDepuisUnePhotoAction(formData: FormData): Promise<string | undefined> {
+  await exigeLaSession()
+
+  if (!isRedactionConfigured()) {
+    return 'ANTHROPIC_API_KEY n’est pas configuré : la rédaction depuis une photo est fermée.'
+  }
+
+  const base64 = texte(formData, 'image')
+  if (!base64) return 'Aucune photo reçue.'
+
+  let brouillon
+  try {
+    brouillon = await redigeDepuisUnePhoto(
+      { base64, mediaType: 'image/jpeg' },
+      texte(formData, 'indication')
+    )
+  } catch (error) {
+    console.error('[redaction] echec de la redaction depuis une photo', error)
+    return 'La rédaction a échoué. Réessaie, ou écris le post à la main.'
+  }
+
+  // La fiche recette nait vide, comme pour un post cree a la main : c'est ce
+  // qui l'empeche de paraitre avant qu'un humain l'ait ecrite.
+  const id = await creeUnPost({
+    ligneId: texte(formData, 'ligne_id'),
+    recipeId: await creeLaFichePourUnPost(brouillon.titre),
+    title: brouillon.titre,
+    channel: 'instagram',
+    format: brouillon.format,
+    hook: brouillon.hook,
+    script: brouillon.script,
+    sonType: brouillon.sonType,
+    son: brouillon.son,
+    caption: brouillon.caption,
+    mediaUrl: null,
+    scheduledOn: null,
+    status: 'idee',
+  })
+
+  await rafraichitLeSite()
+  redirect(`/atelier/post/${id}`)
 }
