@@ -1,6 +1,8 @@
 import Link from 'next/link'
 
-/** Gabarit des pages courtes : même lumière que le hero, un seul bloc de texte. */
+import { Cocotte } from '@/components/Cocotte'
+
+/** Gabarit des pages courtes du parcours d'inscription : même papier, même cocotte. */
 export function PageSimple({
   titre,
   children,
@@ -9,19 +11,26 @@ export function PageSimple({
   children: React.ReactNode
 }) {
   return (
-    <main className="lumiere-cocotte grain relative isolate flex min-h-svh items-center px-6 py-20 sm:px-8">
-      <div className="relative mx-auto w-full max-w-xl">
-        <Link
-          href="/"
-          className="font-display text-2xl font-black leading-none text-creme/70 transition hover:text-creme"
-        >
-          Chaud Devant
-        </Link>
-        <h1 className="mt-10 font-display text-4xl font-black leading-tight text-creme sm:text-5xl">
-          {titre}
-        </h1>
-        <div className="mt-6 space-y-5 text-lg leading-relaxed text-creme/80">{children}</div>
-      </div>
-    </main>
+    <>
+      <div aria-hidden="true" className="nappe h-4 w-full" />
+      <main className="papier grain relative isolate flex min-h-svh items-center px-6 py-16 sm:px-8">
+        <div className="relative mx-auto w-full max-w-xl text-center">
+          <Link href="/" className="inline-block">
+            <Cocotte className="mx-auto w-28 text-rouge" />
+            <span className="mt-3 block font-display text-xl font-black uppercase leading-none tracking-tight text-rouge">
+              Chaud Devant
+            </span>
+          </Link>
+
+          <h1 className="mt-10 font-display text-4xl font-black leading-[1.05] text-fonte sm:text-5xl">
+            {titre}
+          </h1>
+
+          <div className="mx-auto mt-6 max-w-md space-y-5 text-lg leading-relaxed text-fonte/80">
+            {children}
+          </div>
+        </div>
+      </main>
+    </>
   )
 }

@@ -19,7 +19,7 @@ export default async function Recettes() {
   return (
     <>
       <SiteHeader />
-      <main className="bg-creme px-6 py-16 sm:px-8 sm:py-20">
+      <main className="papier px-6 py-16 sm:px-8 sm:py-20">
         <div className="mx-auto max-w-4xl">
           <h1 className="font-display text-4xl font-black leading-tight text-fonte sm:text-5xl">
             Les recettes

@@ -23,7 +23,7 @@ export default function MentionsLegales() {
   return (
     <>
       <SiteHeader />
-      <main className="bg-creme px-6 py-16 sm:px-8 sm:py-20">
+      <main className="papier px-6 py-16 sm:px-8 sm:py-20">
         <div className="mx-auto max-w-2xl">
           <h1 className="font-display text-4xl font-black leading-tight text-fonte sm:text-5xl">
             Mentions légales
@@ -111,7 +111,7 @@ function Section({ titre, children }: { titre: string; children: React.ReactNode
 
 function ARediger({ children }: { children: React.ReactNode }) {
   return (
-    <p className="rounded-sm border border-dashed border-fonte/30 bg-creme-sombre px-4 py-3 text-fonte/60">
+    <p className="rounded-sm border border-dashed border-fonte/30 bg-creme-fonce px-4 py-3 text-fonte/60">
       <span className="font-bold text-fonte/80">À compléter avant le lancement. </span>
       {children}
     </p>

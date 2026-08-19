@@ -21,7 +21,7 @@ export default function LeConcept() {
   return (
     <>
       <SiteHeader />
-      <main className="bg-creme">
+      <main className="papier">
         <section className="px-6 py-16 sm:px-8 sm:py-24">
           <div className="mx-auto max-w-2xl">
             <h1 className="font-display text-4xl font-black leading-tight text-fonte sm:text-5xl">
@@ -42,7 +42,7 @@ export default function LeConcept() {
           </div>
         </section>
 
-        <section className="border-t border-fonte/10 bg-creme-sombre px-6 py-16 sm:px-8 sm:py-24">
+        <section className="border-t border-fonte/10 bg-creme-fonce px-6 py-16 sm:px-8 sm:py-24">
           <div className="mx-auto max-w-2xl">
             <h2 className="font-display text-sm font-bold uppercase tracking-[0.2em] text-bois">
               Ce qu&rsquo;on cuisine
@@ -96,7 +96,7 @@ export default function LeConcept() {
           </div>
         </section>
 
-        <section className="lumiere-cocotte grain relative isolate px-6 py-20 sm:px-8 sm:py-28">
+        <section className="fonte-chaude grain relative isolate px-6 py-20 sm:px-8 sm:py-28">
           <div className="relative mx-auto max-w-2xl">
             <p className="font-display text-2xl leading-snug font-semibold text-creme sm:text-3xl">
               On ne sait pas encore à quoi ça ressemblera exactement. On sait ce qu&rsquo;on veut

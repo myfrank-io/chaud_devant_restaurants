@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 
+import { Cocotte } from '@/components/Cocotte'
 import { RecipeCardLink } from '@/components/RecipeCardLink'
 import { SignupForm } from '@/components/SignupForm'
 import { getLatestRecipes } from '@/lib/notion'
@@ -13,6 +14,7 @@ export default async function Home() {
 
   return (
     <main>
+      <Nappe />
       <Hero />
       <Contenu recipes={recipes} />
       <Pied />
@@ -20,36 +22,48 @@ export default async function Home() {
   )
 }
 
+/** Le bandeau de nappe : la marque tient dessus avant même le premier mot. */
+function Nappe({ className = '' }: { className?: string }) {
+  return <div aria-hidden="true" className={`nappe h-4 w-full ${className}`} />
+}
+
 function Hero() {
   return (
-    <section className="lumiere-cocotte grain relative isolate min-h-svh overflow-hidden">
+    <section className="papier grain relative isolate overflow-hidden px-6 py-16 sm:px-8 sm:py-24">
       {HERO_IMAGE ? (
         <>
           <Image src={HERO_IMAGE} alt="" fill priority sizes="100vw" className="-z-10 object-cover" />
-          <div className="absolute inset-0 -z-10 bg-fonte/55" />
+          <div className="absolute inset-0 -z-10 bg-creme/80" />
         </>
       ) : null}
 
-      <div className="relative mx-auto flex min-h-svh max-w-xl flex-col justify-center px-6 py-20 sm:px-8">
-        <h1 className="font-display text-6xl font-black leading-[0.92] tracking-tight text-creme sm:text-7xl">
+      <div className="relative mx-auto max-w-2xl text-center">
+        <Cocotte className="mx-auto w-40 text-rouge sm:w-52" />
+
+        <h1 className="mt-6 font-display text-6xl font-black uppercase leading-[0.85] tracking-tight text-rouge sm:text-8xl">
           Chaud
           <br />
           Devant
         </h1>
 
-        <p className="mt-6 max-w-md font-display text-xl leading-snug text-creme/85 sm:text-2xl">
-          La cocotte au milieu de la table. On se sert dedans.
+        <p className="mx-auto mt-7 max-w-md font-display text-xl leading-snug text-fonte/85 sm:text-2xl">
+          La cocotte au milieu de la table. On soulève le couvercle, et chacun se sert dedans.
         </p>
 
-        <div className="mt-10 rounded-sm border border-creme/15 bg-fonte/45 p-6 backdrop-blur-sm sm:p-7">
-          <p className="font-display text-xl leading-snug font-bold text-creme sm:text-2xl">
-            Le jour où on ouvre, tu manges offert.
-          </p>
-          <p className="mt-3 text-base leading-relaxed text-creme/75">
-            Laisse ton mail. On t&rsquo;envoie un menu offert le jour de l&rsquo;ouverture, à
-            utiliser quand tu veux.
-          </p>
-          <SignupForm />
+        {/* Le carton de menu : double filet, papier plus clair, rien d'arrondi. */}
+        <div className="mx-auto mt-12 max-w-lg border-[3px] border-rouge bg-papier p-1.5 text-left shadow-[6px_6px_0_0_var(--color-creme-fonce)]">
+          <div className="border border-rouge/30 px-6 py-8 sm:px-8">
+            <p className="text-center font-display text-3xl font-black leading-[1.05] text-fonte sm:text-4xl">
+              Le jour où on ouvre,
+              <br />
+              tu manges offert.
+            </p>
+            <p className="mt-4 text-center text-base leading-relaxed text-fonte/70">
+              Laisse ton mail. On t&rsquo;envoie un menu offert le jour de l&rsquo;ouverture, à
+              utiliser quand tu veux.
+            </p>
+            <SignupForm />
+          </div>
         </div>
       </div>
     </section>
@@ -58,16 +72,20 @@ function Hero() {
 
 function Contenu({ recipes }: { recipes: Awaited<ReturnType<typeof getLatestRecipes>> }) {
   return (
-    <section className="bg-creme px-6 py-16 sm:px-8 sm:py-20">
+    <section className="border-t-4 border-double border-rouge/40 bg-creme-fonce px-6 py-16 sm:px-8 sm:py-20">
       <div className="mx-auto max-w-4xl">
-        <div className="flex flex-wrap items-baseline justify-between gap-4">
-          <h2 className="font-display text-3xl font-black leading-tight text-fonte sm:text-4xl">
+        <div
+          className={`flex flex-wrap items-baseline gap-4 ${
+            recipes.length > 0 ? 'justify-between' : 'justify-center'
+          }`}
+        >
+          <h2 className="font-display text-3xl font-black uppercase leading-none tracking-tight text-fonte sm:text-4xl">
             En attendant, on cuisine
           </h2>
           {recipes.length > 0 ? (
             <Link
               href="/recettes"
-              className="text-sm text-fonte/60 underline-offset-4 transition hover:text-fonte hover:underline"
+              className="font-display text-base text-rouge underline decoration-2 underline-offset-4 transition hover:text-rouge-sombre"
             >
               Toutes les recettes
             </Link>
@@ -75,7 +93,7 @@ function Contenu({ recipes }: { recipes: Awaited<ReturnType<typeof getLatestReci
         </div>
 
         {recipes.length > 0 ? (
-          <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {recipes.map((recipe) => (
               <li key={recipe.id}>
                 <RecipeCardLink recipe={recipe} />
@@ -83,10 +101,14 @@ function Contenu({ recipes }: { recipes: Awaited<ReturnType<typeof getLatestReci
             ))}
           </ul>
         ) : (
-          <p className="mt-6 max-w-lg text-lg leading-relaxed text-fonte/70">
-            Les premières recettes arrivent avec les premières vidéos. Blanquette, bourguignon,
-            hachis, et les combos qu&rsquo;on fait tous en cachette.
-          </p>
+          <div className="mx-auto mt-10 max-w-xl text-center">
+            <Cocotte className="mx-auto w-24 text-rouge/45" />
+            <p className="mt-6 font-display text-xl leading-relaxed text-fonte/80">
+              Blanquette, bourguignon, hachis de queue de bœuf, tarte tatin retournée dans la
+              cocotte. Et les combos qu&rsquo;on fait tous en cachette.
+            </p>
+            <p className="mt-3 text-sm uppercase tracking-[0.18em] text-bois">Ça arrive</p>
+          </div>
         )}
       </div>
     </section>
@@ -95,40 +117,46 @@ function Contenu({ recipes }: { recipes: Awaited<ReturnType<typeof getLatestReci
 
 function Pied() {
   return (
-    <footer className="bg-fonte px-6 py-14 sm:px-8">
-      <div className="mx-auto flex max-w-4xl flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
-        <p className="font-display text-3xl font-black leading-none text-creme">
-          Chaud
-          <br />
-          Devant
-        </p>
-        <div className="flex flex-col gap-3 sm:items-end">
-          <ul className="flex gap-5">
-            {SOCIAL_LINKS.map((lien) => (
-              <li key={lien.label}>
-                <a
-                  href={lien.href}
-                  rel="me noopener"
-                  className="text-sm text-creme/70 underline-offset-4 transition hover:text-creme hover:underline"
-                >
-                  {lien.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-          <div className="flex gap-5">
-            <Link
-              href="/le-concept"
-              className="text-sm text-creme/40 underline-offset-4 transition hover:text-creme/70 hover:underline"
-            >
-              Le concept
-            </Link>
-            <Link
-              href="/mentions-legales"
-              className="text-sm text-creme/40 underline-offset-4 transition hover:text-creme/70 hover:underline"
-            >
-              Mentions légales
-            </Link>
+    <footer>
+      <Nappe />
+      <div className="fonte-chaude px-6 py-14 sm:px-8">
+        <div className="mx-auto flex max-w-4xl flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex items-end gap-5">
+            <Cocotte className="w-16 shrink-0 text-creme/70" />
+            <p className="font-display text-3xl font-black uppercase leading-[0.85] text-creme">
+              Chaud
+              <br />
+              Devant
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 sm:items-end">
+            <ul className="flex gap-5">
+              {SOCIAL_LINKS.map((lien) => (
+                <li key={lien.label}>
+                  <a
+                    href={lien.href}
+                    rel="me noopener"
+                    className="font-display text-base text-creme/80 underline-offset-4 transition hover:text-creme hover:underline"
+                  >
+                    {lien.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <div className="flex gap-5">
+              <Link
+                href="/le-concept"
+                className="text-sm text-creme/45 underline-offset-4 transition hover:text-creme/80 hover:underline"
+              >
+                Le concept
+              </Link>
+              <Link
+                href="/mentions-legales"
+                className="text-sm text-creme/45 underline-offset-4 transition hover:text-creme/80 hover:underline"
+              >
+                Mentions légales
+              </Link>
+            </div>
           </div>
         </div>
       </div>

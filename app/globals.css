@@ -1,24 +1,27 @@
 @import "tailwindcss";
 
 @theme {
-  /* Palette de la charte : rouge fonte, creme, bois, vert bouteille. */
-  --color-fonte: #16110e;
-  --color-fonte-clair: #241b16;
-  --color-rouge: #9a3320;
-  --color-rouge-sombre: #6f2115;
-  --color-rouge-clair: #e08a5c;
-  --color-creme: #f4ede1;
-  --color-creme-sombre: #e4d7c1;
-  --color-bois: #8a6a47;
-  --color-vert: #1e3a2b;
+  /* Charte : rouge fonte, creme, bois, vert bouteille (QG 4.4).
+     Le creme est le sol, pas le noir : c'est une cuisine, pas un tableau de bord. */
+  --color-creme: #f7f0e1;
+  --color-creme-fonce: #ece0c8;
+  --color-papier: #fdf8ee;
+
+  --color-rouge: #b53a24;
+  --color-rouge-sombre: #8d2a18;
+  --color-rouge-clair: #d9694b;
+
+  --color-fonte: #2c1a11;      /* brun profond, jamais un noir bleute */
+  --color-bois: #7d5a30;
+  --color-vert: #2c4735;
 
   --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
-  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-karla), system-ui, sans-serif;
 }
 
 html {
   scroll-behavior: smooth;
-  background-color: var(--color-fonte);
+  background-color: var(--color-creme);
 }
 
 body {
@@ -27,25 +30,39 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Lumiere chaude et laterale, une seule source : la charte visuelle, transposee au web.
-   Sert de fond tant que la vraie photo de cocotte n'est pas livree (voir lib/site.ts). */
-.lumiere-cocotte {
-  background-color: var(--color-fonte);
+/* Papier : le grain d'une nappe en papier, pas un aplat d'ecran. */
+.papier {
+  background-color: var(--color-creme);
   background-image:
-    radial-gradient(ellipse 70% 55% at 22% 18%, rgba(214, 138, 74, 0.34), transparent 62%),
-    radial-gradient(ellipse 60% 50% at 78% 78%, rgba(154, 51, 32, 0.32), transparent 66%),
-    radial-gradient(ellipse 120% 90% at 50% 115%, rgba(10, 7, 5, 0.85), transparent 70%);
+    radial-gradient(ellipse 80% 60% at 15% 0%, rgba(181, 58, 36, 0.07), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 90% 100%, rgba(150, 112, 63, 0.12), transparent 60%);
 }
 
-/* Grain leger : evite l'aplat numerique, rappelle la matiere. */
+/* Nappe a carreaux (vichy) : deux trames translucides croisees donnent les
+   trois tons du tissu. A doser — un bandeau, pas une nappe sur tout l'ecran. */
+.nappe {
+  background-color: var(--color-papier);
+  background-image:
+    repeating-linear-gradient(0deg, rgba(181, 58, 36, 0.5) 0 11px, transparent 11px 22px),
+    repeating-linear-gradient(90deg, rgba(181, 58, 36, 0.5) 0 11px, transparent 11px 22px);
+}
+
+/* Fonte chaude : reserve aux blocs sombres (pied de page, encarts). */
+.fonte-chaude {
+  background-color: var(--color-fonte);
+  background-image:
+    radial-gradient(ellipse 70% 55% at 20% 15%, rgba(214, 138, 74, 0.22), transparent 62%),
+    radial-gradient(ellipse 60% 50% at 85% 85%, rgba(181, 58, 36, 0.28), transparent 66%);
+}
+
 .grain::after {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.32;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  opacity: 0.22;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
 }
 
 @media (prefers-reduced-motion: reduce) {
