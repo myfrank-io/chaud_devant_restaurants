@@ -15,10 +15,12 @@ if (!url) {
 
 let hote = ''
 let port = ''
+let mode = null
 try {
   const u = new URL(url)
   hote = u.hostname
   port = u.port || '5432'
+  mode = u.searchParams.get('sslmode')
 } catch {
   console.error("DATABASE_URL n'est pas une URL valide.")
   process.exit(1)
@@ -41,11 +43,27 @@ if (hote.includes('pooler.supabase.com') && port !== '6543') {
   console.warn(`\nAttention : port ${port}. Le pooler transactionnel, celui qui convient au serverless, ecoute sur 6543.`)
 }
 
-// Meme reglage TLS que lib/db.ts : Supabase signe avec sa propre autorite.
+// Meme reglage TLS que lib/db.ts. Supabase signe avec sa propre autorite, et
+// `sslmode=require` ne veut pas dire chez pg ce qu'il veut dire chez libpq :
+// la version installee le traite comme une verification stricte de la chaine.
+// On le retire — sinon il ecrase l'option posee ici — et on regle nous-memes.
 const supabase = /\.supabase\.(com|co)$/.test(hote)
+const modeChoisi = ['disable', 'verify-ca', 'verify-full'].includes(mode)
+const chaine = supabase && !modeChoisi ? sansSslmode(url) : url
+
+function sansSslmode(brut) {
+  const debut = brut.indexOf('?')
+  if (debut === -1) return brut
+  const restants = brut
+    .slice(debut + 1)
+    .split('&')
+    .filter((parametre) => !parametre.startsWith('sslmode='))
+  return restants.length ? `${brut.slice(0, debut)}?${restants.join('&')}` : brut.slice(0, debut)
+}
+
 const client = new Client({
-  connectionString: url,
-  ssl: supabase ? { rejectUnauthorized: false } : undefined,
+  connectionString: chaine,
+  ssl: supabase && !modeChoisi ? { rejectUnauthorized: false } : undefined,
   connectionTimeoutMillis: 10_000,
 })
 
