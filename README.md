@@ -24,6 +24,28 @@ faits.
    l'adresse est bien enregistrée, la page de remerciement le dit sans mentir, et la confirmation
    attend. Mais tant que la clé manque, aucun inscrit n'ouvre droit au menu.
 
+### Le schéma : posé par l'application
+
+**Il n'y a aucune migration à jouer à la main.** Le schéma vit dans
+[`db/schema.ts`](./db/schema.ts), il est idempotent de bout en bout, et l'application le pose
+elle-même avant sa première requête. Déployer suffit.
+
+Ce n'était pas le cas avant, et ça a coûté deux pannes le même jour : du code lisant une colonne
+partait en production pendant que la migration qui crée la colonne restait dans un dossier que
+personne ne jouait. Chaque requête tombait en `42703`, et tout l'atelier cassait d'un coup sans
+rapport visible avec ce qu'on venait de faire. La cause n'était pas l'étourderie mais la
+structure : poser une migration ici demandait un geste humain hors du déploiement, donc le code
+et la base pouvaient diverger — et divergeaient.
+
+**Pour ajouter une colonne**, dans `db/schema.ts` et nulle part ailleurs :
+
+1. dans le `CREATE TABLE`, pour une base neuve ;
+2. en `ALTER TABLE … ADD COLUMN IF NOT EXISTS` juste en dessous, pour les bases qui existent déjà ;
+3. incrémenter `VERSION`.
+
+La pose ne bloque jamais : si elle échoue (droits manquants), l'application continue avec la base
+telle qu'elle est plutôt que de s'éteindre.
+
 ### La base Supabase
 
 Le projet est `Chaud-Devant-Restaurants` (`abrppxmowjspqjbpgmfb`, région `eu-west-1`). La table

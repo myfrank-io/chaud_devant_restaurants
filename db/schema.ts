@@ -1,10 +1,47 @@
--- Chaud Devant — schema de la liste d'inscrits.
---
--- Regle d'architecture (QG 6.4) : la liste vit ici, pas dans l'outil d'emailing.
--- Resend ne sert qu'a envoyer. Consequences : le compteur d'inscrits se lit
--- d'une requete, et la carte de densite par ville se sort en une ligne de SQL.
+/**
+ * Le schema, en un seul endroit, et applique par l'application elle-meme.
+ *
+ * Pourquoi ce fichier existe : deux pannes en une journee, toutes deux
+ * identiques. Du code qui lit une colonne part en production, la migration qui
+ * cree la colonne reste dans un dossier que personne ne joue, et chaque
+ * requete tombe en 42703 — /atelier/recettes, /atelier/lignes et la fiche
+ * d'un post cassent d'un coup, sans rapport visible avec ce qu'on venait de
+ * faire.
+ *
+ * La cause n'est pas l'oubli, elle est structurelle : le seul moyen de poser
+ * une migration ici passe par un tableau de bord ou une CLI a authentifier a
+ * la main. Tant que le schema depend d'un geste humain hors du deploiement,
+ * le code et la base peuvent diverger, et divergeront.
+ *
+ * Donc l'application pose son schema. Le SQL ci-dessous est idempotent de bout
+ * en bout — `IF NOT EXISTS` partout, aucune donnee touchee — et s'execute une
+ * fois par instance, avant la premiere requete. Deployer suffit.
+ *
+ * La regle qui remplace l'ancienne : une colonne nouvelle s'ajoute ici, dans
+ * la table pour une base neuve *et* en `ALTER TABLE ... ADD COLUMN IF NOT
+ * EXISTS` plus bas pour les bases qui existent deja. Puis on incremente
+ * VERSION. Rien d'autre a faire, nulle part.
+ */
 
+/**
+ * Incrementer a chaque changement du SQL ci-dessous.
+ *
+ * Sert de sonde : tant que la base porte deja cette version, on ne rejoue
+ * rien. Sans elle, chaque demarrage a froid repasserait sur tout le DDL pour
+ * ne rien faire.
+ */
+export const VERSION = 3
+
+export const SCHEMA = `
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- ---------------------------------------------------------------------------
+-- Liste d'inscrits.
+--
+-- Regle d'architecture (QG 6.4) : la liste vit ici, pas dans l'outil
+-- d'emailing. Resend ne sert qu'a envoyer. Consequences : le compteur
+-- d'inscrits se lit d'une requete, et la carte par ville sort en une ligne.
+-- ---------------------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS subscribers (
   id                 uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -27,6 +64,8 @@ CREATE TABLE IF NOT EXISTS subscribers (
   marketing_opt_in   boolean NOT NULL DEFAULT false
 );
 
+ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS marketing_opt_in boolean NOT NULL DEFAULT false;
+
 CREATE INDEX IF NOT EXISTS subscribers_city_idx ON subscribers (city);
 CREATE INDEX IF NOT EXISTS subscribers_confirmed_at_idx ON subscribers (confirmed_at);
 CREATE UNIQUE INDEX IF NOT EXISTS subscribers_confirm_token_idx ON subscribers (confirm_token);
@@ -34,19 +73,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS subscribers_unsubscribe_token_idx ON subscribe
 
 -- Le droit au menu offert se lit ici : confirmed_at renseigne et
 -- unsubscribed_at nul. C'est la seule source de verite le jour de l'ouverture.
-
--- Supabase : PostgREST est ouvert au public via la cle publishable, donc la
--- table doit etre fermee aux roles anon et authenticated. Le site ne passe pas
--- par PostgREST mais par une connexion Postgres directe, qui n'est pas soumise
--- a RLS — d'ou une RLS active sans aucune politique.
-ALTER TABLE subscribers ENABLE ROW LEVEL SECURITY;
-DO $$
-BEGIN
-  EXECUTE 'REVOKE ALL ON subscribers FROM anon, authenticated';
-EXCEPTION WHEN undefined_object THEN
-  -- Postgres local : ces roles n'existent pas, il n'y a rien a revoquer.
-  NULL;
-END $$;
 
 -- ---------------------------------------------------------------------------
 -- Atelier : ce qu'on prepare, ce qu'on publie.
@@ -84,6 +110,8 @@ CREATE TABLE IF NOT EXISTS recipes (
   created_at    timestamptz NOT NULL DEFAULT now(),
   updated_at    timestamptz NOT NULL DEFAULT now()
 );
+
+ALTER TABLE recipes ADD COLUMN IF NOT EXISTS prep_minutes integer;
 
 CREATE INDEX IF NOT EXISTS recipes_published_at_idx ON recipes (published_at DESC);
 
@@ -129,16 +157,6 @@ CREATE TABLE IF NOT EXISTS posts (
 CREATE INDEX IF NOT EXISTS posts_scheduled_on_idx ON posts (scheduled_on);
 CREATE INDEX IF NOT EXISTS posts_ligne_id_idx ON posts (ligne_id);
 
-ALTER TABLE recipes ENABLE ROW LEVEL SECURITY;
-ALTER TABLE lignes ENABLE ROW LEVEL SECURITY;
-ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
-DO $$
-BEGIN
-  EXECUTE 'REVOKE ALL ON recipes, lignes, posts FROM anon, authenticated';
-EXCEPTION WHEN undefined_object THEN
-  NULL;
-END $$;
-
 -- Boite a idees : la liste ou l'on jette ce qui traverse, avant tri.
 -- Cocher archive plutot que supprimer — une idee ecartee reste une trace de
 -- ce a quoi on a deja pense.
@@ -149,10 +167,36 @@ CREATE TABLE IF NOT EXISTS idees (
   created_at  timestamptz NOT NULL DEFAULT now()
 );
 
+-- ---------------------------------------------------------------------------
+-- Fermeture.
+--
+-- Supabase : PostgREST est ouvert au public via la cle publishable, donc les
+-- tables doivent etre fermees aux roles anon et authenticated. Le site ne
+-- passe pas par PostgREST mais par une connexion Postgres directe, qui n'est
+-- pas soumise a RLS — d'ou une RLS active sans aucune politique.
+-- ---------------------------------------------------------------------------
+
+ALTER TABLE subscribers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE recipes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE lignes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE idees ENABLE ROW LEVEL SECURITY;
-DO $$
+
+DO $do$
 BEGIN
-  EXECUTE 'REVOKE ALL ON idees FROM anon, authenticated';
+  EXECUTE 'REVOKE ALL ON subscribers, recipes, lignes, posts, idees FROM anon, authenticated';
 EXCEPTION WHEN undefined_object THEN
+  -- Postgres local : ces roles n'existent pas, il n'y a rien a revoquer.
   NULL;
-END $$;
+END
+$do$;
+
+-- La sonde. Une ligne, un entier : la version du schema pose ici.
+CREATE TABLE IF NOT EXISTS schema_etat (
+  ligne_unique boolean PRIMARY KEY DEFAULT true CHECK (ligne_unique),
+  version      integer NOT NULL,
+  pose_le      timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE schema_etat ENABLE ROW LEVEL SECURITY;
+`

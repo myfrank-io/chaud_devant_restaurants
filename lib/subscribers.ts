@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { getPool } from '@/lib/db'
+import { basePrete } from '@/lib/db'
 
 export type CreateResult =
   | { status: 'created'; confirmToken: string; unsubscribeToken: string }
@@ -22,7 +22,7 @@ export type ConfirmResult =
  * countConfirmed ci-dessous.
  */
 export async function countInscrits(): Promise<number | null> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) return null
 
   try {
@@ -38,7 +38,7 @@ export async function countInscrits(): Promise<number | null> {
 
 /** Nombre d'inscrits confirmes. null si la base n'est pas joignable. */
 export async function countConfirmed(): Promise<number | null> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) return null
 
   try {
@@ -67,7 +67,7 @@ export async function createSubscriber(input: {
   city?: string | null
   marketingOptIn: boolean
 }): Promise<CreateResult> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) throw new Error('DATABASE_URL absent : impossible d\'enregistrer une inscription.')
 
   const { rows } = await pool.query<{
@@ -112,7 +112,7 @@ export async function createSubscriber(input: {
  * menu offert : une adresse saisie mais jamais confirmee n'engage a rien.
  */
 export async function confirmSubscriber(token: string): Promise<ConfirmResult> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) throw new Error('DATABASE_URL absent : impossible de confirmer une inscription.')
 
   // On capture l'etat d'avant dans une CTE plutot que de deduire « deja
@@ -137,7 +137,7 @@ export async function confirmSubscriber(token: string): Promise<ConfirmResult> {
 
 /** Desinscription, depuis le lien present dans chaque email. */
 export async function unsubscribe(token: string): Promise<boolean> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) throw new Error('DATABASE_URL absent : impossible de traiter la desinscription.')
 
   const { rowCount } = await pool.query(
@@ -159,7 +159,7 @@ export type SubscriberStats = {
  * « ou j'ouvre » avec un chiffre plutot qu'une intuition (QG 7.4).
  */
 export async function getSubscriberStats(): Promise<SubscriberStats | null> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) return null
 
   try {

@@ -1,5 +1,7 @@
 import { Pool } from 'pg'
 
+import { SCHEMA, VERSION } from '@/db/schema'
+
 let pool: Pool | null = null
 
 /**
@@ -103,4 +105,73 @@ function sansSslmode(connectionString: string): string {
 
 export function isDatabaseConfigured(): boolean {
   return Boolean(process.env.DATABASE_URL)
+}
+
+/* --------------------------------------------------------------- schema --- */
+
+let poseEnCours: Promise<void> | null = null
+
+/**
+ * Le pool, une fois le schema garanti a jour.
+ *
+ * C'est par ici que passe toute lecture et toute ecriture — `getPool()` reste
+ * pour la page de diagnostic, qui doit pouvoir joindre la base meme quand le
+ * schema, lui, ne passe pas.
+ *
+ * La pose est tentee une seule fois par instance, et ne bloque jamais : si
+ * elle echoue, on continue avec la base telle qu'elle est. Une requete qui
+ * tombe ensuite tombera comme avant, ni mieux ni pire — mais un droit
+ * manquant ne doit pas eteindre un site qui, sans ca, marcherait.
+ */
+export async function basePrete(): Promise<Pool | null> {
+  const pool = getPool()
+  if (!pool) return null
+
+  poseEnCours ??= poseLeSchema(pool)
+  await poseEnCours
+  return pool
+}
+
+/** Cle arbitraire, fixe : deux instances qui posent en meme temps s'attendent. */
+const VERROU = 2026_08_19
+
+async function poseLeSchema(pool: Pool): Promise<void> {
+  if (await dejaAJour(pool)) return
+
+  const client = await pool.connect()
+  try {
+    await client.query('SELECT pg_advisory_lock($1)', [VERROU])
+
+    // Une instance a pu poser pendant qu'on attendait le verrou.
+    if (await dejaAJour(client)) return
+
+    await client.query(SCHEMA)
+    await client.query(
+      `INSERT INTO schema_etat (version) VALUES ($1)
+       ON CONFLICT (ligne_unique) DO UPDATE SET version = $1, pose_le = now()`,
+      [VERSION]
+    )
+    console.log(`[db] schema pose en version ${VERSION}`)
+  } catch (error) {
+    console.error('[db] pose du schema impossible, on continue sans', error)
+  } finally {
+    await client.query('SELECT pg_advisory_unlock($1)', [VERROU]).catch(() => {})
+    client.release()
+  }
+}
+
+type Interrogeable = { query: (texte: string) => Promise<{ rows: { version: number }[] }> }
+
+/**
+ * Sonde bon marche : sans elle, chaque demarrage a froid rejouerait tout le
+ * DDL pour ne rien changer. Une table absente est un echec attendu, pas une
+ * erreur — c'est le cas d'une base neuve.
+ */
+async function dejaAJour(source: Interrogeable): Promise<boolean> {
+  try {
+    const { rows } = await source.query('SELECT version FROM schema_etat LIMIT 1')
+    return (rows[0]?.version ?? 0) >= VERSION
+  } catch {
+    return false
+  }
 }

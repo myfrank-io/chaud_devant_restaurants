@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { getPool } from '@/lib/db'
+import { basePrete } from '@/lib/db'
 
 /**
  * Recettes : redigees dans l'atelier, stockees ici, lues par le site public.
@@ -94,7 +94,7 @@ function versRecette(ligne: Ligne): Recipe {
 
 /** Ce que voit le public. Jamais un brouillon. */
 export async function getPublishedRecipes(): Promise<Recipe[]> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) return []
 
   try {
@@ -112,7 +112,7 @@ export async function getPublishedRecipes(): Promise<Recipe[]> {
 
 /** Les dernieres parues, pour la home. */
 export async function getLatestRecipes(limite = 3): Promise<Recipe[]> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) return []
 
   try {
@@ -131,7 +131,7 @@ export async function getLatestRecipes(limite = 3): Promise<Recipe[]> {
 }
 
 export async function getRecipeBySlug(slug: string): Promise<Recipe | null> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) return null
 
   try {
@@ -148,7 +148,7 @@ export async function getRecipeBySlug(slug: string): Promise<Recipe | null> {
 
 /** Tout, brouillons compris. Reserve a l'atelier. */
 export async function listeToutesLesRecettes(): Promise<Recipe[]> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) return []
 
   const { rows } = await pool.query<Ligne>(
@@ -159,7 +159,7 @@ export async function listeToutesLesRecettes(): Promise<Recipe[]> {
 }
 
 export async function getRecipeById(id: string): Promise<Recipe | null> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) return null
 
   const { rows } = await pool.query<Ligne>(`SELECT ${COLONNES} FROM recipes WHERE id = $1`, [id])
@@ -185,7 +185,7 @@ export type RecipeInput = {
 }
 
 export async function creeUneRecette(input: RecipeInput): Promise<string> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) throw new Error('DATABASE_URL absent : impossible d\'enregistrer une recette.')
 
   const { rows } = await pool.query<{ id: string }>(
@@ -199,7 +199,7 @@ export async function creeUneRecette(input: RecipeInput): Promise<string> {
 }
 
 export async function metAJourUneRecette(id: string, input: RecipeInput): Promise<void> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) throw new Error('DATABASE_URL absent : impossible d\'enregistrer une recette.')
 
   await pool.query(
@@ -215,7 +215,7 @@ export async function metAJourUneRecette(id: string, input: RecipeInput): Promis
 }
 
 export async function supprimeUneRecette(id: string): Promise<void> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) throw new Error('DATABASE_URL absent : impossible de supprimer une recette.')
   await pool.query('DELETE FROM recipes WHERE id = $1', [id])
 }
@@ -279,7 +279,7 @@ export async function alignerLaParution(
   recipeId: string,
   jour: string | null
 ): Promise<string | null> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) return null
 
   // Le slug revient : l'appelant doit purger le cache de cette page precise.
@@ -303,7 +303,7 @@ export async function alignerLaParution(
 export async function postQuiPorte(
   recipeId: string
 ): Promise<{ id: string; title: string; scheduledOn: string | null } | null> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) return null
 
   const { rows } = await pool.query<{ id: string; title: string; scheduled_on: string | null }>(
@@ -354,7 +354,7 @@ export function enJour(date: Date | null): string | null {
  * date de parution est posee ensuite, par le calage du post.
  */
 export async function creeLaFichePourUnPost(titre: string): Promise<string> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) throw new Error('DATABASE_URL absent : impossible de créer la fiche recette.')
 
   const { rows } = await pool.query<{ id: string }>(
@@ -372,7 +372,7 @@ export async function creeLaFichePourUnPost(titre: string): Promise<string> {
  * violation de contrainte, ce qui n'aurait aucun sens a l'ecran.
  */
 async function slugLibre(souhaite: string): Promise<string> {
-  const pool = getPool()
+  const pool = await basePrete()
   const base = souhaite || 'recette'
   if (!pool) return base
 
@@ -406,7 +406,7 @@ export async function creeUneRecetteARelire(input: {
   photo: string | null
   source: string
 }): Promise<string> {
-  const pool = getPool()
+  const pool = await basePrete()
   if (!pool) throw new Error('DATABASE_URL absent : impossible d\'enregistrer la recette.')
 
   const { rows } = await pool.query<{ id: string }>(
