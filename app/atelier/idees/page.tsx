@@ -22,7 +22,7 @@ export default async function Idees() {
       </div>
 
       <form action={creeUneIdeeAction} className="mt-6 flex flex-wrap items-end gap-3">
-        <div className="min-w-64 flex-1">
+        <div className="min-w-0 grow basis-64">
           <label htmlFor="texte" className="text-xs font-bold uppercase tracking-[0.15em] text-bois">
             Une idée
           </label>
@@ -46,16 +46,20 @@ export default async function Idees() {
             <form action={archiveUneIdeeAction} className="flex">
               <input type="hidden" name="id" value={idee.id} />
               <input type="hidden" name="archivee" value="1" />
+              {/* La case fait 20px a l'oeil, 40px sous le doigt : le bouton
+                  deborde en marges negatives sans bouger la ligne. */}
               <button
                 type="submit"
                 aria-label={`Archiver « ${idee.texte} »`}
-                className="size-5 border-2 border-fonte/30 transition hover:border-rouge hover:bg-rouge/15"
-              />
+                className="group -m-2.5 grid size-10 shrink-0 place-items-center"
+              >
+                <span className="size-5 border-2 border-fonte/30 transition group-hover:border-rouge group-hover:bg-rouge/15" />
+              </button>
             </form>
-            <span className="text-lg leading-snug text-fonte">{idee.texte}</span>
+            <span className="min-w-0 break-words text-lg leading-snug text-fonte">{idee.texte}</span>
             <Link
               href={`/atelier/post/nouveau?titre=${encodeURIComponent(idee.texte)}&retour=${encodeURIComponent('/atelier/idees')}`}
-              className="ml-auto shrink-0 text-sm text-fonte/45 underline-offset-4 transition hover:text-rouge hover:underline"
+              className="ml-auto shrink-0 py-2 text-sm text-fonte/45 underline-offset-4 transition hover:text-rouge hover:underline"
             >
               en faire un post
             </Link>
@@ -81,15 +85,19 @@ export default async function Idees() {
                   <button
                     type="submit"
                     aria-label={`Remettre « ${idee.texte} » dans la boîte`}
-                    className="flex size-5 items-center justify-center border-2 border-fonte/20 text-sm text-fonte/45 transition hover:border-rouge hover:text-rouge"
+                    className="group -m-2.5 grid size-10 shrink-0 place-items-center"
                   >
-                    ✓
+                    <span className="flex size-5 items-center justify-center border-2 border-fonte/20 text-sm text-fonte/45 transition group-hover:border-rouge group-hover:text-rouge">
+                      ✓
+                    </span>
                   </button>
                 </form>
-                <span className="text-base text-fonte/40 line-through">{idee.texte}</span>
+                <span className="min-w-0 break-words text-base text-fonte/40 line-through">
+                  {idee.texte}
+                </span>
                 <form action={supprimeUneIdeeAction} className="ml-auto">
                   <input type="hidden" name="id" value={idee.id} />
-                  <Bouton type="submit" variante="discret" className="!px-0 !text-sm">
+                  <Bouton type="submit" variante="discret" className="-mr-2 !px-2 !text-sm">
                     Supprimer
                   </Bouton>
                 </form>

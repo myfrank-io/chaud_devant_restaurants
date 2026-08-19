@@ -12,7 +12,7 @@ const TON_STATUT: Record<Statut, string> = {
 export function PastilleStatut({ statut }: { statut: Statut }) {
   return (
     <span
-      className={`inline-block border px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider ${TON_STATUT[statut]}`}
+      className={`inline-block border px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wider ${TON_STATUT[statut]}`}
     >
       {LIBELLE_STATUT[statut]}
     </span>
@@ -21,7 +21,7 @@ export function PastilleStatut({ statut }: { statut: Statut }) {
 
 export function PastilleFormat({ format }: { format: Format }) {
   return (
-    <span className="inline-block border border-fonte/20 px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-fonte/55">
+    <span className="inline-block border border-fonte/20 px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-fonte/55">
       {LIBELLE_FORMAT[format]}
     </span>
   )

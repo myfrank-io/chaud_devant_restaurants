@@ -66,8 +66,8 @@ export default async function Dossier() {
                   key={row.city}
                   className="flex items-baseline justify-between gap-4 border-b border-creme/10 pb-2"
                 >
-                  <span className="text-lg">{row.city}</span>
-                  <span className="font-display text-lg font-bold">{row.count}</span>
+                  <span className="min-w-0 break-words text-lg">{row.city}</span>
+                  <span className="shrink-0 font-display text-lg font-bold">{row.count}</span>
                 </li>
               ))}
             </ol>

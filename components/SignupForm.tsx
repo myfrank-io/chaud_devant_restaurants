@@ -53,7 +53,7 @@ export function SignupForm() {
           type="checkbox"
           name="nouvelles"
           value="1"
-          className="mt-0.5 size-4 shrink-0 accent-[var(--color-rouge)]"
+          className="mt-0.5 size-5 shrink-0 accent-[var(--color-rouge)]"
         />
         <span>Envoie-moi aussi les recettes et les nouvelles, de temps en temps.</span>
       </label>

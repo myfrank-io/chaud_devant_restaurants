@@ -115,7 +115,7 @@ export function Bouton({
   return (
     <button
       {...reste}
-      className={`px-4 py-2 font-display text-base font-bold transition ${tons} ${reste.className ?? ''}`}
+      className={`px-4 py-2.5 font-display text-base font-bold transition ${tons} ${reste.className ?? ''}`}
     >
       {children}
     </button>

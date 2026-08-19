@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 import { BaseAbsente } from '@/components/atelier/BaseAbsente'
 import { PastilleFormat, PastilleStatut } from '@/components/atelier/Pastille'
-import { postsDuMois, tousLesPosts } from '@/lib/atelier'
+import { postsDuMois, tousLesPosts, type Post } from '@/lib/atelier'
 import { isDatabaseConfigured } from '@/lib/db'
 import {
   aujourdhui,
@@ -42,22 +42,33 @@ export default async function Calendrier({
       <div className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
         <h1 className="font-display text-3xl font-black text-fonte">{nomDuMois(mois)}</h1>
         <nav className="flex gap-4 text-base text-fonte/60">
-          <Link href={`/atelier?mois=${moisDecale(mois, -1)}`} className="hover:text-rouge">
+          <Link
+            href={`/atelier?mois=${moisDecale(mois, -1)}`}
+            className="inline-block py-2 hover:text-rouge"
+          >
             ← mois précédent
           </Link>
-          <Link href={`/atelier?mois=${moisDecale(mois, 1)}`} className="hover:text-rouge">
+          <Link
+            href={`/atelier?mois=${moisDecale(mois, 1)}`}
+            className="inline-block py-2 hover:text-rouge"
+          >
             mois suivant →
           </Link>
         </nav>
         <Link
           href="/atelier/post/nouveau"
-          className="ml-auto bg-rouge px-4 py-2 font-display text-base font-bold text-creme transition hover:bg-rouge-sombre"
+          className="ml-auto bg-rouge px-4 py-2.5 font-display text-base font-bold text-creme transition hover:bg-rouge-sombre"
         >
           Nouveau post
         </Link>
       </div>
 
-      <div className="mt-6 grid grid-cols-7 gap-px border-2 border-fonte/15 bg-fonte/15">
+      {/* Au telephone, une grille de sept colonnes donne des cases de 40px ou
+          rien ne tient : on liste les jours a la place. La grille reprend la
+          main des que les cases retrouvent une largeur utile. */}
+      <Agenda mois={mois} parJour={parJour} ceJour={ce_jour} />
+
+      <div className="mt-6 hidden grid-cols-7 gap-px border-2 border-fonte/15 bg-fonte/15 sm:grid">
         {JOURS.map((jour) => (
           <div
             key={jour}
@@ -89,30 +100,7 @@ export default async function Calendrier({
               <ul className="mt-1 space-y-1">
                 {duJour.map((post) => (
                   <li key={post.id}>
-                    <Link
-                      href={`/atelier/post/${post.id}?retour=${encodeURIComponent(`/atelier?mois=${mois}`)}`}
-                      className="block border border-fonte/15 bg-creme/70 px-1.5 py-1 transition hover:border-rouge"
-                    >
-                      <span className="block truncate text-[0.8rem] leading-tight text-fonte">
-                        {post.title}
-                      </span>
-                      <span className="mt-1 flex flex-wrap gap-1">
-                        <PastilleFormat format={post.format} />
-                        <PastilleStatut statut={post.status} />
-                      </span>
-                      {/* Ce jour-la, la recette liee parait sur le site — a
-                          condition d'etre remplie. Sinon on le dit ici. */}
-                      {post.recipeTitle ? (
-                        <span
-                          className={`mt-1 block truncate text-[0.7rem] leading-tight ${
-                            post.recipePrete ? 'text-bois' : 'text-rouge'
-                          }`}
-                        >
-                          {post.recipePrete ? '→ ' : '⚠ fiche vide : '}
-                          {post.recipeTitle}
-                        </span>
-                      ) : null}
-                    </Link>
+                    <CartePost post={post} mois={mois} />
                   </li>
                 ))}
               </ul>
@@ -138,7 +126,7 @@ export default async function Calendrier({
               >
                 <Link
                   href={`/atelier/post/${post.id}`}
-                  className="font-display text-lg text-fonte underline-offset-4 hover:text-rouge hover:underline"
+                  className="min-w-0 break-words py-1 font-display text-lg text-fonte underline-offset-4 hover:text-rouge hover:underline"
                 >
                   {post.title}
                 </Link>
@@ -155,11 +143,11 @@ export default async function Calendrier({
                     name="scheduled_on"
                     required
                     defaultValue={`${mois}-01`}
-                    className="border-b-2 border-fonte/25 bg-transparent px-1 py-1 text-base text-fonte outline-none focus:border-rouge"
+                    className="border-b-2 border-fonte/25 bg-transparent px-1 py-2 text-base text-fonte outline-none focus:border-rouge"
                   />
                   <button
                     type="submit"
-                    className="border-2 border-fonte/25 px-3 py-1 text-base text-fonte transition hover:border-rouge hover:text-rouge"
+                    className="border-2 border-fonte/25 px-3 py-2 text-base text-fonte transition hover:border-rouge hover:text-rouge"
                   >
                     Caler
                   </button>
@@ -170,5 +158,89 @@ export default async function Calendrier({
         ) : null}
       </section>
     </>
+  )
+}
+
+/**
+ * Le mois en liste, un bloc par jour qui a des posts. C'est la meme donnee que
+ * la grille, presentee pour un pouce : rien a caler au pixel, rien de tronque.
+ */
+function Agenda({
+  mois,
+  parJour,
+  ceJour,
+}: {
+  mois: string
+  parJour: Map<string, Post[]>
+  ceJour: string
+}) {
+  const jours = grilleDuMois(mois).filter(
+    ({ jour, dansLeMois }) => dansLeMois && (parJour.get(jour) ?? []).length > 0
+  )
+
+  return (
+    <div className="mt-6 sm:hidden">
+      {jours.length === 0 ? (
+        <p className="border-2 border-fonte/15 bg-creme/40 px-4 py-5 text-base text-fonte/60">
+          Rien de calé ce mois-ci.
+        </p>
+      ) : (
+        <ul className="space-y-5">
+          {jours.map(({ jour }) => (
+            <li key={jour}>
+              <h2
+                className={`text-xs font-bold uppercase tracking-wider ${
+                  jour === ceJour ? 'text-rouge' : 'text-fonte/50'
+                }`}
+              >
+                {jourEnToutesLettres(jour)}
+                {jour === ceJour ? ' — aujourd’hui' : ''}
+              </h2>
+              <ul className="mt-1.5 space-y-1.5">
+                {(parJour.get(jour) ?? []).map((post) => (
+                  <li key={post.id}>
+                    <CartePost post={post} mois={mois} />
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      )}
+      <Link
+        href="/atelier/post/nouveau"
+        className="mt-4 inline-block py-2 text-base text-fonte/60 underline underline-offset-4 transition hover:text-rouge"
+      >
+        + Caler un post ce mois-ci
+      </Link>
+    </div>
+  )
+}
+
+/** La carte d'un post, partagee entre la grille et l'agenda. */
+function CartePost({ post, mois }: { post: Post; mois: string }) {
+  return (
+    <Link
+      href={`/atelier/post/${post.id}?retour=${encodeURIComponent(`/atelier?mois=${mois}`)}`}
+      className="block border border-fonte/15 bg-creme/70 px-3 py-2.5 transition hover:border-rouge sm:px-1.5 sm:py-1"
+    >
+      <span className="block truncate text-[0.8rem] leading-tight text-fonte">{post.title}</span>
+      <span className="mt-1 flex flex-wrap gap-1">
+        <PastilleFormat format={post.format} />
+        <PastilleStatut statut={post.status} />
+      </span>
+      {/* Ce jour-la, la recette liee parait sur le site — a
+          condition d'etre remplie. Sinon on le dit ici. */}
+      {post.recipeTitle ? (
+        <span
+          className={`mt-1 block truncate text-[0.7rem] leading-tight ${
+            post.recipePrete ? 'text-bois' : 'text-rouge'
+          }`}
+        >
+          {post.recipePrete ? '→ ' : '⚠ fiche vide : '}
+          {post.recipeTitle}
+        </span>
+      ) : null}
+    </Link>
   )
 }

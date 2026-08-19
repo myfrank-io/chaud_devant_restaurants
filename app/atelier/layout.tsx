@@ -31,18 +31,20 @@ export default async function AtelierLayout({ children }: { children: React.Reac
   return (
     <div className="papier min-h-svh">
       <header className="border-b-2 border-fonte/15 bg-creme">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 px-5 py-3.5">
-          <Link href="/atelier" className="flex items-center gap-2.5">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-0 px-5 py-2">
+          {/* Le padding des liens fait la cible tactile (~40px) : l'atelier se
+              pilote au pouce, et des liens nus de 24px se ratent. */}
+          <Link href="/atelier" className="flex items-center gap-2.5 py-1.5">
             <Embleme className="w-7 text-rouge" />
             <span className="font-display text-lg font-black text-fonte">Atelier</span>
           </Link>
 
-          <nav className="flex flex-wrap gap-x-5 gap-y-1">
+          <nav className="flex flex-wrap gap-x-5">
             {ONGLETS.map((onglet) => (
               <Link
                 key={onglet.href}
                 href={onglet.href}
-                className="text-base text-fonte/70 underline-offset-4 transition hover:text-rouge hover:underline"
+                className="inline-block py-2 text-base text-fonte/70 underline-offset-4 transition hover:text-rouge hover:underline"
               >
                 {onglet.libelle}
               </Link>
@@ -52,7 +54,7 @@ export default async function AtelierLayout({ children }: { children: React.Reac
           <form action={deconnexionAction} className="ml-auto">
             <button
               type="submit"
-              className="text-sm text-fonte/45 underline-offset-4 transition hover:text-rouge hover:underline"
+              className="-mr-2 px-2 py-2.5 text-sm text-fonte/45 underline-offset-4 transition hover:text-rouge hover:underline"
             >
               Sortir
             </button>

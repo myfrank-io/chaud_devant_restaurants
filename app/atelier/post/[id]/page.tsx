@@ -95,7 +95,7 @@ export default async function FichePost({
     <>
       <Link
         href={retourVers}
-        className="text-sm text-fonte/50 underline-offset-4 transition hover:text-rouge hover:underline"
+        className="inline-block py-2 text-sm text-fonte/50 underline-offset-4 transition hover:text-rouge hover:underline"
       >
         ← Retour
       </Link>
@@ -259,7 +259,7 @@ export default async function FichePost({
                     name="cree_la_fiche"
                     value="1"
                     defaultChecked={donne.fiche !== '0' && !donne.recette}
-                    className="mt-0.5 size-4 accent-[var(--color-rouge)]"
+                    className="mt-0.5 size-5 accent-[var(--color-rouge)]"
                   />
                   <span>
                     Ouvrir sa fiche recette maintenant, avec ce titre.{' '}
@@ -283,7 +283,10 @@ export default async function FichePost({
 
         <div className="flex flex-wrap items-center gap-4">
           <Bouton type="submit">Enregistrer</Bouton>
-          <Link href={retourVers} className="text-base text-fonte/50 hover:text-rouge">
+          <Link
+            href={retourVers}
+            className="inline-block px-2 py-2.5 text-base text-fonte/50 hover:text-rouge"
+          >
             Annuler
           </Link>
         </div>

@@ -104,4 +104,7 @@ body {
      vapeur est a opacite zero : on coupe l'animation pour retrouver le dessin
      d'origine, immobile mais complet. */
   .embleme-vivant svg > g:first-of-type path { animation: none !important; }
+  /* Meme logique pour le defile : une boucle infinie de 0.01ms scintille au
+     lieu de s'arreter. Coupee, la piste reste posee sur son debut. */
+  .defile-piste { animation: none !important; }
 }
