@@ -53,12 +53,8 @@ function Hero({ inscrits }: { inscrits: number | null }) {
           <span className="sr-only">Chaud Devant</span>
         </h1>
 
-        <p className="mx-auto mt-9 max-w-md font-display text-xl leading-snug text-fonte/85 sm:text-2xl">
-          La cocotte au milieu de la table. On soulève le couvercle, et chacun se sert dedans.
-        </p>
-
         {/* Le carton de menu : double filet, papier plus clair, rien d'arrondi. */}
-        <div className="mx-auto mt-12 max-w-lg border-[3px] border-rouge bg-papier p-1.5 text-left shadow-[6px_6px_0_0_var(--color-creme-fonce)]">
+        <div className="mx-auto mt-10 max-w-lg border-[3px] border-rouge bg-papier p-1.5 text-left shadow-[6px_6px_0_0_var(--color-creme-fonce)]">
           <div className="border border-rouge/30 px-6 py-8 sm:px-8">
             <p className="text-center font-display text-3xl font-black leading-[1.05] text-fonte sm:text-4xl">
               Le jour où on ouvre,
