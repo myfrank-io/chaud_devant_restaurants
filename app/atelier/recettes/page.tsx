@@ -12,7 +12,6 @@ export default async function Recettes() {
   const recettes = await listeToutesLesRecettes()
   const brouillons = recettes.filter((recette) => parution(recette) === 'brouillon')
   const aFinir = recettes.filter((recette) => parution(recette) === 'incomplete')
-  const aRelire = recettes.filter((recette) => parution(recette) === 'a-relire')
   const programmees = recettes.filter((recette) => parution(recette) === 'programmee')
   const publiees = recettes.filter((recette) => parution(recette) === 'en-ligne')
 
@@ -43,9 +42,6 @@ export default async function Recettes() {
         </p>
       ) : null}
 
-      {aRelire.length > 0 ? (
-        <Groupe titre="À relire — importées, jamais enregistrées" recettes={aRelire} />
-      ) : null}
       {aFinir.length > 0 ? <Groupe titre="À finir — elles ne paraîtront pas" recettes={aFinir} /> : null}
       {programmees.length > 0 ? <Groupe titre="Programmées" recettes={programmees} /> : null}
       {brouillons.length > 0 ? <Groupe titre="Brouillons" recettes={brouillons} /> : null}
