@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 420 300"
+      fill="none"
+      stroke="#b53a24"
+    ><defs><style>@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&amp;display=swap');</style></defs>
+      <g transform="rotate(-1.6 210 150)">
+        <path d="M20 20 H400 V280 H20 Z" stroke-width="9" />
+        <path d="M34 34 H386 V266 H34 Z" stroke-width="2" opacity="0.45" />
+        <g stroke-width="2.5" opacity="0.6">
+          <path d="M92 80 H328" />
+          <path d="M92 226 H328" />
+        </g>
+        <g
+          fill="#b53a24"
+          stroke="none"
+          font-family="Georgia, 'Times New Roman', serif"
+          font-weight="900"
+          text-anchor="middle"
+        >
+          <text x="210" y="150" font-size="60" textLength="248" lengthAdjust="spacing">
+            CHAUD
+          </text>
+          <text x="210" y="208" font-size="53" textLength="248" lengthAdjust="spacing">
+            DEVANT
+          </text>
+          <text
+            x="210"
+            y="254"
+            font-size="15"
+            font-weight="700"
+            textLength="128"
+            lengthAdjust="spacing"
+            opacity="0.75"
+          >
+            SINCE 2026
+          </text>
+        </g>
+      </g>
+    </svg>

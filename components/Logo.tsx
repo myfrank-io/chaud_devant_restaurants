@@ -51,13 +51,13 @@ export function Logo({ className, title = 'Chaud Devant' }: { className?: string
         <text
           x="200"
           y="408"
-          fontSize="13"
-          textLength="196"
+          fontSize="14"
+          textLength="128"
           lengthAdjust="spacing"
           fontWeight="700"
           opacity="0.72"
         >
-          RESTAURANTS SINCE 2026
+          SINCE 2026
         </text>
       </g>
 
