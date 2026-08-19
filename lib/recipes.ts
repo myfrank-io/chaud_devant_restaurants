@@ -38,7 +38,9 @@ export type Recipe = {
   title: string
   category: string | null
   seasons: string[]
+  /** Le temps de cuisson. Le total s'obtient en y ajoutant `prepMinutes`. */
   minutes: number | null
+  prepMinutes: number | null
   difficulty: string | null
   angle: string | null
   cover: string | null
@@ -56,6 +58,7 @@ type Ligne = {
   category: string | null
   seasons: string[]
   minutes: number | null
+  prep_minutes: number | null
   difficulty: string | null
   angle: string | null
   cover: string | null
@@ -66,8 +69,8 @@ type Ligne = {
   published_at: Date | null
 }
 
-const COLONNES = `id, slug, title, category, seasons, minutes, difficulty, angle,
-                  cover, post_url, intro, ingredients, steps, published_at`
+const COLONNES = `id, slug, title, category, seasons, minutes, prep_minutes, difficulty,
+                  angle, cover, post_url, intro, ingredients, steps, published_at`
 
 function versRecette(ligne: Ligne): Recipe {
   return {
@@ -77,6 +80,7 @@ function versRecette(ligne: Ligne): Recipe {
     category: ligne.category,
     seasons: ligne.seasons ?? [],
     minutes: ligne.minutes,
+    prepMinutes: ligne.prep_minutes,
     difficulty: ligne.difficulty,
     angle: ligne.angle,
     cover: ligne.cover,
@@ -168,6 +172,7 @@ export type RecipeInput = {
   category: string | null
   seasons: string[]
   minutes: number | null
+  prepMinutes: number | null
   difficulty: string | null
   angle: string | null
   cover: string | null
@@ -184,9 +189,9 @@ export async function creeUneRecette(input: RecipeInput): Promise<string> {
   if (!pool) throw new Error('DATABASE_URL absent : impossible d\'enregistrer une recette.')
 
   const { rows } = await pool.query<{ id: string }>(
-    `INSERT INTO recipes (slug, title, category, seasons, minutes, difficulty, angle,
-                          cover, post_url, intro, ingredients, steps, published_at)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12, $13::date)
+    `INSERT INTO recipes (slug, title, category, seasons, minutes, prep_minutes, difficulty,
+                          angle, cover, post_url, intro, ingredients, steps, published_at)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13, $14::date)
      RETURNING id`,
     valeurs(input)
   )
@@ -200,11 +205,11 @@ export async function metAJourUneRecette(id: string, input: RecipeInput): Promis
   await pool.query(
     `UPDATE recipes
         SET slug = $1, title = $2, category = $3, seasons = $4, minutes = $5,
-            difficulty = $6, angle = $7, cover = $8, post_url = $9, intro = $10,
-            ingredients = $11, steps = $12,
-            published_at = $13::date,
+            prep_minutes = $6, difficulty = $7, angle = $8, cover = $9, post_url = $10,
+            intro = $11, ingredients = $12, steps = $13,
+            published_at = $14::date,
             updated_at = now()
-      WHERE id = $14`,
+      WHERE id = $15`,
     [...valeurs(input), id]
   )
 }
@@ -222,6 +227,7 @@ function valeurs(input: RecipeInput) {
     input.category,
     input.seasons,
     input.minutes,
+    input.prepMinutes,
     input.difficulty,
     input.angle,
     input.cover,

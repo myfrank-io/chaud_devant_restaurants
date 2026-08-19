@@ -85,7 +85,7 @@ export default async function FicheRecette({ params }: { params: Promise<{ id: s
             emojiInterdits
           />
 
-          <div className="grid gap-5 sm:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             <Choix
               nom="category"
               libelle="Catégorie"
@@ -94,8 +94,15 @@ export default async function FicheRecette({ params }: { params: Promise<{ id: s
               options={CATEGORIES.map((c) => ({ valeur: c, libelle: c }))}
             />
             <Texte
+              nom="prep_minutes"
+              libelle="Préparation (min)"
+              type="number"
+              valeur={recette?.prepMinutes}
+              placeholder="20"
+            />
+            <Texte
               nom="minutes"
-              libelle="Durée totale (min)"
+              libelle="Cuisson (min)"
               type="number"
               valeur={recette?.minutes}
               placeholder="180"

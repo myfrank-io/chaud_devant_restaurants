@@ -80,7 +80,7 @@ body {
   display: flex;
   flex-shrink: 0;
   min-width: 100%;
-  animation: defile 44s linear infinite;
+  animation: defile 80s linear infinite;
 }
 @keyframes defile { to { transform: translateX(-100%); } }
 

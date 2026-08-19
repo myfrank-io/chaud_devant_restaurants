@@ -5,18 +5,45 @@ import { useMemo, useState } from 'react'
 import { RecipeCardLink } from '@/components/RecipeCardLink'
 import type { Recipe } from '@/lib/recipes'
 
-const TEMPS = [
+const CUISSON = [
   { key: 'court', label: 'Moins de 30 min', test: (m: number) => m < 30 },
   { key: 'moyen', label: '30 à 90 min', test: (m: number) => m >= 30 && m <= 90 },
   { key: 'long', label: 'Plus de 90 min', test: (m: number) => m > 90 },
 ] as const
 
-type TempsKey = (typeof TEMPS)[number]['key']
+const PREPARATION = [
+  { key: 'court', label: 'Moins de 15 min', test: (m: number) => m < 15 },
+  { key: 'moyen', label: '15 à 30 min', test: (m: number) => m >= 15 && m <= 30 },
+  { key: 'long', label: 'Plus de 30 min', test: (m: number) => m > 30 },
+] as const
+
+type DureeKey = (typeof CUISSON)[number]['key']
+
+type Regle = readonly { key: DureeKey; label: string; test: (m: number) => boolean }[]
+
+/** « Bœuf » trouve « boeuf », « puree » trouve « purée » : on cherche sans accents. */
+function normalise(texte: string): string {
+  return texte
+    .replace(/œ/g, 'oe')
+    .replace(/æ/g, 'ae')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+}
+
+function passeLaDuree(regles: Regle, cle: DureeKey | null, minutes: number | null): boolean {
+  if (!cle) return true
+  const regle = regles.find((r) => r.key === cle)
+  if (!regle) return true
+  return minutes !== null && regle.test(minutes)
+}
 
 export function RecipeFilters({ recipes }: { recipes: Recipe[] }) {
+  const [recherche, setRecherche] = useState('')
   const [category, setCategory] = useState<string | null>(null)
   const [season, setSeason] = useState<string | null>(null)
-  const [temps, setTemps] = useState<TempsKey | null>(null)
+  const [cuisson, setCuisson] = useState<DureeKey | null>(null)
+  const [preparation, setPreparation] = useState<DureeKey | null>(null)
 
   const categories = useMemo(
     () => [...new Set(recipes.map((r) => r.category).filter((c): c is string => Boolean(c)))].sort(),
@@ -28,19 +55,38 @@ export function RecipeFilters({ recipes }: { recipes: Recipe[] }) {
   )
 
   const filtered = recipes.filter((recipe) => {
+    if (recherche.trim()) {
+      const fiche = normalise(
+        [recipe.title, recipe.category ?? '', ...recipe.ingredients].join(' ')
+      )
+      if (!fiche.includes(normalise(recherche.trim()))) return false
+    }
     if (category && recipe.category !== category) return false
     if (season && !recipe.seasons.includes(season)) return false
-    if (temps) {
-      const rule = TEMPS.find((t) => t.key === temps)
-      if (!rule) return true
-      if (recipe.minutes === null || !rule.test(recipe.minutes)) return false
-    }
+    if (!passeLaDuree(CUISSON, cuisson, recipe.minutes)) return false
+    if (!passeLaDuree(PREPARATION, preparation, recipe.prepMinutes)) return false
     return true
   })
 
   return (
     <>
-      <div className="mt-8 space-y-4">
+      {/* Le trait sous le texte plutot qu'une boite arrondie, comme le
+          formulaire d'inscription : on vend une cocotte, pas un logiciel. */}
+      <div className="mt-8">
+        <label htmlFor="recherche" className="sr-only">
+          Chercher une recette
+        </label>
+        <input
+          id="recherche"
+          type="search"
+          value={recherche}
+          onChange={(event) => setRecherche(event.target.value)}
+          placeholder="Un plat, un ingrédient…"
+          className="w-full max-w-md border-0 border-b-2 border-fonte/25 bg-transparent px-1 py-2.5 font-display text-lg text-fonte placeholder:text-fonte/35 outline-none transition focus:border-rouge"
+        />
+      </div>
+
+      <div className="mt-6 space-y-4">
         <FilterRow
           legend="Catégorie"
           options={categories.map((c) => ({ value: c, label: c }))}
@@ -56,10 +102,16 @@ export function RecipeFilters({ recipes }: { recipes: Recipe[] }) {
           />
         ) : null}
         <FilterRow
-          legend="Temps"
-          options={TEMPS.map((t) => ({ value: t.key, label: t.label }))}
-          active={temps}
-          onChange={(value) => setTemps(value as TempsKey | null)}
+          legend="Préparation"
+          options={PREPARATION.map((t) => ({ value: t.key, label: t.label }))}
+          active={preparation}
+          onChange={(value) => setPreparation(value as DureeKey | null)}
+        />
+        <FilterRow
+          legend="Cuisson"
+          options={CUISSON.map((t) => ({ value: t.key, label: t.label }))}
+          active={cuisson}
+          onChange={(value) => setCuisson(value as DureeKey | null)}
         />
       </div>
 
