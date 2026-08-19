@@ -83,7 +83,7 @@ export default async function FicheRecette({
     <>
       <Link
         href="/atelier/recettes"
-        className="text-sm text-fonte/50 underline-offset-4 transition hover:text-rouge hover:underline"
+        className="inline-block py-2 text-sm text-fonte/50 underline-offset-4 transition hover:text-rouge hover:underline"
       >
         ← Toutes les recettes
       </Link>
@@ -95,7 +95,7 @@ export default async function FicheRecette({
         {etat === 'en-ligne' ? (
           <Link
             href={`/recettes/${recette!.slug}`}
-            className="text-base text-rouge underline underline-offset-4"
+            className="inline-block py-2 text-base text-rouge underline underline-offset-4"
           >
             Voir en ligne ↗
           </Link>
@@ -186,7 +186,7 @@ export default async function FicheRecette({
                     name="seasons"
                     value={saison}
                     defaultChecked={recette?.seasons.includes(saison) ?? saisonsChoisies.has(saison)}
-                    className="size-4 accent-[var(--color-rouge)]"
+                    className="size-5 accent-[var(--color-rouge)]"
                   />
                   {saison}
                 </label>
@@ -286,7 +286,10 @@ export default async function FicheRecette({
 
         <div className="flex flex-wrap items-center gap-4">
           <Bouton type="submit">Enregistrer</Bouton>
-          <Link href="/atelier/recettes" className="text-base text-fonte/50 hover:text-rouge">
+          <Link
+            href="/atelier/recettes"
+            className="inline-block px-2 py-2.5 text-base text-fonte/50 hover:text-rouge"
+          >
             Annuler
           </Link>
         </div>

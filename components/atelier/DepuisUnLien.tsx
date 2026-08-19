@@ -56,7 +56,7 @@ export function DepuisUnLien({
           required
           disabled={etat === 'travail'}
           placeholder="https://… le lien d’une recette"
-          className="min-w-64 flex-1 border-b-2 border-fonte/20 bg-transparent px-1 py-1.5 text-base text-fonte placeholder:text-fonte/40 outline-none transition focus:border-rouge"
+          className="min-w-0 grow basis-64 border-b-2 border-fonte/20 bg-transparent px-1 py-1.5 text-base text-fonte placeholder:text-fonte/40 outline-none transition focus:border-rouge"
         />
         <button
           type="submit"

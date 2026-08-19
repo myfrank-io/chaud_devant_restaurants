@@ -49,7 +49,9 @@ function Hero({ inscrits }: { inscrits: number | null }) {
         {/* Le logotype porte le titre : le texte reste lisible par les machines
             et les lecteurs d'ecran via l'alternative, pas seulement dessine. */}
         <h1>
-          <Logo className="mx-auto w-72 text-rouge sm:w-80" />
+          {/* w-64 et pas w-72 : a 320px, 288px de logo deborderaient les 272px
+              utiles et le decentreraient. */}
+          <Logo className="mx-auto w-64 text-rouge sm:w-80" />
           <span className="sr-only">Chaud Devant</span>
         </h1>
 
@@ -58,7 +60,7 @@ function Hero({ inscrits }: { inscrits: number | null }) {
           <div className="border border-rouge/30 px-6 py-8 sm:px-8">
             <p className="text-center font-display text-3xl font-black leading-[1.05] text-fonte sm:text-4xl">
               Le jour où on ouvre le restaurant,
-              <br />
+              <br className="hidden sm:inline" />
               c&rsquo;est nous qui régalons.
             </p>
             <p className="mt-4 text-center text-base leading-relaxed text-fonte/70">
@@ -107,7 +109,7 @@ function Contenu({ recipes }: { recipes: Awaited<ReturnType<typeof getLatestReci
           {recipes.length > 0 ? (
             <Link
               href="/recettes"
-              className="font-display text-base text-rouge underline decoration-2 underline-offset-4 transition hover:text-rouge-sombre"
+              className="inline-block py-2 font-display text-base text-rouge underline decoration-2 underline-offset-4 transition hover:text-rouge-sombre"
             >
               Toutes les recettes
             </Link>
@@ -144,30 +146,30 @@ function Pied() {
       <div className="fonte-chaude px-6 py-14 sm:px-8">
         <div className="mx-auto flex max-w-4xl flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
           <Logo className="w-36 shrink-0 text-creme/85" />
-          <div className="flex flex-col gap-3 sm:items-end">
-            <ul className="flex gap-5">
+          <div className="flex flex-col gap-1 sm:items-end">
+            <ul className="flex flex-wrap gap-x-5 gap-y-1">
               {SOCIAL_LINKS.map((lien) => (
                 <li key={lien.label}>
                   <a
                     href={lien.href}
                     rel="me noopener"
-                    className="font-display text-base text-creme/80 underline-offset-4 transition hover:text-creme hover:underline"
+                    className="inline-block py-2 font-display text-base text-creme/80 underline-offset-4 transition hover:text-creme hover:underline"
                   >
                     {lien.label}
                   </a>
                 </li>
               ))}
             </ul>
-            <div className="flex gap-5">
+            <div className="flex flex-wrap gap-x-5 gap-y-1">
               <Link
                 href="/le-concept"
-                className="text-sm text-creme/45 underline-offset-4 transition hover:text-creme/80 hover:underline"
+                className="inline-block py-2 text-sm text-creme/45 underline-offset-4 transition hover:text-creme/80 hover:underline"
               >
                 Le concept
               </Link>
               <Link
                 href="/mentions-legales"
-                className="text-sm text-creme/45 underline-offset-4 transition hover:text-creme/80 hover:underline"
+                className="inline-block py-2 text-sm text-creme/45 underline-offset-4 transition hover:text-creme/80 hover:underline"
               >
                 Mentions légales
               </Link>

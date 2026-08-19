@@ -112,7 +112,9 @@ function Groupe({
                     sans {manques.join(', ')}
                   </span>
                 ) : null}
-                <span className="ml-auto font-mono text-sm text-fonte/40">/{recette.slug}</span>
+                <span className="ml-auto min-w-0 break-all font-mono text-sm text-fonte/40">
+                  /{recette.slug}
+                </span>
               </Link>
             </li>
           )

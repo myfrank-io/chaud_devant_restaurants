@@ -125,9 +125,11 @@ function Dossier({ ligne, posts }: { ligne: Ligne; posts: Post[] }) {
   return (
     <section className="border-2 border-fonte/15 bg-creme/30">
       <header className="flex flex-wrap items-start gap-x-6 gap-y-3 border-b-2 border-fonte/10 px-4 py-4">
-        <div className="min-w-64 flex-1">
+        <div className="min-w-0 grow basis-64">
           {/* La modification se fait sur place : ouvrir une page pour changer
-              un titre de dossier coûterait plus que ça ne rapporte. */}
+              un titre de dossier coûterait plus que ça ne rapporte. Le trait
+              sous les champs reste visible en mobile : sans survol, rien ne
+              dirait sinon que ce texte s'edite. */}
           <form action={metAJourUneLigneAction} className="space-y-2">
             <input type="hidden" name="id" value={ligne.id} />
             <input
@@ -135,14 +137,14 @@ function Dossier({ ligne, posts }: { ligne: Ligne; posts: Post[] }) {
               defaultValue={ligne.name}
               required
               aria-label="Nom de la ligne"
-              className="w-full border-0 border-b-2 border-transparent bg-transparent font-display text-2xl font-black text-fonte outline-none transition hover:border-fonte/15 focus:border-rouge"
+              className="w-full border-0 border-b-2 border-fonte/15 bg-transparent font-display text-2xl font-black text-fonte outline-none transition focus:border-rouge sm:border-transparent sm:hover:border-fonte/15 sm:focus:border-rouge"
             />
             <input
               name="intention"
               defaultValue={ligne.intention ?? ''}
               placeholder="Ce qu’elle raconte…"
               aria-label="Intention de la ligne"
-              className="w-full border-0 border-b-2 border-transparent bg-transparent text-base text-fonte/65 outline-none transition hover:border-fonte/15 focus:border-rouge"
+              className="w-full border-0 border-b-2 border-fonte/15 bg-transparent text-base text-fonte/65 outline-none transition focus:border-rouge sm:border-transparent sm:hover:border-fonte/15 sm:focus:border-rouge"
             />
             <Bouton type="submit" variante="discret" className="!px-0">
               Enregistrer le titre
@@ -156,7 +158,7 @@ function Dossier({ ligne, posts }: { ligne: Ligne; posts: Post[] }) {
           </span>
           <Link
             href={`/atelier/post/nouveau?ligne=${ligne.id}`}
-            className="border-2 border-fonte/25 px-3 py-1.5 font-display text-base font-bold text-fonte transition hover:border-rouge hover:text-rouge"
+            className="border-2 border-fonte/25 px-3 py-2 font-display text-base font-bold text-fonte transition hover:border-rouge hover:text-rouge"
           >
             + Post
           </Link>

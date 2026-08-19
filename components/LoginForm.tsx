@@ -22,7 +22,6 @@ export function LoginForm() {
           name="mot-de-passe"
           type="password"
           required
-          autoFocus
           autoComplete="current-password"
           className="w-full border-0 border-b-2 border-fonte/25 bg-transparent px-1 py-2.5 font-display text-lg text-fonte outline-none transition focus:border-rouge"
         />

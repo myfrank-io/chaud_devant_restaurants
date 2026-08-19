@@ -86,7 +86,7 @@ export default async function Recette({ params }: { params: Promise<{ slug: stri
         <article className="mx-auto max-w-2xl">
           <Link
             href="/recettes"
-            className="text-sm text-fonte/50 underline-offset-4 transition hover:text-fonte hover:underline"
+            className="inline-block py-2 text-sm text-fonte/50 underline-offset-4 transition hover:text-fonte hover:underline"
           >
             ← Toutes les recettes
           </Link>

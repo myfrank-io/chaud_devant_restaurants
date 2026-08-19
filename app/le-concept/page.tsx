@@ -132,7 +132,7 @@ function Patrimoine() {
         </p>
         <Link
           href="/recettes"
-          className="mt-6 inline-block font-display text-lg text-rouge underline decoration-2 underline-offset-4 transition hover:text-rouge-sombre"
+          className="mt-4 inline-block py-2 font-display text-lg text-rouge underline decoration-2 underline-offset-4 transition hover:text-rouge-sombre"
         >
           Voir les recettes
         </Link>
@@ -235,7 +235,7 @@ function PendantCeTemps() {
                   className="flex aspect-square items-center justify-center rounded-sm border-2 border-dashed border-creme/35"
                 >
                   {piece === 'a-chiner' ? (
-                    <span className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-creme/50">
+                    <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-creme/50">
                       à chiner
                     </span>
                   ) : null}

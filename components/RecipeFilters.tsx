@@ -183,9 +183,11 @@ function Chip({
       onClick={onClick}
       aria-pressed={active}
       className={
+        // La bordure existe dans les deux etats pour que la puce ne change pas
+        // de taille en s'activant ; py-2 pour une cible tactile decente.
         active
-          ? 'rounded-full bg-fonte px-3.5 py-1.5 text-sm text-creme transition'
-          : 'rounded-full border border-fonte/20 px-3.5 py-1.5 text-sm text-fonte/70 transition hover:border-fonte/50'
+          ? 'rounded-full border border-fonte bg-fonte px-3.5 py-2 text-sm text-creme transition'
+          : 'rounded-full border border-fonte/20 px-3.5 py-2 text-sm text-fonte/70 transition hover:border-fonte/50'
       }
     >
       {label}
