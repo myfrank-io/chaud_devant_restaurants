@@ -57,13 +57,13 @@ function Hero({ inscrits }: { inscrits: number | null }) {
         <div className="mx-auto mt-10 max-w-lg border-[3px] border-rouge bg-papier p-1.5 text-left shadow-[6px_6px_0_0_var(--color-creme-fonce)]">
           <div className="border border-rouge/30 px-6 py-8 sm:px-8">
             <p className="text-center font-display text-3xl font-black leading-[1.05] text-fonte sm:text-4xl">
-              Le jour où on ouvre,
+              Le jour où on ouvre le restaurant,
               <br />
               c&rsquo;est nous qui régalons.
             </p>
             <p className="mt-4 text-center text-base leading-relaxed text-fonte/70">
-              Laisse ton mail, c&rsquo;est tout. Le jour de l&rsquo;ouverture, tu reçois un menu
-              offert — à utiliser quand ça t&rsquo;arrange.
+              Laisse ton mail et abonne-toi à nos réseaux, c&rsquo;est tout. Le jour de
+              l&rsquo;ouverture, tu reçois un cadeau à utiliser quand tu veux !
             </p>
             <SignupForm />
             <Compteur inscrits={inscrits} />
