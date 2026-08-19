@@ -37,6 +37,21 @@ export function SignupForm() {
         <input id="site-web" name="site-web" type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
+      {/*
+        Case decochee, et elle doit le rester : une case pre-cochee ne vaut pas
+        consentement. Elle ne conditionne rien — le menu offert arrive de toute
+        facon, c'est l'objet meme de l'inscription. Elle ne porte que le reste.
+      */}
+      <label className="flex cursor-pointer items-start gap-2.5 text-sm leading-relaxed text-fonte/70">
+        <input
+          type="checkbox"
+          name="nouvelles"
+          value="1"
+          className="mt-0.5 size-4 shrink-0 accent-[var(--color-rouge)]"
+        />
+        <span>Envoie-moi aussi les recettes et les nouvelles, de temps en temps.</span>
+      </label>
+
       <button
         type="submit"
         disabled={pending}
@@ -54,24 +69,8 @@ export function SignupForm() {
         </p>
       ) : null}
 
-      {/*
-        Case decochee, et elle doit le rester : une case pre-cochee ne vaut pas
-        consentement. Elle ne conditionne rien — le menu offert arrive de toute
-        facon, c'est l'objet meme de l'inscription. Elle ne porte que le reste.
-      */}
-      <label className="flex cursor-pointer items-start gap-2.5 text-sm leading-relaxed text-fonte/70">
-        <input
-          type="checkbox"
-          name="nouvelles"
-          value="1"
-          className="mt-0.5 size-4 shrink-0 accent-[var(--color-rouge)]"
-        />
-        <span>Envoie-moi aussi les recettes et les nouvelles, de temps en temps.</span>
-      </label>
-
       <p className="text-xs leading-relaxed text-fonte/55">
-        Ton adresse reste chez nous, et tu te désinscris en un clic depuis n&rsquo;importe quel
-        mail.
+        Tu te désinscris en un clic depuis n&rsquo;importe quel mail.
       </p>
     </form>
   )
