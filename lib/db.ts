@@ -9,7 +9,9 @@ let pool: Pool | null = null
  * Supabase n'est pas branche, la home se rend et seul le compteur se tait.
  */
 export function getPool(): Pool | null {
-  const brut = process.env.DATABASE_URL
+  // trim() : un saut de ligne colle avec la valeur dans l'interface de Vercel
+  // ne se voit pas, et fait echouer l'authentification sans autre indice.
+  const brut = process.env.DATABASE_URL?.trim()
   if (!brut) return null
 
   if (!pool) {
