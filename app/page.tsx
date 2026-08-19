@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 
-import { Cocotte } from '@/components/Cocotte'
+import { Embleme, Logo } from '@/components/Logo'
 import { RecipeCardLink } from '@/components/RecipeCardLink'
 import { SignupForm } from '@/components/SignupForm'
 import { getLatestRecipes } from '@/lib/notion'
@@ -38,15 +38,14 @@ function Hero() {
       ) : null}
 
       <div className="relative mx-auto max-w-2xl text-center">
-        <Cocotte className="mx-auto w-40 text-rouge sm:w-52" />
-
-        <h1 className="mt-6 font-display text-6xl font-black uppercase leading-[0.85] tracking-tight text-rouge sm:text-8xl">
-          Chaud
-          <br />
-          Devant
+        {/* Le logotype porte le titre : le texte reste lisible par les machines
+            et les lecteurs d'ecran via l'alternative, pas seulement dessine. */}
+        <h1>
+          <Logo className="mx-auto w-72 text-rouge sm:w-80" />
+          <span className="sr-only">Chaud Devant</span>
         </h1>
 
-        <p className="mx-auto mt-7 max-w-md font-display text-xl leading-snug text-fonte/85 sm:text-2xl">
+        <p className="mx-auto mt-9 max-w-md font-display text-xl leading-snug text-fonte/85 sm:text-2xl">
           La cocotte au milieu de la table. On soulève le couvercle, et chacun se sert dedans.
         </p>
 
@@ -102,7 +101,7 @@ function Contenu({ recipes }: { recipes: Awaited<ReturnType<typeof getLatestReci
           </ul>
         ) : (
           <div className="mx-auto mt-10 max-w-xl text-center">
-            <Cocotte className="mx-auto w-24 text-rouge/45" />
+            <Embleme className="mx-auto w-24 text-rouge/45" />
             <p className="mt-6 font-display text-xl leading-relaxed text-fonte/80">
               Blanquette, bourguignon, hachis de queue de bœuf, tarte tatin retournée dans la
               cocotte. Et les combos qu&rsquo;on fait tous en cachette.
@@ -121,14 +120,7 @@ function Pied() {
       <Nappe />
       <div className="fonte-chaude px-6 py-14 sm:px-8">
         <div className="mx-auto flex max-w-4xl flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
-          <div className="flex items-end gap-5">
-            <Cocotte className="w-16 shrink-0 text-creme/70" />
-            <p className="font-display text-3xl font-black uppercase leading-[0.85] text-creme">
-              Chaud
-              <br />
-              Devant
-            </p>
-          </div>
+          <Logo className="w-36 shrink-0 text-creme/85" />
           <div className="flex flex-col gap-3 sm:items-end">
             <ul className="flex gap-5">
               {SOCIAL_LINKS.map((lien) => (

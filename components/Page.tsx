@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import { Cocotte } from '@/components/Cocotte'
+import { Logo } from '@/components/Logo'
 
 /** Gabarit des pages courtes du parcours d'inscription : même papier, même cocotte. */
 export function PageSimple({
@@ -16,10 +16,7 @@ export function PageSimple({
       <main className="papier grain relative isolate flex min-h-svh items-center px-6 py-16 sm:px-8">
         <div className="relative mx-auto w-full max-w-xl text-center">
           <Link href="/" className="inline-block">
-            <Cocotte className="mx-auto w-28 text-rouge" />
-            <span className="mt-3 block font-display text-xl font-black uppercase leading-none tracking-tight text-rouge">
-              Chaud Devant
-            </span>
+            <Logo className="mx-auto w-52 text-rouge" />
           </Link>
 
           <h1 className="mt-10 font-display text-4xl font-black leading-[1.05] text-fonte sm:text-5xl">
