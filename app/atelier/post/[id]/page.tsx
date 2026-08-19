@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { BaseAbsente } from '@/components/atelier/BaseAbsente'
 import { Bouton, Choix, Texte } from '@/components/atelier/Champs'
 import { ChampRelu } from '@/components/atelier/ChampRelu'
+import { DepuisUnLien } from '@/components/atelier/DepuisUnLien'
 import {
   CANAUX,
   FORMATS,
@@ -19,16 +20,26 @@ import {
 import { isDatabaseConfigured } from '@/lib/db'
 import { listeToutesLesRecettes } from '@/lib/recipes'
 
-import { enregistreUnPostAction, supprimeUnPostAction } from '../../actions'
+import {
+  enregistreUnPostAction,
+  importeUnPostDepuisUnLienAction,
+  supprimeUnPostAction,
+} from '../../actions'
 
 /**
  * Champs pre-remplis par l'adresse.
  *
- * C'est ainsi qu'un brouillon ecrit ailleurs — par Claude dans une
- * conversation, par nous dans un carnet — entre dans l'atelier : un lien qu'on
- * ouvre, des champs deja remplis, et rien en base tant qu'on n'a pas
- * enregistre. Pas de cle d'API, pas de facture, et la relecture reste le
- * dernier geste.
+ * C'est ainsi qu'un brouillon ecrit ailleurs entre dans l'atelier : un lien
+ * qu'on ouvre, des champs deja remplis, et rien en base tant qu'on n'a pas
+ * enregistre. Deux chemins y menent.
+ *
+ * Le premier est ici : on colle un lien de recette, le balisage de la page est
+ * lu, la fiche est creee et le formulaire s'ouvre dessus. Gratuit, exact,
+ * mais muet sur la voix — un balisage ne contient ni hook ni legende.
+ *
+ * Le second passe par la conversation : on envoie une photo du plat a Claude,
+ * qui rend une adresse de cette forme, tout rempli. Ni cle d'API ni facture de
+ * notre cote, et la relecture reste le dernier geste dans les deux cas.
  */
 type Prerempli = {
   date?: string
@@ -36,11 +47,18 @@ type Prerempli = {
   retour?: string
   titre?: string
   format?: string
+  channel?: string
+  status?: string
   hook?: string
   script?: string
   son_type?: string
   son?: string
   caption?: string
+  media_url?: string
+  /** L'identifiant d'une fiche recette deja creee, a rattacher au post. */
+  recette?: string
+  /** « 0 » quand la fiche existe deja : la recreer en ferait une seconde, vide. */
+  fiche?: string
 }
 
 export default async function FichePost({
@@ -85,6 +103,34 @@ export default async function FichePost({
         </p>
       ) : null}
 
+      {/* Deux facons de ne pas partir de la page blanche. Elles ne remplissent
+          pas les memes champs, et c'est dit : le lien apporte la matiere, la
+          photo apporte la voix. */}
+      {nouveau && !prerempli ? (
+        <section className="mt-6 space-y-3">
+          <DepuisUnLien
+            action={importeUnPostDepuisUnLienAction}
+            bouton="Remplir depuis ce lien"
+            contexte={{ ligne, date, retour: retourVers }}
+            aide={
+              <>
+                On lit le balisage que la page publie : titre, ingrédients, étapes, durée, photo.
+                La fiche recette est créée et rattachée à ce post, et le formulaire se rouvre
+                dessus. Le hook, le script, le son et la légende restent vides — un balisage ne
+                contient pas notre voix.
+              </>
+            }
+          />
+
+          <p className="max-w-2xl text-sm text-fonte/55">
+            <span className="font-bold text-fonte/75">Une photo du plat ?</span> Envoie-la à Claude
+            dans la conversation : il renvoie une adresse qui rouvre ce formulaire avec le titre,
+            le hook, le script, le son et la légende déjà écrits. Rien n’est enregistré avant que
+            tu ne cliques sur Enregistrer, et ça ne coûte rien non plus.
+          </p>
+        </section>
+      ) : null}
+
 
       <form action={enregistreUnPostAction} className="mt-7 space-y-8 pb-16">
         {post ? <input type="hidden" name="id" value={post.id} /> : null}
@@ -118,13 +164,13 @@ export default async function FichePost({
             <Choix
               nom="channel"
               libelle="Où"
-              valeur={post?.channel ?? 'instagram'}
+              valeur={post?.channel ?? donne.channel ?? 'instagram'}
               options={CANAUX.map((c) => ({ valeur: c, libelle: c }))}
             />
             <Choix
               nom="status"
               libelle="Où on en est"
-              valeur={post?.status ?? 'idee'}
+              valeur={post?.status ?? donne.status ?? 'idee'}
               options={STATUTS.map((s) => ({ valeur: s, libelle: LIBELLE_STATUT[s] }))}
             />
           </div>
@@ -189,7 +235,7 @@ export default async function FichePost({
               <Choix
                 nom="recipe_id"
                 libelle="Recette du site liée"
-                valeur={post?.recipeId}
+                valeur={post?.recipeId ?? donne.recette}
                 vide="— aucune —"
                 options={recettes.map((r) => ({
                   valeur: r.id,
@@ -208,7 +254,7 @@ export default async function FichePost({
                     type="checkbox"
                     name="cree_la_fiche"
                     value="1"
-                    defaultChecked
+                    defaultChecked={donne.fiche !== '0' && !donne.recette}
                     className="mt-0.5 size-4 accent-[var(--color-rouge)]"
                   />
                   <span>
@@ -226,7 +272,7 @@ export default async function FichePost({
             nom="media_url"
             libelle="Le rush ou le montage"
             aide="Un lien vers le fichier, là où il vit déjà."
-            valeur={post?.mediaUrl}
+            valeur={post?.mediaUrl ?? donne.media_url}
             placeholder="https://…"
           />
         </section>

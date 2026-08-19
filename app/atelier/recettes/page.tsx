@@ -6,6 +6,8 @@ import { isDatabaseConfigured } from '@/lib/db'
 import { ceQuiManque, enJour, listeToutesLesRecettes, parution } from '@/lib/recipes'
 import { jourEnToutesLettres } from '@/lib/mois'
 
+import { importeUneRecetteAction } from '../actions'
+
 export default async function Recettes() {
   if (!isDatabaseConfigured()) return <BaseAbsente />
 
@@ -28,8 +30,24 @@ export default async function Recettes() {
         </Link>
       </div>
 
-      <div className="mt-6">
-        <DepuisUnLien />
+      <div className="mt-6 space-y-3">
+        <DepuisUnLien
+          action={importeUneRecetteAction}
+          aide={
+            <>
+              On lit le balisage que la page publie : titre, ingrédients, étapes, durée, photo.
+              Rien n’est inventé, et ça ne coûte rien. Le texte reste celui du site — réécris-le
+              avant de publier, la fiche ne partira pas en ligne tant que tu ne l’as pas
+              enregistrée.
+            </>
+          }
+        />
+
+        <p className="max-w-2xl text-sm text-fonte/55">
+          <span className="font-bold text-fonte/75">Pas de lien, juste une photo ?</span>{' '}
+          Envoie-la à Claude dans la conversation : il renvoie une adresse qui ouvre une fiche déjà
+          écrite, à relire avant d’enregistrer.
+        </p>
       </div>
 
       {recettes.length === 0 ? (

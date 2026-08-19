@@ -326,3 +326,45 @@ export async function importeUneRecetteAction(formData: FormData): Promise<strin
   await rafraichitLeSite()
   redirect(`/atelier/recettes/${id}`)
 }
+
+/**
+ * Le meme lien, mais pour ouvrir un post.
+ *
+ * La fiche recette est creee avec ce que la page publiait — ingredients,
+ * etapes, durees, photo — et le formulaire de post s'ouvre avec le titre et la
+ * fiche deja rattachee. Ce qui reste vide reste vide : le hook, le script, le
+ * son et la legende sont notre voix, et aucun balisage ne les contient.
+ *
+ * Rien n'est enregistre cote post tant qu'on n'a pas clique sur Enregistrer.
+ */
+export async function importeUnPostDepuisUnLienAction(
+  formData: FormData
+): Promise<string | undefined> {
+  await exigeLaSession()
+
+  const lien = texte(formData, 'lien')
+  if (!lien) return 'Colle un lien vers une page de recette.'
+
+  let importee
+  try {
+    importee = await importeDepuisUnLien(lien)
+  } catch (error) {
+    return error instanceof Error ? error.message : 'Ce lien n’a pas pu être lu.'
+  }
+
+  const recetteId = await creeUneRecetteARelire(importee)
+  await rafraichitLeSite()
+
+  const champs = new URLSearchParams({
+    titre: importee.titre,
+    recette: recetteId,
+    // La fiche existe deja : la recreer en ferait une seconde, vide.
+    fiche: '0',
+  })
+  for (const nom of ['ligne', 'date', 'retour'] as const) {
+    const valeur = texte(formData, nom)
+    if (valeur) champs.set(nom, valeur)
+  }
+
+  redirect(`/atelier/post/nouveau?${champs}`)
+}

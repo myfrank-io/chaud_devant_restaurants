@@ -16,11 +16,58 @@ const CATEGORIES = ['Mijoté', 'Gratin', 'Soupe', 'Viande', 'Poisson', 'Légumes
 
 const DIFFICULTES = ['Facile', 'Un peu de patience', 'Un dimanche entier']
 
-export default async function FicheRecette({ params }: { params: Promise<{ id: string }> }) {
+/**
+ * Champs pre-remplis par l'adresse, comme sur la fiche d'un post.
+ *
+ * Sert au chemin par la photo : on envoie un plat a Claude dans la
+ * conversation, il rend une adresse de cette forme, et la fiche s'ouvre
+ * ecrite. Les listes — intro, ingredients, etapes — arrivent une entree par
+ * ligne, exactement comme les champs les attendent.
+ *
+ * Rien n'est en base tant qu'on n'a pas enregistre, et `published_at` reste
+ * vide : une fiche pre-remplie ne peut pas paraitre toute seule.
+ */
+type Prerempli = {
+  titre?: string
+  slug?: string
+  angle?: string
+  categorie?: string
+  prep?: string
+  cuisson?: string
+  difficulte?: string
+  /** Separees par des virgules. */
+  saisons?: string
+  intro?: string
+  ingredients?: string
+  etapes?: string
+  photo?: string
+  post_url?: string
+}
+
+/** Une liste pre-remplie : une entree par ligne, les vides ignorees. */
+function enListe(brut: string | undefined): string[] | undefined {
+  if (!brut) return undefined
+  const entrees = brut.split('\n').map((ligne) => ligne.trim()).filter(Boolean)
+  return entrees.length ? entrees : undefined
+}
+
+export default async function FicheRecette({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>
+  searchParams: Promise<Prerempli>
+}) {
   if (!isDatabaseConfigured()) return <BaseAbsente />
 
   const { id } = await params
+  const donne = await searchParams
   const nouvelle = id === 'nouvelle'
+
+  const saisonsChoisies = new Set(
+    (donne.saisons ?? '').split(',').map((saison) => saison.trim()).filter(Boolean)
+  )
+  const prerempli = Boolean(donne.ingredients || donne.etapes || donne.angle)
 
   const recette: Recipe | null = nouvelle ? null : await getRecipeById(id)
   if (!nouvelle && !recette) notFound()
@@ -56,6 +103,13 @@ export default async function FicheRecette({ params }: { params: Promise<{ id: s
         ) : null}
       </div>
 
+      {nouvelle && prerempli ? (
+        <p className="mt-3 max-w-lg border-l-4 border-bois bg-creme/50 px-3 py-2 text-sm text-fonte/70">
+          Cette fiche vient d’un lien pré-rempli. Rien n’est enregistré tant que tu n’as pas
+          cliqué sur Enregistrer — relis les quantités, puis valide.
+        </p>
+      ) : null}
+
       <form action={enregistreUneRecetteAction} className="mt-7 space-y-8 pb-16">
         {recette ? <input type="hidden" name="id" value={recette.id} /> : null}
 
@@ -64,7 +118,7 @@ export default async function FicheRecette({ params }: { params: Promise<{ id: s
             nom="title"
             libelle="Le titre"
             requis
-            valeur={recette?.title}
+            valeur={recette?.title ?? donne.titre}
             placeholder="Bœuf bourguignon"
           />
 
@@ -72,7 +126,7 @@ export default async function FicheRecette({ params }: { params: Promise<{ id: s
             nom="slug"
             libelle="L’adresse"
             aide="Laissée vide, elle se déduit du titre. La changer casse le lien déjà partagé."
-            valeur={recette?.slug}
+            valeur={recette?.slug ?? donne.slug}
             placeholder="boeuf-bourguignon"
           />
 
@@ -80,7 +134,7 @@ export default async function FicheRecette({ params }: { params: Promise<{ id: s
             nom="angle"
             libelle="L’angle"
             aide="Une phrase : ce que cette recette a de particulier. Sert aussi de description dans Google."
-            valeurInitiale={recette?.angle}
+            valeurInitiale={recette?.angle ?? donne.angle}
             lignes={2}
             emojiInterdits
           />
@@ -89,7 +143,7 @@ export default async function FicheRecette({ params }: { params: Promise<{ id: s
             <Choix
               nom="category"
               libelle="Catégorie"
-              valeur={recette?.category}
+              valeur={recette?.category ?? donne.categorie}
               vide="— aucune —"
               options={CATEGORIES.map((c) => ({ valeur: c, libelle: c }))}
             />
@@ -97,20 +151,20 @@ export default async function FicheRecette({ params }: { params: Promise<{ id: s
               nom="prep_minutes"
               libelle="Préparation (min)"
               type="number"
-              valeur={recette?.prepMinutes}
+              valeur={recette?.prepMinutes ?? donne.prep}
               placeholder="20"
             />
             <Texte
               nom="minutes"
               libelle="Cuisson (min)"
               type="number"
-              valeur={recette?.minutes}
+              valeur={recette?.minutes ?? donne.cuisson}
               placeholder="180"
             />
             <Choix
               nom="difficulty"
               libelle="Difficulté"
-              valeur={recette?.difficulty}
+              valeur={recette?.difficulty ?? donne.difficulte}
               vide="— aucune —"
               options={DIFFICULTES.map((d) => ({ valeur: d, libelle: d }))}
             />
@@ -127,7 +181,7 @@ export default async function FicheRecette({ params }: { params: Promise<{ id: s
                     type="checkbox"
                     name="seasons"
                     value={saison}
-                    defaultChecked={recette?.seasons.includes(saison)}
+                    defaultChecked={recette?.seasons.includes(saison) ?? saisonsChoisies.has(saison)}
                     className="size-4 accent-[var(--color-rouge)]"
                   />
                   {saison}
@@ -144,7 +198,7 @@ export default async function FicheRecette({ params }: { params: Promise<{ id: s
             nom="intro"
             libelle="L’intro"
             aide="Un paragraphe par ligne."
-            valeurInitiale={recette?.intro.join('\n')}
+            valeurInitiale={recette?.intro.join('\n') ?? donne.intro}
             lignes={5}
             emojiInterdits
           />
@@ -153,14 +207,14 @@ export default async function FicheRecette({ params }: { params: Promise<{ id: s
             nom="ingredients"
             libelle="Ingrédients"
             aide="Un par ligne, avec la quantité. « 1,2 kg de paleron »"
-            valeur={recette?.ingredients}
+            valeur={recette?.ingredients ?? enListe(donne.ingredients)}
           />
 
           <Liste
             nom="steps"
             libelle="Les étapes"
             aide="Une par ligne. Elles se numérotent toutes seules."
-            valeur={recette?.steps}
+            valeur={recette?.steps ?? enListe(donne.etapes)}
             lignes={10}
           />
         </section>
@@ -172,7 +226,7 @@ export default async function FicheRecette({ params }: { params: Promise<{ id: s
             nom="cover"
             libelle="La photo"
             aide="Une adresse d’image. Cadrage 4:5, c’est ce que la fiche attend."
-            valeur={recette?.cover}
+            valeur={recette?.cover ?? donne.photo}
             placeholder="https://…"
           />
           {recette?.cover ? (
@@ -188,7 +242,7 @@ export default async function FicheRecette({ params }: { params: Promise<{ id: s
             nom="post_url"
             libelle="La vidéo"
             aide="Le post Instagram ou TikTok correspondant."
-            valeur={recette?.postUrl}
+            valeur={recette?.postUrl ?? donne.post_url}
             placeholder="https://…"
           />
         </section>
