@@ -107,8 +107,9 @@ export default async function FichePost({
       {nouveau && prerempli ? (
         <p className="mt-3 max-w-lg border-l-4 border-bois bg-creme/50 px-3 py-2 text-sm text-fonte/70">
           Ce brouillon vient d’un lien pré-rempli. Rien n’est enregistré tant que tu n’as pas
-          cliqué sur Enregistrer — relis, corrige, puis valide. Le hook et la légende sont une
-          proposition, pas une signature : mets-y tes mots.
+          cliqué sur Enregistrer. Le hook et la punchline sont une proposition, pas une
+          signature : mets-y tes mots. Et les étapes, dans la conduite comme dans la légende,
+          sont le texte du site d’origine — réécris-les avant de publier.
         </p>
       ) : null}
 
@@ -125,9 +126,9 @@ export default async function FichePost({
               <>
                 On lit le balisage que la page publie : titre, ingrédients, étapes, durée, photo.
                 La fiche recette est créée et rattachée à ce post, et le formulaire se rouvre
-                dessus — <strong className="font-bold text-fonte/75">hook, conduite et légende
-                compris</strong>, écrits à partir de ce que la page donnait. C’est un point de
-                départ, pas un texte fini : relis-le, il n’attend que ça.
+                dessus — <strong className="font-bold text-fonte/75">hook, conduite de tournage
+                et légende compris</strong>, au format de la maison. C’est un point de départ,
+                pas un texte fini : relis-le, il n’attend que ça.
               </>
             }
           />
