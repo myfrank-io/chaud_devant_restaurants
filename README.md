@@ -166,9 +166,13 @@ locale et les protocoles autres que http/https sont refusés, la taille et le d�
 Sans ça, un lien vers une adresse interne ferait de l'application un relais pour lire ce qu'elle
 seule peut atteindre.
 
-**Le texte importé appartient à quelqu'un d'autre.** Il sert de base, il se réécrit. `reviewed_at`
-tient ce garde-fou : nul tant que personne n'a ouvert la fiche et enregistré, et une recette non
-relue ne paraît jamais — même calée, même remplie. Enregistrer vaut relecture.
+**Le texte importé appartient à quelqu'un d'autre.** Il sert de base, il se réécrit. La fiche naît
+sans date de parution, donc rien ne la met en ligne tant que personne ne lui en donne une.
+
+Ce garde-fou est plus faible que celui qu'on avait tenté : une colonne `reviewed_at` marquant la
+relecture, qui aurait empêché la parution même en cas de calage au calendrier. Elle a été retirée
+faute d'avoir pu appliquer sa migration en production — la déployer sans la colonne avait mis
+`/atelier/recettes` en erreur. À reprendre quand la migration pourra être posée.
 
 ### Un brouillon écrit ailleurs, ouvert d'un lien
 

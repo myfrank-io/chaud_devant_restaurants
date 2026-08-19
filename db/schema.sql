@@ -75,13 +75,9 @@ CREATE TABLE IF NOT EXISTS recipes (
   intro         text[] NOT NULL DEFAULT '{}',
   ingredients   text[] NOT NULL DEFAULT '{}',
   steps         text[] NOT NULL DEFAULT '{}',
-  -- null = brouillon. Cette colonne decide de la parution, mais elle ne
-  -- suffit pas : voir reviewed_at.
+  -- null = brouillon. Cette colonne, et elle seule, decide de la presence
+  -- d'une recette sur le site public.
   published_at  timestamptz,
-  -- Relecture humaine. Nul tant que personne n'a ouvert la fiche et
-  -- enregistre. Une recette redigee par le modele nait a nul : sans ce
-  -- garde-fou, la caler au calendrier publierait des quantites inventees.
-  reviewed_at   timestamptz,
   created_at    timestamptz NOT NULL DEFAULT now(),
   updated_at    timestamptz NOT NULL DEFAULT now()
 );
