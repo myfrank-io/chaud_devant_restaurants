@@ -28,3 +28,16 @@ CREATE UNIQUE INDEX IF NOT EXISTS subscribers_unsubscribe_token_idx ON subscribe
 
 -- Le droit au menu offert se lit ici : confirmed_at renseigne et
 -- unsubscribed_at nul. C'est la seule source de verite le jour de l'ouverture.
+
+-- Supabase : PostgREST est ouvert au public via la cle publishable, donc la
+-- table doit etre fermee aux roles anon et authenticated. Le site ne passe pas
+-- par PostgREST mais par une connexion Postgres directe, qui n'est pas soumise
+-- a RLS — d'ou une RLS active sans aucune politique.
+ALTER TABLE subscribers ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  EXECUTE 'REVOKE ALL ON subscribers FROM anon, authenticated';
+EXCEPTION WHEN undefined_object THEN
+  -- Postgres local : ces roles n'existent pas, il n'y a rien a revoquer.
+  NULL;
+END $$;

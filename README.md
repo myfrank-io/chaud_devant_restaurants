@@ -18,10 +18,30 @@ npm run dev
 Deux branchements manquent, et le site n'est pas prêt à être partagé tant qu'ils ne sont pas
 faits.
 
-1. **`DATABASE_URL`** — sans base, le formulaire d'inscription échoue. Créer la base (Neon ou
-   Supabase), puis appliquer `db/schema.sql`.
+1. **`DATABASE_URL`** — sans base, le formulaire d'inscription échoue.
 2. **`RESEND_API_KEY`** — sans clé, personne ne reçoit le mail de confirmation, donc personne
-   n'est jamais confirmé, donc personne n'ouvre droit au menu offert.
+   n'est jamais confirmé, donc personne n'ouvre droit au menu offert. Le site fonctionne sans :
+   l'adresse est bien enregistrée, la page de remerciement le dit sans mentir, et la confirmation
+   attend. Mais tant que la clé manque, aucun inscrit n'ouvre droit au menu.
+
+### La base Supabase
+
+Le projet est `Chaud-Devant-Restaurants` (`abrppxmowjspqjbpgmfb`, région `eu-west-1`). La table
+`subscribers` y est déjà créée, RLS activée sans aucune politique : PostgREST est ouvert au public
+par la clé publishable, et rien ne doit pouvoir y lire les adresses. Le site n'utilise pas
+PostgREST — il ouvre une connexion Postgres directe, qui n'est pas soumise à RLS.
+
+`DATABASE_URL` se récupère dans le dashboard Supabase, bouton **Connect**, onglet
+**Transaction pooler** — pas la chaîne `db.<ref>.supabase.co:5432`, qui est en IPv6 seul et garde
+une connexion ouverte par requête, ce que l'exécution serverless de Vercel ne supporte pas. La
+chaîne à coller ressemble à :
+
+```
+postgresql://postgres.abrppxmowjspqjbpgmfb:MOT_DE_PASSE@aws-N-eu-west-1.pooler.supabase.com:6543/postgres?sslmode=require
+```
+
+Elle se colle dans Vercel → Settings → Environment Variables, sur les trois environnements. Le mot
+de passe ne transite jamais par une conversation ni par le repo.
 
 Et deux textes attendent une main humaine dans `/mentions-legales` : l'identité de l'éditeur, et
 les conditions du menu offert. Ces dernières sont le seul endroit où l'étendue de l'engagement se
