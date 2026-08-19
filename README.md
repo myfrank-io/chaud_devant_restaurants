@@ -15,18 +15,18 @@ npm run dev
 
 ## Avant de rendre le site public
 
-Trois choses manquent, et le site n'est pas prêt à être partagé tant qu'elles ne sont pas faites.
+Deux branchements manquent, et le site n'est pas prêt à être partagé tant qu'ils ne sont pas
+faits.
 
-1. **`DATABASE_URL`** — sans base, le formulaire d'inscription échoue et le compteur de
-   Fondateurs se tait. Créer la base (Neon ou Supabase), puis appliquer `db/schema.sql`.
+1. **`DATABASE_URL`** — sans base, le formulaire d'inscription échoue. Créer la base (Neon ou
+   Supabase), puis appliquer `db/schema.sql`.
 2. **`RESEND_API_KEY`** — sans clé, personne ne reçoit le mail de confirmation, donc personne
-   n'est jamais confirmé, donc aucun numéro de Fondateur n'est attribué.
-3. **Le carnet** — la home promet « 10 recettes de cocotte, tout de suite ». Le PDF doit exister
-   avant que la promesse soit tenable.
+   n'est jamais confirmé, donc personne n'ouvre droit au menu offert.
 
-Et deux textes attendent une main humaine : l'identité de l'éditeur et les conditions des 500
-Fondateurs, dans `/mentions-legales`. Ces dernières engagent sur deux ans et doivent passer
-devant un juriste (QG 7.2).
+Et deux textes attendent une main humaine dans `/mentions-legales` : l'identité de l'éditeur, et
+les conditions du menu offert. Ces dernières sont le seul endroit où l'étendue de l'engagement se
+borne, puisque l'avantage n'est pas plafonné en nombre de bénéficiaires — elles doivent passer
+devant un juriste avant le lancement.
 
 ## Architecture
 
@@ -37,11 +37,14 @@ devant un juriste (QG 7.2).
 | Recettes | Notion, `lib/notion.ts` | Aucune double saisie, aucune recette en dur dans le repo |
 | Textes de marque | `lib/site.ts` | Un seul endroit à relire avant publication |
 
-### Le numéro de Fondateur
+### La promesse
 
-Attribué **à la confirmation**, jamais à la soumission du formulaire. Dans une transaction, sous
-verrou consultatif, plafonné à 500, et jamais réattribué : on prend `max + 1`, jamais un trou
-libéré par une désinscription. Une désinscription ne remet donc jamais `founder_number` à `NULL`.
+Un seul avantage, sans palier : tout inscrit **confirmé** reçoit un menu offert le jour de
+l'ouverture, à utiliser quand il veut. Le droit se lit en base — `confirmed_at` renseigné et
+`unsubscribed_at` nul — et nulle part ailleurs.
+
+C'est un écart assumé par rapport à la section 7.2 du QG, qui borne tout cadeau. Conséquence à
+garder en tête : l'engagement grandit avec la liste. `/dossier` affiche le nombre de menus dus.
 
 ### Le champ « ville »
 
@@ -52,7 +55,7 @@ avec un chiffre. Il alimente la densité par ville affichée sur `/dossier`.
 
 | Route | État |
 |---|---|
-| `/` | Manifeste, capture email, compteur de Fondateurs |
+| `/` | Le nom, la promesse, la capture email, puis les recettes |
 | `/recettes` et `/recettes/[slug]` | Alimentées par Notion, balisage `Recipe` schema.org |
 | `/le-concept` | L'univers. Ni date, ni ville, ni format du lieu |
 | `/dossier` | Non listée, `noindex`. Chiffres lus dans Postgres uniquement |

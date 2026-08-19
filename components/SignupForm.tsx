@@ -52,7 +52,7 @@ export function SignupForm() {
         disabled={pending}
         className="w-full rounded-sm bg-rouge px-6 py-4 font-display text-lg font-bold text-creme transition hover:bg-rouge-sombre focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-creme disabled:opacity-70"
       >
-        {pending ? 'Une seconde…' : 'Je veux le carnet'}
+        {pending ? 'Une seconde…' : 'Je veux mon menu'}
       </button>
 
       {state.error ? (

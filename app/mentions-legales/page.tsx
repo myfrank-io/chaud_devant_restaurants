@@ -13,10 +13,11 @@ export const metadata: Metadata = {
  * Ce qui est ecrit : le traitement des donnees, parce qu'il decoule directement
  * du code — on sait exactement ce qui est collecte et ce qui en est fait.
  *
- * Ce qui ne l'est pas : l'identite de l'editeur et les conditions des 500
- * Fondateurs. Les inventer serait pire que de les laisser vides : les premieres
- * sont des faits juridiques, les secondes un engagement tenu sur deux ans, que
- * le QG demande explicitement de faire relire par un juriste (section 7.2).
+ * Ce qui ne l'est pas : l'identite de l'editeur et les conditions du menu
+ * offert. Les inventer serait pire que de les laisser vides : les premieres sont
+ * des faits juridiques, les secondes un engagement tenu jusqu'a l'ouverture et
+ * sans plafond de beneficiaires. A faire relire par un juriste avant le
+ * lancement — le QG le demandait deja pour un avantage borne (section 7.2).
  */
 export default function MentionsLegales() {
   return (
@@ -48,9 +49,10 @@ export default function MentionsLegales() {
               Rien d&rsquo;autre, et il n&rsquo;y a pas de champ caché.
             </p>
             <p>
-              L&rsquo;email sert à t&rsquo;envoyer le carnet puis les recettes. La ville sert à
-              savoir où se trouvent les gens qui nous suivent — c&rsquo;est une donnée de décision
-              pour nous, elle n&rsquo;est jamais utilisée pour te cibler individuellement.
+              L&rsquo;email sert à t&rsquo;envoyer ton menu offert le jour de l&rsquo;ouverture,
+              puis les recettes. La ville sert à savoir où se trouvent les gens qui nous suivent —
+              c&rsquo;est une donnée de décision pour nous, elle n&rsquo;est jamais utilisée pour te
+              cibler individuellement.
             </p>
             <p>
               Ces informations sont conservées dans notre propre base de données. Elles ne sont ni
@@ -76,15 +78,18 @@ export default function MentionsLegales() {
             </p>
           </Section>
 
-          <Section titre="Les 500 Fondateurs">
+          <Section titre="Le menu offert">
             <p>
-              Les 500 premières personnes dont l&rsquo;inscription est confirmée reçoivent un
-              numéro de Fondateur. Ce numéro est attribué une seule fois et n&rsquo;est jamais
-              réattribué, y compris après une désinscription.
+              Toute personne dont l&rsquo;inscription est confirmée par le lien reçu par mail, et
+              qui ne s&rsquo;est pas désinscrite, reçoit un menu offert par email le jour de
+              l&rsquo;ouverture. Une adresse saisie mais jamais confirmée n&rsquo;ouvre aucun droit.
             </p>
             <ARediger>
-              Conditions complètes de l&rsquo;avantage Fondateur : caractère nominatif et non
-              cessible, modalités d&rsquo;utilisation, limites, et durée de validité.
+              Conditions complètes du menu offert : composition du menu, caractère nominatif et non
+              cessible, modalités et lieu d&rsquo;utilisation, réservation éventuelle, et ce qui se
+              passe en cas d&rsquo;affluence. Cet avantage n&rsquo;est pas plafonné en nombre de
+              bénéficiaires : la rédaction de ces conditions est le seul endroit où l&rsquo;étendue
+              de l&rsquo;engagement se borne.
             </ARediger>
           </Section>
         </div>

@@ -22,7 +22,7 @@ export default async function Merci({
       <PageSimple titre="Tu y es déjà.">
         <p>
           Cette adresse est déjà confirmée. Pas besoin de t&rsquo;inscrire deux fois, ça ne te
-          donnera pas deux carnets.
+          donnera pas deux menus.
         </p>
         <Suivre />
       </PageSimple>
@@ -34,7 +34,7 @@ export default async function Merci({
       {mailEnvoye ? (
         <p>
           On vient de t&rsquo;envoyer un message pour vérifier que cette adresse est bien la tienne.
-          Un clic, et le carnet arrive. Regarde dans les indésirables, on n&rsquo;est jamais à
+          Un clic, et ta place est gardée. Regarde dans les indésirables, on n&rsquo;est jamais à
           l&rsquo;abri.
         </p>
       ) : (
@@ -43,10 +43,6 @@ export default async function Merci({
           petit souci d&rsquo;envoi de notre côté, ça ne vient pas de toi.
         </p>
       )}
-      <p>
-        En attendant, il y a de quoi t&rsquo;occuper : on cuisine à peu près tout le temps, et
-        souvent n&rsquo;importe comment.
-      </p>
       <Suivre />
     </PageSimple>
   )

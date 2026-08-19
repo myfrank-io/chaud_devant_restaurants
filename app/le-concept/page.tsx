@@ -35,10 +35,8 @@ export default function LeConcept() {
                 parle pendant deux secondes.
               </p>
               <p>
-                Ensuite chacun se sert. C&rsquo;est là qu&rsquo;est le geste. Pas une assiette
-                dressée qu&rsquo;on t&rsquo;apporte, pas une portion calculée pour toi : un plat au
-                milieu, une cuillère dedans, et tu prends ce que tu veux. Ça n&rsquo;a l&rsquo;air
-                de rien et ça change tout le repas.
+                Ensuite chacun se sert. Pas une assiette dressée qu&rsquo;on t&rsquo;apporte : un
+                plat au milieu, une cuillère dedans, et tu prends ce que tu veux.
               </p>
             </div>
           </div>
@@ -56,8 +54,7 @@ export default function LeConcept() {
                 a mangé et que presque plus personne ne sait refaire.
               </p>
               <p>
-                Rien de compliqué, rien d&rsquo;amélioré. On ne touche pas à la blanquette. On la
-                fait, on la rate parfois, on recommence. Et on assume les hérésies : les
+                Rien de compliqué, rien d&rsquo;amélioré. Et on assume les hérésies : les
                 coquillettes dans le bourguignon, le pain dans la sauce, le fromage râpé sur des
                 trucs qui n&rsquo;en demandaient pas.
               </p>
@@ -77,8 +74,7 @@ export default function LeConcept() {
               </p>
               <p>
                 On chine pour de vrai, le samedi matin, et on filme ce qu&rsquo;on rapporte. Ce qui
-                est sur ces images existe et se trouve quelque part chez nous. C&rsquo;est la seule
-                chose qu&rsquo;on puisse te montrer honnêtement pour l&rsquo;instant.
+                est sur ces images existe déjà quelque part chez nous.
               </p>
             </div>
 
@@ -107,7 +103,7 @@ export default function LeConcept() {
               qu&rsquo;on y ressente.
             </p>
             <p className="mt-6 text-lg leading-relaxed text-creme/75">
-              Laisse ton mail, tu le construiras avec nous.
+              Laisse ton mail : le jour où on ouvre, tu manges offert.
             </p>
             <Link
               href="/"

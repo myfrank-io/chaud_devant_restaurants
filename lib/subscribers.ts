@@ -1,7 +1,6 @@
 import 'server-only'
 
 import { getPool } from '@/lib/db'
-import { FOUNDERS_CAP } from '@/lib/site'
 
 export type CreateResult =
   | { status: 'created'; confirmToken: string; unsubscribeToken: string }
@@ -9,25 +8,25 @@ export type CreateResult =
   | { status: 'already_confirmed' }
 
 export type ConfirmResult =
-  | { status: 'confirmed'; founderNumber: number | null }
-  | { status: 'already_confirmed'; founderNumber: number | null }
+  | { status: 'confirmed' }
+  | { status: 'already_confirmed' }
   | { status: 'unknown_token' }
 
-/**
- * Nombre de Fondateurs deja attribues. null si la base n'est pas joignable :
- * l'appelant affiche alors une formulation qui n'invente aucun chiffre.
- */
-export async function countFounders(): Promise<number | null> {
+/** Nombre d'inscrits confirmes. null si la base n'est pas joignable. */
+export async function countConfirmed(): Promise<number | null> {
   const pool = getPool()
   if (!pool) return null
 
   try {
     const { rows } = await pool.query<{ count: string }>(
-      'SELECT count(founder_number) AS count FROM subscribers'
+      `SELECT count(*) AS count
+         FROM subscribers
+        WHERE confirmed_at IS NOT NULL
+          AND unsubscribed_at IS NULL`
     )
     return Number(rows[0]?.count ?? 0)
   } catch (error) {
-    console.error('[subscribers] lecture du compteur de Fondateurs impossible', error)
+    console.error('[subscribers] lecture du compteur impossible', error)
     return null
   }
 }
@@ -77,67 +76,36 @@ export async function createSubscriber(input: {
 }
 
 /**
- * Confirme une inscription et attribue le numero de Fondateur.
+ * Confirme une inscription (double opt-in).
  *
- * Regles du QG 6.4, toutes portees par cette transaction :
- *  - le numero s'attribue a la confirmation, jamais a la soumission du formulaire ;
- *  - il est plafonne a FOUNDERS_CAP ;
- *  - il n'est jamais reattribue — on prend max + 1, jamais un trou libere.
- *
- * Le verrou consultatif serialise les confirmations simultanees, sans quoi deux
- * requetes concurrentes liraient le meme max et viseraient le meme numero.
+ * C'est ce clic qui vaut consentement, et c'est lui seul qui ouvre droit au
+ * menu offert : une adresse saisie mais jamais confirmee n'engage a rien.
  */
 export async function confirmSubscriber(token: string): Promise<ConfirmResult> {
   const pool = getPool()
   if (!pool) throw new Error('DATABASE_URL absent : impossible de confirmer une inscription.')
 
-  const client = await pool.connect()
-  try {
-    await client.query('BEGIN')
-    await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', ['chaud_devant:founder_number'])
+  // On capture l'etat d'avant dans une CTE plutot que de deduire « deja
+  // confirme » d'une comparaison de dates apres coup : now() vaut l'heure de
+  // debut de transaction, ce qui rend ce genre de test juste par accident.
+  const { rows } = await pool.query<{ already: boolean }>(
+    `WITH avant AS (
+       SELECT confirm_token, confirmed_at FROM subscribers WHERE confirm_token = $1
+     )
+     UPDATE subscribers s
+        SET confirmed_at = COALESCE(s.confirmed_at, now()),
+            unsubscribed_at = NULL
+       FROM avant
+      WHERE s.confirm_token = avant.confirm_token
+     RETURNING (avant.confirmed_at IS NOT NULL) AS already`,
+    [token]
+  )
 
-    const { rows: existing } = await client.query<{
-      confirmed_at: Date | null
-      founder_number: number | null
-    }>('SELECT confirmed_at, founder_number FROM subscribers WHERE confirm_token = $1', [token])
-
-    const current = existing[0]
-    if (!current) {
-      await client.query('ROLLBACK')
-      return { status: 'unknown_token' }
-    }
-
-    if (current.confirmed_at) {
-      await client.query('ROLLBACK')
-      return { status: 'already_confirmed', founderNumber: current.founder_number }
-    }
-
-    const { rows } = await client.query<{ founder_number: number | null }>(
-      `UPDATE subscribers
-          SET confirmed_at = now(),
-              unsubscribed_at = NULL,
-              founder_number = CASE
-                WHEN (SELECT COALESCE(max(founder_number), 0) FROM subscribers) < $2
-                THEN (SELECT COALESCE(max(founder_number), 0) + 1 FROM subscribers)
-                ELSE NULL
-              END
-        WHERE confirm_token = $1
-          AND confirmed_at IS NULL
-      RETURNING founder_number`,
-      [token, FOUNDERS_CAP]
-    )
-
-    await client.query('COMMIT')
-    return { status: 'confirmed', founderNumber: rows[0]?.founder_number ?? null }
-  } catch (error) {
-    await client.query('ROLLBACK').catch(() => {})
-    throw error
-  } finally {
-    client.release()
-  }
+  if (rows.length === 0) return { status: 'unknown_token' }
+  return { status: rows[0].already ? 'already_confirmed' : 'confirmed' }
 }
 
-/** Desinscription. Ne libere jamais le numero de Fondateur (voir db/schema.sql). */
+/** Desinscription, depuis le lien present dans chaque email. */
 export async function unsubscribe(token: string): Promise<boolean> {
   const pool = getPool()
   if (!pool) throw new Error('DATABASE_URL absent : impossible de traiter la desinscription.')
@@ -152,7 +120,6 @@ export async function unsubscribe(token: string): Promise<boolean> {
 export type SubscriberStats = {
   total: number
   confirmed: number
-  founders: number
   topCities: { city: string; count: number }[]
 }
 
@@ -167,10 +134,8 @@ export async function getSubscriberStats(): Promise<SubscriberStats | null> {
 
   try {
     const [totals, cities] = await Promise.all([
-      pool.query<{ total: string; confirmed: string; founders: string }>(
-        `SELECT count(*) AS total,
-                count(confirmed_at) AS confirmed,
-                count(founder_number) AS founders
+      pool.query<{ total: string; confirmed: string }>(
+        `SELECT count(*) AS total, count(confirmed_at) AS confirmed
            FROM subscribers
           WHERE unsubscribed_at IS NULL`
       ),
@@ -189,7 +154,6 @@ export async function getSubscriberStats(): Promise<SubscriberStats | null> {
     return {
       total: Number(totals.rows[0]?.total ?? 0),
       confirmed: Number(totals.rows[0]?.confirmed ?? 0),
-      founders: Number(totals.rows[0]?.founders ?? 0),
       topCities: cities.rows.map((row) => ({ city: row.city, count: Number(row.count) })),
     }
   } catch (error) {
