@@ -17,18 +17,24 @@ import { getPool } from '@/lib/db'
  */
 
 /**
- * Ce qui est en ligne : une date de parution posee, deja passee, et une fiche
- * qui tient debout.
+ * Ce qui est en ligne : une date de parution posee, deja passee, une fiche qui
+ * tient debout, et une relecture humaine.
  *
  * La condition de contenu n'est pas un detail de confort. Une fiche est creee
  * en meme temps que son post, donc vide, et sa date suit celle du post : sans
  * ce garde-fou, caler un post publierait une page sans ingredients ni etapes.
  * Mieux vaut ne rien publier qu'une recette qui n'en est pas une.
  *
+ * `reviewed_at` compte autant. Une fiche peut etre redigee par le modele a
+ * partir d'une photo ou d'un lien : quantites et temps de cuisson y sont
+ * plausibles, pas verifies. Enregistrer la fiche vaut relecture, et c'est ce
+ * geste-la qui ouvre la parution.
+ *
  * Une seule definition, partagee par toutes les lectures publiques.
  */
 const EN_LIGNE = `published_at IS NOT NULL
                   AND published_at <= now()
+                  AND reviewed_at IS NOT NULL
                   AND cardinality(ingredients) > 0
                   AND cardinality(steps) > 0`
 
@@ -47,6 +53,7 @@ export type Recipe = {
   ingredients: string[]
   steps: string[]
   publishedAt: Date | null
+  reviewedAt: Date | null
 }
 
 type Ligne = {
@@ -64,10 +71,11 @@ type Ligne = {
   ingredients: string[]
   steps: string[]
   published_at: Date | null
+  reviewed_at: Date | null
 }
 
 const COLONNES = `id, slug, title, category, seasons, minutes, difficulty, angle,
-                  cover, post_url, intro, ingredients, steps, published_at`
+                  cover, post_url, intro, ingredients, steps, published_at, reviewed_at`
 
 function versRecette(ligne: Ligne): Recipe {
   return {
@@ -85,6 +93,7 @@ function versRecette(ligne: Ligne): Recipe {
     ingredients: ligne.ingredients ?? [],
     steps: ligne.steps ?? [],
     publishedAt: ligne.published_at,
+    reviewedAt: ligne.reviewed_at,
   }
 }
 
@@ -185,8 +194,10 @@ export async function creeUneRecette(input: RecipeInput): Promise<string> {
 
   const { rows } = await pool.query<{ id: string }>(
     `INSERT INTO recipes (slug, title, category, seasons, minutes, difficulty, angle,
-                          cover, post_url, intro, ingredients, steps, published_at)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12, $13::date)
+                          cover, post_url, intro, ingredients, steps, published_at,
+                          -- Passer par le formulaire, c'est avoir lu la fiche.
+                          reviewed_at)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12, $13::date, now())
      RETURNING id`,
     valeurs(input)
   )
@@ -203,6 +214,9 @@ export async function metAJourUneRecette(id: string, input: RecipeInput): Promis
             difficulty = $6, angle = $7, cover = $8, post_url = $9, intro = $10,
             ingredients = $11, steps = $12,
             published_at = $13::date,
+            -- Enregistrer vaut relecture : c'est ce geste qui ouvre la parution
+            -- d'une fiche redigee par le modele.
+            reviewed_at = now(),
             updated_at = now()
       WHERE id = $14`,
     [...valeurs(input), id]
@@ -314,9 +328,12 @@ export async function postQuiPorte(
 }
 
 /** L'etat de parution, tel qu'on l'affiche. */
-export type Parution = 'brouillon' | 'incomplete' | 'programmee' | 'en-ligne'
+export type Parution = 'brouillon' | 'a-relire' | 'incomplete' | 'programmee' | 'en-ligne'
 
 export function parution(recette: Recipe): Parution {
+  // Une fiche jamais relue passe devant tout le reste : c'est le seul etat
+  // qu'on ne peut pas resoudre en changeant une date.
+  if (estRemplie(recette) && !recette.reviewedAt) return 'a-relire'
   if (!recette.publishedAt) return 'brouillon'
   if (!estRemplie(recette)) return 'incomplete'
   return recette.publishedAt.getTime() > Date.now() ? 'programmee' : 'en-ligne'
@@ -380,4 +397,43 @@ async function slugLibre(souhaite: string): Promise<string> {
   let suffixe = 2
   while (pris.has(`${base}-${suffixe}`)) suffixe += 1
   return `${base}-${suffixe}`
+}
+
+/**
+ * Enregistre une recette importee depuis un lien.
+ *
+ * `reviewed_at` reste nul : le texte vient d'ailleurs, il n'a pas encore ete
+ * relu ni reecrit, et tant qu'il ne l'est pas la fiche ne peut pas paraitre.
+ * C'est le meme garde-fou que pour une fiche vide, pour une autre raison.
+ */
+export async function creeUneRecetteARelire(input: {
+  titre: string
+  angle: string | null
+  minutes: number | null
+  categorie: string | null
+  ingredients: string[]
+  etapes: string[]
+  photo: string | null
+  source: string
+}): Promise<string> {
+  const pool = getPool()
+  if (!pool) throw new Error('DATABASE_URL absent : impossible d\'enregistrer la recette.')
+
+  const { rows } = await pool.query<{ id: string }>(
+    `INSERT INTO recipes (slug, title, angle, minutes, category, ingredients, steps, cover, post_url)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+     RETURNING id`,
+    [
+      await slugLibre(slugify(input.titre)),
+      input.titre,
+      input.angle,
+      input.minutes,
+      input.categorie,
+      input.ingredients,
+      input.etapes,
+      input.photo,
+      input.source,
+    ]
+  )
+  return rows[0].id
 }

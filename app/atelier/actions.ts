@@ -25,6 +25,7 @@ import {
   type Statut,
 } from '@/lib/atelier'
 import { estConnecte, fermeLaSession } from '@/lib/auth'
+import { importeDepuisUnLien } from '@/lib/lien'
 import {
   isRedactionConfigured,
   redigeDepuisUnePhoto,
@@ -33,6 +34,7 @@ import {
   alignerLaParution,
   creeLaFichePourUnPost,
   creeUneRecette,
+  creeUneRecetteARelire,
   metAJourUneRecette,
   slugify,
   supprimeUneRecette,
@@ -347,4 +349,31 @@ export async function redigeDepuisUnePhotoAction(formData: FormData): Promise<st
 
   await rafraichitLeSite()
   redirect(`/atelier/post/${id}`)
+}
+
+/* ---------------------------------------------------------- depuis lien --- */
+
+/**
+ * Importe une recette depuis un lien, puis ouvre sa fiche.
+ *
+ * Aucun modele n'intervient : on lit le balisage schema.org que presque tous
+ * les sites de cuisine publient deja. C'est exact, gratuit, et ca rend des
+ * champs deja separes.
+ */
+export async function importeUneRecetteAction(formData: FormData): Promise<string | undefined> {
+  await exigeLaSession()
+
+  const lien = texte(formData, 'lien')
+  if (!lien) return 'Colle un lien vers une page de recette.'
+
+  let importee
+  try {
+    importee = await importeDepuisUnLien(lien)
+  } catch (error) {
+    return error instanceof Error ? error.message : 'Ce lien n’a pas pu être lu.'
+  }
+
+  const id = await creeUneRecetteARelire(importee)
+  await rafraichitLeSite()
+  redirect(`/atelier/recettes/${id}`)
 }

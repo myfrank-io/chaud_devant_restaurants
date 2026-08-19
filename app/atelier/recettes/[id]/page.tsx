@@ -211,6 +211,14 @@ export default async function FicheRecette({ params }: { params: Promise<{ id: s
             </p>
           ) : null}
 
+          {etat === 'a-relire' ? (
+            <p className="mt-3 max-w-lg text-sm text-rouge">
+              Cette fiche vient d’un import : personne ne l’a encore relue, et elle ne paraîtra pas
+              tant que ce sera le cas. Réécris le texte avec tes mots, puis enregistre — c’est cet
+              enregistrement qui vaut relecture.
+            </p>
+          ) : null}
+
           {etat === 'en-ligne' ? (
             <p className="mt-3 max-w-lg text-sm text-rouge">
               La recette est en ligne. Vider la date la retire du site, et le lien déjà partagé

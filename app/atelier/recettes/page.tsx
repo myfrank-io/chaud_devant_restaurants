@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
 import { BaseAbsente } from '@/components/atelier/BaseAbsente'
+import { DepuisUnLien } from '@/components/atelier/DepuisUnLien'
 import { isDatabaseConfigured } from '@/lib/db'
 import { ceQuiManque, enJour, listeToutesLesRecettes, parution } from '@/lib/recipes'
 import { jourEnToutesLettres } from '@/lib/mois'
@@ -11,6 +12,7 @@ export default async function Recettes() {
   const recettes = await listeToutesLesRecettes()
   const brouillons = recettes.filter((recette) => parution(recette) === 'brouillon')
   const aFinir = recettes.filter((recette) => parution(recette) === 'incomplete')
+  const aRelire = recettes.filter((recette) => parution(recette) === 'a-relire')
   const programmees = recettes.filter((recette) => parution(recette) === 'programmee')
   const publiees = recettes.filter((recette) => parution(recette) === 'en-ligne')
 
@@ -27,6 +29,10 @@ export default async function Recettes() {
         </Link>
       </div>
 
+      <div className="mt-6">
+        <DepuisUnLien />
+      </div>
+
       {recettes.length === 0 ? (
         <p className="mt-8 text-lg text-fonte/60">
           Rien encore. La première recette publiée apparaîtra sur{' '}
@@ -37,6 +43,9 @@ export default async function Recettes() {
         </p>
       ) : null}
 
+      {aRelire.length > 0 ? (
+        <Groupe titre="À relire — importées, jamais enregistrées" recettes={aRelire} />
+      ) : null}
       {aFinir.length > 0 ? <Groupe titre="À finir — elles ne paraîtront pas" recettes={aFinir} /> : null}
       {programmees.length > 0 ? <Groupe titre="Programmées" recettes={programmees} /> : null}
       {brouillons.length > 0 ? <Groupe titre="Brouillons" recettes={brouillons} /> : null}

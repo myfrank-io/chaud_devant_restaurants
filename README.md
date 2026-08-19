@@ -154,6 +154,22 @@ d'ouverture et les descriptions du futur lieu sont signalés (`lib/garde-fous.ts
 avertissement, jamais un blocage — la règle a déjà connu un écart assumé, et un outil qui refuse
 d'enregistrer force à le contourner.
 
+### Importer une recette depuis un lien — sans un centime
+
+Presque tous les sites de cuisine publient un balisage `Recipe` schema.org dans leur page — le
+même que celui qu'on émet nous-mêmes. `lib/lien.ts` le lit : titre, ingrédients, étapes, durée,
+photo, déjà séparés. C'est exact là où un modèle rendrait une approximation, et ça ne coûte rien.
+Quand le balisage manque, on le dit et on n'invente pas.
+
+Le serveur va chercher la page avec la vue réseau du serveur : les adresses privées, la boucle
+locale et les protocoles autres que http/https sont refusés, la taille et le délai sont bornés.
+Sans ça, un lien vers une adresse interne ferait de l'application un relais pour lire ce qu'elle
+seule peut atteindre.
+
+**Le texte importé appartient à quelqu'un d'autre.** Il sert de base, il se réécrit. `reviewed_at`
+tient ce garde-fou : nul tant que personne n'a ouvert la fiche et enregistré, et une recette non
+relue ne paraît jamais — même calée, même remplie. Enregistrer vaut relecture.
+
 ### Écrire un post depuis une photo
 
 Dans une ligne directrice, « Écrire depuis une photo » ouvre l'appareil photo sur téléphone. La
