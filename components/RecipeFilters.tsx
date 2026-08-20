@@ -27,7 +27,9 @@ function normalise(texte: string): string {
     .replace(/œ/g, 'oe')
     .replace(/æ/g, 'ae')
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
+    // La plage en échappements \u : écrite en caractères combinants bruts,
+    // elle casse dès que le fichier est relu dans un autre encodage.
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
 }
 

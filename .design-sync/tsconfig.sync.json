@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "baseUrl": "..",
+    "paths": {
+      "next/link": ["./.design-sync/shims/next-link.tsx"],
+      "server-only": ["./.design-sync/shims/server-only.ts"],
+      "@/app/actions": ["./.design-sync/shims/app-actions.ts"],
+      "@/app/login/actions": ["./.design-sync/shims/login-actions.ts"],
+      "@/lib/db": ["./.design-sync/shims/db.ts"],
+      "@/*": ["./*"]
+    }
+  }
+}
