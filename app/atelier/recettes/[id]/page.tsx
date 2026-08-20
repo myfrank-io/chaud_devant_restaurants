@@ -42,6 +42,8 @@ type Prerempli = {
   etapes?: string
   photo?: string
   post_url?: string
+  /** « 1 » quand on vient de réimporter un lien déjà connu. */
+  connue?: string
 }
 
 /** Une liste pre-remplie : une entree par ligne, les vides ignorees. */
@@ -106,6 +108,13 @@ export default async function FicheRecette({
           </span>
         ) : null}
       </div>
+
+      {donne.connue === '1' ? (
+        <p className="mt-3 max-w-lg border-l-4 border-bois bg-creme/50 px-3 py-2 text-sm text-fonte/70">
+          Ce lien avait déjà été importé : voilà la fiche. On ne t’en refait pas une deuxième, tu
+          aurais deux brouillons du même plat et aucun moyen de savoir lequel est le bon.
+        </p>
+      ) : null}
 
       {nouvelle && prerempli ? (
         <p className="mt-3 max-w-lg border-l-4 border-bois bg-creme/50 px-3 py-2 text-sm text-fonte/70">

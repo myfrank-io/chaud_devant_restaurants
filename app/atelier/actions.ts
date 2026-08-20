@@ -33,6 +33,7 @@ import {
   creeLaFichePourUnPost,
   creeUneRecette,
   creeUneRecetteARelire,
+  recetteDepuisLaSource,
   metAJourUneRecette,
   slugify,
   supprimeUneRecette,
@@ -345,6 +346,11 @@ export async function importeUneRecetteAction(formData: FormData): Promise<strin
     return error instanceof Error ? error.message : 'Ce lien n’a pas pu être lu.'
   }
 
+  // Deja importee depuis ce lien : on rouvre celle-la. Refaire une fiche
+  // n'apporterait qu'un doublon a trier plus tard.
+  const connue = await recetteDepuisLaSource(importee.source)
+  if (connue) redirect(`/atelier/recettes/${connue.id}?connue=1`)
+
   const id = await creeUneRecetteARelire(importee)
   await rafraichitLeSite()
   redirect(`/atelier/recettes/${id}`)
@@ -353,16 +359,18 @@ export async function importeUneRecetteAction(formData: FormData): Promise<strin
 /**
  * Le meme lien, mais pour ouvrir un post.
  *
- * La fiche recette est creee avec ce que la page publiait — ingredients,
- * etapes, durees, photo — et le formulaire de post s'ouvre dessus, hook,
- * conduite et legende compris.
+ * Le post est cree pour de bon, et on arrive sur sa fiche. C'est ce qu'on
+ * demande en cliquant « Remplir depuis ce lien » depuis un nouveau post.
  *
- * Ces trois-la ne sont pas generes par un modele : `lib/brouillon.ts` met en
- * forme ce que la page donnait deja. C'est un point de depart, pas un texte
- * fini, et l'ecran le dit — mais relire trois champs remplis coute deux
- * minutes la ou les inventer en coute vingt.
+ * Avant, l'import creait la fiche recette tout de suite et rendait le post
+ * pre-rempli dans l'adresse, a enregistrer soi-meme. Deux choses en sortaient
+ * de travers. Le geste ne faisait pas ce qu'il annonce — on demande un post,
+ * on obtient un formulaire. Et surtout, partir sans cliquer sur Enregistrer
+ * laissait la fiche recette derriere : huit imports, huit brouillons, zero
+ * post. C'est exactement ce qui est arrive.
  *
- * Rien n'est enregistre cote post tant qu'on n'a pas clique sur Enregistrer.
+ * La fiche recette suit la meme regle qu'ailleurs : deja importee depuis ce
+ * lien, on la reprend au lieu d'en faire une seconde.
  */
 export async function importeUnPostDepuisUnLienAction(
   formData: FormData
@@ -379,31 +387,32 @@ export async function importeUnPostDepuisUnLienAction(
     return error instanceof Error ? error.message : 'Ce lien n’a pas pu être lu.'
   }
 
-  const recetteId = await creeUneRecetteARelire(importee)
-  await rafraichitLeSite()
+  const connue = await recetteDepuisLaSource(importee.source)
+  const recetteId = connue?.id ?? (await creeUneRecetteARelire(importee))
 
   // La conduite reprend ce que la ligne directrice dit de son tournage, ecrit
   // a la main. Hors d'une ligne, le script ne porte que le decoupage.
   const ligneId = texte(formData, 'ligne')
   const ligne = ligneId ? (await listeLesLignes()).find((l) => l.id === ligneId) : undefined
-  const format = formatChoisi(formData) ?? ligne?.format ?? null
-
   const propose = brouillonDePost(importee, ligne?.deroule ?? null)
 
-  const champs = new URLSearchParams({
-    titre: importee.titre,
-    recette: recetteId,
-    // La fiche existe deja : la recreer en ferait une seconde, vide.
-    fiche: '0',
+  const postId = await creeUnPost({
+    ligneId: ligneId ?? null,
+    recipeId: recetteId,
+    title: importee.titre,
+    format: formatChoisi(formData) ?? ligne?.format ?? 'reel',
     hook: propose.hook,
     script: propose.script,
+    sonType: null,
+    son: null,
     caption: propose.caption,
+    mediaUrl: null,
+    scheduledOn: texte(formData, 'date'),
+    status: 'idee',
   })
-  if (format) champs.set('format', format)
-  for (const nom of ['ligne', 'date', 'retour'] as const) {
-    const valeur = texte(formData, nom)
-    if (valeur) champs.set(nom, valeur)
-  }
 
-  redirect(`/atelier/post/nouveau?${champs}`)
+  await rafraichitLeSite()
+
+  const retour = texte(formData, 'retour') ?? '/atelier/lignes'
+  redirect(`/atelier/post/${postId}?retour=${encodeURIComponent(retour)}&neuf=1`)
 }

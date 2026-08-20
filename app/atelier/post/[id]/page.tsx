@@ -57,6 +57,8 @@ type Prerempli = {
   recette?: string
   /** « 0 » quand la fiche existe deja : la recreer en ferait une seconde, vide. */
   fiche?: string
+  /** « 1 » juste apres qu'un lien a cree ce post. */
+  neuf?: string
 }
 
 export default async function FichePost({
@@ -104,6 +106,15 @@ export default async function FichePost({
         {nouveau ? 'Nouveau post' : post!.title}
       </h1>
 
+      {!nouveau && donne.neuf === '1' ? (
+        <p className="mt-3 max-w-lg border-l-4 border-bois bg-creme/50 px-3 py-2 text-sm text-fonte/70">
+          Ce post vient d’être créé depuis un lien, et il est déjà enregistré. Le hook et la
+          punchline sont une proposition, pas une signature : mets-y tes mots. Et les étapes, dans
+          la conduite comme dans la légende, sont le texte du site d’origine — réécris-les avant de
+          publier.
+        </p>
+      ) : null}
+
       {nouveau && prerempli ? (
         <p className="mt-3 max-w-lg border-l-4 border-bois bg-creme/50 px-3 py-2 text-sm text-fonte/70">
           Ce brouillon vient d’un lien pré-rempli. Rien n’est enregistré tant que tu n’as pas
@@ -127,8 +138,8 @@ export default async function FichePost({
                 On lit le balisage que la page publie : titre, ingrédients, étapes, durée, photo.
                 La fiche recette est créée et rattachée à ce post, et le formulaire se rouvre
                 dessus — <strong className="font-bold text-fonte/75">hook, conduite de tournage
-                et légende compris</strong>, au format de la maison. C’est un point de départ,
-                pas un texte fini : relis-le, il n’attend que ça.
+                et légende compris</strong>. Le post est créé et enregistré du même geste : c’est
+                un point de départ, pas un texte fini, et il n’attend que ta relecture.
               </>
             }
           />

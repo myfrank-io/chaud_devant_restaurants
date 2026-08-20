@@ -396,6 +396,27 @@ async function slugLibre(souhaite: string): Promise<string> {
  * donne de date. C'est plus faible qu'une relecture tracee en base — voir le
  * README — mais ca ne demande aucune colonne.
  */
+/**
+ * La fiche deja importee depuis ce lien, s'il y en a une.
+ *
+ * Sans ca, rouvrir le meme lien creait une fiche de plus a chaque fois — huit
+ * « poulet en cocotte » en brouillon, numerotes de 1 a 8, et rien pour dire
+ * lequel etait le bon. L'adresse de la source est la seule cle fiable : un
+ * titre se repete, une adresse non.
+ */
+export async function recetteDepuisLaSource(
+  source: string
+): Promise<{ id: string; title: string } | null> {
+  const pool = await basePrete()
+  if (!pool) return null
+
+  const { rows } = await pool.query<{ id: string; title: string }>(
+    'SELECT id, title FROM recipes WHERE source_url = $1 ORDER BY created_at LIMIT 1',
+    [source]
+  )
+  return rows[0] ?? null
+}
+
 export async function creeUneRecetteARelire(input: {
   titre: string
   angle: string | null
@@ -410,7 +431,7 @@ export async function creeUneRecetteARelire(input: {
   if (!pool) throw new Error('DATABASE_URL absent : impossible d\'enregistrer la recette.')
 
   const { rows } = await pool.query<{ id: string }>(
-    `INSERT INTO recipes (slug, title, angle, minutes, category, ingredients, steps, cover, post_url)
+    `INSERT INTO recipes (slug, title, angle, minutes, category, ingredients, steps, cover, source_url)
      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
      RETURNING id`,
     [
