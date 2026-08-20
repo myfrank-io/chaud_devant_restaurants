@@ -9,8 +9,33 @@
   "cssEntry": ".design-sync/.cache/tailwind.css",
   "extraFonts": [".design-sync/fonts/fonts.css"],
   "docsDir": ".design-sync/docs",
+  "readmeHeader": ".design-sync/conventions.md",
   "overrides": {
-    "RecipeFilters": { "cardMode": "column" }
+    "RecipeFilters": { "cardMode": "column" },
+    "LogoHorizontal": { "cardMode": "column" }
+  },
+  "dtsPropsFor": {
+    "Logo": "className?: string; title?: string; /** 'since' (site) ou 'restaurants' (supports où la marque se présente comme maison de restauration) */ mention?: 'since' | 'restaurants';",
+    "Embleme": "className?: string; /** sans title, le SVG est décoratif (aria-hidden) */ title?: string;",
+    "LogoHorizontal": "className?: string; title?: string;",
+    "Rond": "className?: string; title?: string;",
+    "Tampon": "className?: string; title?: string;",
+    "PageSimple": "/** Titre en Fraunces sous la cocotte */ titre: string; children: React.ReactNode;",
+    "SiteHeader": "// aucun prop — l'en-tête se pose tel quel en haut de page",
+    "SignupForm": "// aucun prop — l'action serveur est branchée en interne",
+    "LoginForm": "// aucun prop",
+    "BaseAbsente": "// aucun prop",
+    "RecipeCardLink": "recipe: { id: string; slug: string; title: string; category: string | null; seasons: string[]; /** cuisson (min) — la carte affiche minutes + prepMinutes */ minutes: number | null; prepMinutes: number | null; difficulty: string | null; angle: string | null; /** URL de la photo, ou null pour le motif vichy + emblème */ cover: string | null; postUrl: string | null; intro: string[]; ingredients: string[]; steps: string[]; publishedAt: Date | null };",
+    "RecipeFilters": "recipes: { id: string; slug: string; title: string; category: string | null; seasons: string[]; minutes: number | null; prepMinutes: number | null; difficulty: string | null; angle: string | null; cover: string | null; postUrl: string | null; intro: string[]; ingredients: string[]; steps: string[]; publishedAt: Date | null }[];",
+    "Etiquette": "pour: string; children: React.ReactNode;",
+    "Texte": "nom: string; libelle: string; valeur?: string | number | null; type?: string; requis?: boolean; aide?: string; placeholder?: string;",
+    "Choix": "nom: string; libelle: string; valeur?: string | null; options: { valeur: string; libelle: string }[]; /** libellé de l'option vide */ vide?: string;",
+    "Liste": "nom: string; libelle: string; aide?: string; /** une entrée par ligne */ valeur?: string[] | null; lignes?: number;",
+    "Bouton": "variante?: 'plein' | 'contour' | 'discret'; /** + tous les attributs natifs de button */ disabled?: boolean; type?: 'button' | 'submit' | 'reset'; onClick?: React.MouseEventHandler<HTMLButtonElement>; className?: string; children?: React.ReactNode;",
+    "PastilleStatut": "statut: 'idee' | 'tourner' | 'monter' | 'pret' | 'publie';",
+    "PastilleFormat": "format: 'reel' | 'post' | 'story';",
+    "ChampRelu": "nom: string; libelle: string; aide?: string; valeurInitiale?: string | null; lignes?: number; /** signale aussi les emoji */ emojiInterdits?: boolean;",
+    "DepuisUnLien": "/** L'action qui lit le lien : redirige, ou rend un message d'échec. */ action: (donnees: FormData) => Promise<string | undefined>; bouton?: string; aide: React.ReactNode; /** champs cachés passés à l'action */ contexte?: Record<string, string | undefined>;"
   },
   "guidelinesGlob": [".design-sync/guidelines/*.md"],
   "componentSrcMap": {

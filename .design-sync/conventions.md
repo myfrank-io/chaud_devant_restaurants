@@ -26,8 +26,8 @@ Typo : `font-display` (Fraunces — titres, boutons, wordmark, souvent
 La feuille livrée est compilée : les classes du site et les familles
 courantes (couleurs de marque, tailles de texte, `w-*`, `max-w-*`, `p-*`,
 `gap-*`, `grid-cols-*`) existent. Pour une valeur hors de ce socle, passe par
-les variables — toujours définies : `style={{ background: 'var(--color-creme-fonce)' }}`
-ou `bg-[var(--color-rouge)]`.
+les variables en style inline — elles sont toujours définies :
+`style={{ background: 'var(--color-creme-fonce)' }}`.
 
 Classes maison (toujours disponibles) : `papier` (fond crème dégradé),
 `grain` (grain de nappe en papier, sur un parent `relative`), `nappe`
