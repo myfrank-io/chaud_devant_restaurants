@@ -1,0 +1,39 @@
+{
+  "pkg": "chaud-devant",
+  "globalName": "ChaudDevant",
+  "shape": "package",
+  "entry": ".design-sync/entry.ts",
+  "srcDir": "components",
+  "tsconfig": ".design-sync/tsconfig.sync.json",
+  "buildCmd": ".ds-sync/node_modules/.bin/tailwindcss -i .design-sync/tailwind.entry.css -o .design-sync/.cache/tailwind.css",
+  "cssEntry": ".design-sync/.cache/tailwind.css",
+  "extraFonts": [".design-sync/fonts/fonts.css"],
+  "docsDir": ".design-sync/docs",
+  "overrides": {
+    "RecipeFilters": { "cardMode": "column" }
+  },
+  "guidelinesGlob": [".design-sync/guidelines/*.md"],
+  "componentSrcMap": {
+    "Logo": "components/Logo.tsx",
+    "Embleme": "components/Logo.tsx",
+    "LogoHorizontal": "components/Logo.tsx",
+    "Rond": "components/Logo.tsx",
+    "Tampon": "components/Tampon.tsx",
+    "PageSimple": "components/Page.tsx",
+    "SiteHeader": "components/SiteHeader.tsx",
+    "RecipeCardLink": "components/RecipeCardLink.tsx",
+    "RecipeFilters": "components/RecipeFilters.tsx",
+    "SignupForm": "components/SignupForm.tsx",
+    "LoginForm": "components/LoginForm.tsx",
+    "Etiquette": "components/atelier/Champs.tsx",
+    "Texte": "components/atelier/Champs.tsx",
+    "Choix": "components/atelier/Champs.tsx",
+    "Liste": "components/atelier/Champs.tsx",
+    "Bouton": "components/atelier/Champs.tsx",
+    "PastilleStatut": "components/atelier/Pastille.tsx",
+    "PastilleFormat": "components/atelier/Pastille.tsx",
+    "ChampRelu": "components/atelier/ChampRelu.tsx",
+    "BaseAbsente": "components/atelier/BaseAbsente.tsx",
+    "DepuisUnLien": "components/atelier/DepuisUnLien.tsx"
+  }
+}
