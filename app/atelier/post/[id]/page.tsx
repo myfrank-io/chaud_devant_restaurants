@@ -121,7 +121,7 @@ export default async function FichePost({
           <DepuisUnLien
             action={importeUnPostDepuisUnLienAction}
             bouton="Remplir depuis ce lien"
-            contexte={{ ligne, date, retour: retourVers }}
+            contexte={{ ligne, date, format: donne.format, retour: retourVers }}
             aide={
               <>
                 On lit le balisage que la page publie : titre, ingrédients, étapes, durée, photo.

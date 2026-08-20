@@ -1,9 +1,17 @@
 import Link from 'next/link'
 
 import { BaseAbsente } from '@/components/atelier/BaseAbsente'
-import { Bouton } from '@/components/atelier/Champs'
+import { Bouton, Choix } from '@/components/atelier/Champs'
 import { PastilleFormat, PastilleStatut } from '@/components/atelier/Pastille'
-import { listeLesLignes, tousLesPosts, type Ligne, type Post } from '@/lib/atelier'
+import {
+  FORMATS,
+  LIBELLE_FORMAT,
+  listeLesLignes,
+  tousLesPosts,
+  type Ligne,
+  type Post,
+} from '@/lib/atelier'
+import { TRAME } from '@/lib/formats'
 import { isDatabaseConfigured } from '@/lib/db'
 import { jourEnToutesLettres } from '@/lib/mois'
 
@@ -66,6 +74,14 @@ export default async function Lignes() {
             name="intention"
             placeholder="Un tour de main par vidéo, filmé de près, sans parler."
             className="mt-1 w-full border-2 border-fonte/20 bg-papier px-3 py-2 text-base text-fonte outline-none transition focus:border-rouge"
+          />
+        </div>
+        <div className="min-w-40">
+          <Choix
+            nom="format"
+            libelle="Format"
+            vide="— ça dépend —"
+            options={FORMATS.map((f) => ({ valeur: f, libelle: LIBELLE_FORMAT[f] }))}
           />
         </div>
         <Bouton type="submit">Créer</Bouton>
@@ -146,9 +162,18 @@ function Dossier({ ligne, posts }: { ligne: Ligne; posts: Post[] }) {
               aria-label="Intention de la ligne"
               className="w-full border-0 border-b-2 border-fonte/15 bg-transparent text-base text-fonte/65 outline-none transition focus:border-rouge sm:border-transparent sm:hover:border-fonte/15 sm:focus:border-rouge"
             />
-            <Bouton type="submit" variante="discret" className="!px-0">
-              Enregistrer le titre
-            </Bouton>
+            <div className="flex flex-wrap items-end gap-4">
+              <Choix
+                nom="format"
+                libelle="Format"
+                valeur={ligne.format}
+                vide="— ça dépend —"
+                options={FORMATS.map((f) => ({ valeur: f, libelle: LIBELLE_FORMAT[f] }))}
+              />
+              <Bouton type="submit" variante="discret" className="!px-0 pb-2">
+                Enregistrer
+              </Bouton>
+            </div>
           </form>
         </div>
 
@@ -157,7 +182,9 @@ function Dossier({ ligne, posts }: { ligne: Ligne; posts: Post[] }) {
             {posts.length} post(s){restants > 0 ? `, ${restants} à finir` : ''}
           </span>
           <Link
-            href={`/atelier/post/nouveau?ligne=${ligne.id}`}
+            href={`/atelier/post/nouveau?ligne=${ligne.id}${
+              ligne.format ? `&format=${ligne.format}` : ''
+            }`}
             className="border-2 border-fonte/25 px-3 py-2 font-display text-base font-bold text-fonte transition hover:border-rouge hover:text-rouge"
           >
             + Post
@@ -180,10 +207,57 @@ function Dossier({ ligne, posts }: { ligne: Ligne; posts: Post[] }) {
         </div>
       </header>
 
-      <div className="px-4 pb-4">
+      <div className="space-y-4 px-4 pb-4">
+        <Deroule format={ligne.format} />
         <ListePosts posts={posts} />
       </div>
     </section>
+  )
+}
+
+/**
+ * Comment ca se tourne, dans le dossier ou l'on prepare.
+ *
+ * Replie par defaut : c'est une reference qu'on ouvre quand on cale un
+ * tournage, pas un pave a scroller a chaque visite. Sans format choisi, les
+ * trois sont la — une ligne qui melange les formats a besoin des trois.
+ */
+function Deroule({ format }: { format: Ligne['format'] }) {
+  const montres = format ? [format] : FORMATS
+
+  return (
+    <details className="border-2 border-fonte/10 bg-papier/60">
+      <summary className="cursor-pointer px-3 py-2 font-display text-base font-bold text-fonte marker:text-rouge">
+        Comment ça se tourne
+        {format ? (
+          <span className="ml-2 font-sans text-sm font-normal text-fonte/50">
+            {LIBELLE_FORMAT[format]}, {TRAME[format].duree}
+          </span>
+        ) : null}
+      </summary>
+
+      <div className="space-y-5 px-3 pb-4 pt-1">
+        {montres.map((nom) => (
+          <div key={nom}>
+            {montres.length > 1 ? (
+              <p className="text-xs font-bold uppercase tracking-[0.15em] text-bois">
+                {LIBELLE_FORMAT[nom]} — {TRAME[nom].duree}
+              </p>
+            ) : null}
+            <ol className="mt-1.5 space-y-1.5">
+              {TRAME[nom].deroule.map((etape) => (
+                <li key={etape} className="text-base leading-relaxed text-fonte/75">
+                  {etape}
+                </li>
+              ))}
+            </ol>
+            <p className="mt-2 border-l-4 border-bois pl-3 text-sm leading-relaxed text-fonte/65">
+              {TRAME[nom].regle}
+            </p>
+          </div>
+        ))}
+      </div>
+    </details>
   )
 }
 
