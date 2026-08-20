@@ -227,8 +227,18 @@ Deux chemins mènent à un post rempli. Ils ne remplissent pas les mêmes champs
 
 **Un lien**, depuis l'atelier. Le bouton *Remplir depuis ce lien*, sur `/atelier/post/nouveau`,
 lit le balisage de la page, crée la fiche recette avec ce qu'elle publiait — ingrédients, étapes,
-durées, photo — et rouvre le formulaire dessus, **hook, conduite et légende compris**. La ligne
-directrice et la date du calendrier suivent le lien jusqu'au formulaire.
+durées, photo — **crée le post**, et ouvre sa fiche, hook, conduite et légende compris. La ligne
+directrice et la date du calendrier suivent.
+
+Le post est créé pour de bon, pas rendu à enregistrer soi-même. Avant, il arrivait pré-rempli dans
+l'adresse : le geste ne faisait pas ce qu'il annonce — on demande un post, on obtient un
+formulaire — et partir sans cliquer sur *Enregistrer* laissait la fiche recette derrière. Huit
+imports, huit brouillons, zéro post.
+
+**Un lien déjà importé ne crée pas de deuxième fiche.** La colonne `recipes.source_url` garde
+l'adresse d'origine, et c'est la seule clé fiable pour ça : un titre se répète, une adresse non.
+Réimporter rouvre la fiche existante et le dit à l'écran. Deux *posts* sur le même plat restent
+possibles — la version d'été et celle d'hiver, c'est légitime ; deux *fiches* du même plat, jamais.
 
 Ces trois champs ne sortent pas d'un modèle : [`lib/brouillon.ts`](./lib/brouillon.ts) met en
 forme ce que la page donnait déjà, **au format de la bible** (QG 4.2, 4.3, 4.5).

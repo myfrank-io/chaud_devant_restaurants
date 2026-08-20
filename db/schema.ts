@@ -30,7 +30,7 @@
  * rien. Sans elle, chaque demarrage a froid repasserait sur tout le DDL pour
  * ne rien faire.
  */
-export const VERSION = 6
+export const VERSION = 7
 
 export const SCHEMA = `
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
@@ -100,7 +100,11 @@ CREATE TABLE IF NOT EXISTS recipes (
   difficulty    text,
   angle         text,
   cover         text,
+  -- Notre publication Instagram ou TikTok, celle qu'on met en ligne.
   post_url      text,
+  -- La page d'ou la fiche a ete importee. Sert a ne pas reimporter deux fois
+  -- le meme lien : c'est la seule cle fiable pour ca, un titre se repete.
+  source_url    text,
   intro         text[] NOT NULL DEFAULT '{}',
   ingredients   text[] NOT NULL DEFAULT '{}',
   steps         text[] NOT NULL DEFAULT '{}',
@@ -113,7 +117,10 @@ CREATE TABLE IF NOT EXISTS recipes (
 
 ALTER TABLE recipes ADD COLUMN IF NOT EXISTS prep_minutes integer;
 
+ALTER TABLE recipes ADD COLUMN IF NOT EXISTS source_url text;
+
 CREATE INDEX IF NOT EXISTS recipes_published_at_idx ON recipes (published_at DESC);
+CREATE INDEX IF NOT EXISTS recipes_source_url_idx ON recipes (source_url);
 
 CREATE TABLE IF NOT EXISTS lignes (
   id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
