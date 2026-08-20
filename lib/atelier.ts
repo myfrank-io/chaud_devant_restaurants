@@ -43,6 +43,8 @@ export type Ligne = {
   id: string
   name: string
   intention: string | null
+  /** Le format que cette ligne tourne. Null quand elle les mélange. */
+  format: Format | null
   archived: boolean
 }
 
@@ -138,38 +140,46 @@ export async function listeLesLignes(): Promise<Ligne[]> {
     id: string
     name: string
     intention: string | null
+    format: string | null
     archived_at: Date | null
-  }>('SELECT id, name, intention, archived_at FROM lignes ORDER BY position, created_at')
+  }>('SELECT id, name, intention, format, archived_at FROM lignes ORDER BY position, created_at')
 
   return rows.map((r) => ({
     id: r.id,
     name: r.name,
     intention: r.intention,
+    format: (FORMATS as readonly string[]).includes(r.format ?? '') ? (r.format as Format) : null,
     archived: r.archived_at !== null,
   }))
 }
 
-export async function creeUneLigne(name: string, intention: string | null): Promise<void> {
+export async function creeUneLigne(
+  name: string,
+  intention: string | null,
+  format: Format | null
+): Promise<void> {
   const pool = await basePrete()
   if (!pool) throw new Error('DATABASE_URL absent : impossible de créer une ligne.')
 
   await pool.query(
-    `INSERT INTO lignes (name, intention, position)
-     VALUES ($1, $2, COALESCE((SELECT max(position) + 1 FROM lignes), 0))`,
-    [name, intention]
+    `INSERT INTO lignes (name, intention, format, position)
+     VALUES ($1, $2, $3, COALESCE((SELECT max(position) + 1 FROM lignes), 0))`,
+    [name, intention, format]
   )
 }
 
 export async function metAJourUneLigne(
   id: string,
   name: string,
-  intention: string | null
+  intention: string | null,
+  format: Format | null
 ): Promise<void> {
   const pool = await basePrete()
   if (!pool) throw new Error('DATABASE_URL absent : impossible de modifier une ligne.')
-  await pool.query('UPDATE lignes SET name = $1, intention = $2 WHERE id = $3', [
+  await pool.query('UPDATE lignes SET name = $1, intention = $2, format = $3 WHERE id = $4', [
     name,
     intention,
+    format,
     id,
   ])
 }

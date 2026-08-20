@@ -142,6 +142,23 @@ une légende, une date et un média. **Pas de réseau** : on publie sur les deux
 post par post ne répondait à aucune question qu'on se posait. La colonne `channel` reste en base
 avec ce qu'elle contenait — on ne jette pas des données pour retirer un champ d'un formulaire.
 
+### Comment ça se tourne, dans le dossier
+
+Chaque ligne directrice porte un **format** — reel, carrousel ou story — et affiche le déroulé qui
+va avec, replié : c'est une référence qu'on ouvre en calant un tournage, pas un pavé à scroller à
+chaque visite. Sans format choisi, les trois sont là, parce qu'une ligne qui les mélange a besoin
+des trois.
+
+Les trames vivent dans [`lib/formats.ts`](./lib/formats.ts). Celle du reel vient du QG 4.3,
+minutage compris ; celles du carrousel et de la story en descendent — mêmes trois plans, même
+« chaud devant » quand le plat arrive sur la table, même légende qui porte la recette et finit sur
+une question fermée. Chacune se termine par la chose qu'on oublie en premier : la vanne toutes les
+8-10 s pour le reel, la question fermée pour le carrousel, le refus du montage pour la story.
+
+Le format suit le geste : le bouton **+ Post** d'un dossier ouvre un post déjà réglé dessus, et un
+import par lien recopie **la trame de ce format** dans le script. Une story ne se découpe pas comme
+un carrousel, et on n'a pas à s'en souvenir.
+
 ### La fiche recette naît avec le post
 
 Créer un post ouvre sa fiche recette du même geste, avec le même titre, en brouillon. Une case

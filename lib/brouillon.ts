@@ -1,3 +1,5 @@
+import { LIBELLE_FORMAT, type Format } from '@/lib/atelier'
+import { TRAME } from '@/lib/formats'
 import type { RecetteImportee } from '@/lib/lien'
 
 /**
@@ -45,13 +47,13 @@ export type Brouillon = {
   caption: string
 }
 
-export function brouillonDePost(recette: RecetteImportee): Brouillon {
+export function brouillonDePost(recette: RecetteImportee, format: Format = 'reel'): Brouillon {
   const plat = sansArticle(recette.titre)
   const dose = tire(recette.titre)
 
   return {
     hook: hook(recette, dose),
-    script: script(recette, dose),
+    script: script(recette, dose, format),
     caption: caption(recette, plat, dose),
   }
 }
@@ -144,41 +146,45 @@ const PLANS_MAX = 6
 /**
  * Ce qui se dit et ce qui se montre, dans l'ordre.
  *
- * La trame est celle du QG 4.3, minutage compris : c'est elle qu'on suit a
- * chaque fois, et l'avoir sous les yeux pendant qu'on tourne evite de la
- * redecouvrir au montage. Les etapes de la recette deviennent des plans,
- * raccourcies a leur premiere phrase — une conduite se lit d'un coup d'oeil.
+ * La trame vient de `lib/formats.ts` — celle du format que la ligne tourne, et
+ * pas toujours celle du reel : une story ne se decoupe pas comme un carrousel.
+ * L'avoir sous les yeux pendant qu'on tourne evite de la redecouvrir au
+ * montage.
+ *
+ * Les etapes de la recette deviennent des plans, raccourcies a leur premiere
+ * phrase : une conduite se lit d'un coup d'oeil, pas comme un livre.
  */
-function script(recette: RecetteImportee, dose: number): string {
+function script(recette: RecetteImportee, dose: number, format: Format): string {
+  const trame = TRAME[format]
   const plans = recette.etapes.slice(0, PLANS_MAX).map(premierePhrase).filter(Boolean)
   const restantes = recette.etapes.length - plans.length
 
-  const etapes = plans.length
-    ? [
-        ...plans.map((etape, index) => `  Plan ${index + 1} — ${etape}`),
-        restantes > 0
-          ? `  (+ ${restantes} étape${restantes > 1 ? 's' : ''}, dans la fiche recette.)`
-          : null,
-        '  → Une vanne toutes les 8-10 s, et les quantités à l’écran plutôt que dans la voix.',
-        '  → Ces étapes viennent du site d’origine, redis-les avec tes mots avant de tourner.',
-      ].filter((ligne) => ligne !== null)
-    : ['  À écrire : les étapes, un plan chacune, jamais plus de 3 s.']
+  const morceaux: (string | null)[] = [
+    `${LIBELLE_FORMAT[format]} — ${trame.duree}`,
+    '',
+    ...trame.deroule,
+    '',
+  ]
 
-  return [
-    '0-3 s — Le plat fini, on soulève le couvercle et la vapeur monte.',
-    '  → Le hook d’au-dessus, tel quel. Une phrase, pas trois.',
+  if (plans.length) {
+    morceaux.push(
+      `${trame.unite === 'Story' ? 'Les stories' : `Les ${trame.unite.toLowerCase()}s`}, dans l’ordre :`,
+      ...plans.map((etape, index) => `  ${trame.unite} ${index + 1} — ${etape}`),
+      restantes > 0 ? `  (+ ${restantes} étape${restantes > 1 ? 's' : ''}, dans la fiche recette.)` : null
+    )
+  } else {
+    morceaux.push('À écrire : le découpage, une étape par unité, dans l’ordre du tournage.')
+  }
+
+  morceaux.push(
     '',
-    '3-10 s — Retour au début, les ingrédients posés sur le bois.',
-    '  → Tu dis ce qu’on va manger et pourquoi ça vaut le détour.',
+    `La fin : « Chaud devant. » Puis ${punchline(dose)}`,
     '',
-    '10-45 s — Les étapes, coupées serré.',
-    ...etapes,
-    '',
-    '45-60 s — La cocotte sur la table, les mains qui se servent dedans.',
-    `  → « Chaud devant. » Puis : ${punchline(dose)}`,
-    '',
-    'Fin — Plan fixe sur le plat, 1,5 s, silence. C’est là que ça reboucle tout seul.',
-  ].join('\n')
+    trame.regle,
+    'Ces étapes viennent du site d’origine, redis-les avec tes mots avant de tourner.'
+  )
+
+  return morceaux.filter((ligne) => ligne !== null).join('\n')
 }
 
 /** La phrase de fin, celle qui declenche le commentaire (QG 4.2, regle 7). */

@@ -30,7 +30,7 @@
  * rien. Sans elle, chaque demarrage a froid repasserait sur tout le DDL pour
  * ne rien faire.
  */
-export const VERSION = 4
+export const VERSION = 5
 
 export const SCHEMA = `
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
@@ -121,12 +121,18 @@ CREATE TABLE IF NOT EXISTS lignes (
   -- Ce que la ligne raconte, en une phrase. C'est elle qu'on relit quand on
   -- se demande si un post a sa place ici.
   intention     text,
+  -- Le format que cette ligne tourne, quand elle n'en tourne qu'un. Decide de
+  -- la trame affichee sur le dossier et de celle recopiee dans le script d'un
+  -- post cree ici. Null = la ligne melange les formats.
+  format        text,
   position      integer NOT NULL DEFAULT 0,
   -- Une ligne finie s'archive au lieu de se supprimer : ses posts publies
   -- restent consultables.
   archived_at   timestamptz,
   created_at    timestamptz NOT NULL DEFAULT now()
 );
+
+ALTER TABLE lignes ADD COLUMN IF NOT EXISTS format text;
 
 CREATE TABLE IF NOT EXISTS posts (
   id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),

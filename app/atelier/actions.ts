@@ -12,6 +12,7 @@ import {
   creeUneLigne,
   FORMATS,
   getPost,
+  listeLesLignes,
   metAJourUnPost,
   metAJourUneLigne,
   SONS,
@@ -98,12 +99,18 @@ export async function deconnexionAction(): Promise<void> {
 
 /* -------------------------------------------------------------- lignes --- */
 
+/** Le format d'une ligne, ou null : une ligne peut melanger les formats. */
+function formatChoisi(formData: FormData): Format | null {
+  const valeur = texte(formData, 'format')
+  return (FORMATS as readonly string[]).includes(valeur ?? '') ? (valeur as Format) : null
+}
+
 export async function creeUneLigneAction(formData: FormData): Promise<void> {
   await exigeLaSession()
   const nom = texte(formData, 'name')
   if (!nom) return
 
-  await creeUneLigne(nom, texte(formData, 'intention'))
+  await creeUneLigne(nom, texte(formData, 'intention'), formatChoisi(formData))
   revalidatePath('/atelier/lignes')
 }
 
@@ -113,7 +120,7 @@ export async function metAJourUneLigneAction(formData: FormData): Promise<void> 
   const nom = texte(formData, 'name')
   if (!id || !nom) return
 
-  await metAJourUneLigne(id, nom, texte(formData, 'intention'))
+  await metAJourUneLigne(id, nom, texte(formData, 'intention'), formatChoisi(formData))
   revalidatePath('/atelier/lignes')
 }
 
@@ -359,7 +366,14 @@ export async function importeUnPostDepuisUnLienAction(
   const recetteId = await creeUneRecetteARelire(importee)
   await rafraichitLeSite()
 
-  const propose = brouillonDePost(importee)
+  // La conduite suit la trame du format que cette ligne tourne : une story ne
+  // se decoupe pas comme un carrousel.
+  const ligneId = texte(formData, 'ligne')
+  const format =
+    formatChoisi(formData) ??
+    (ligneId ? ((await listeLesLignes()).find((l) => l.id === ligneId)?.format ?? null) : null)
+
+  const propose = brouillonDePost(importee, format ?? 'reel')
 
   const champs = new URLSearchParams({
     titre: importee.titre,
@@ -370,6 +384,7 @@ export async function importeUnPostDepuisUnLienAction(
     script: propose.script,
     caption: propose.caption,
   })
+  if (format) champs.set('format', format)
   for (const nom of ['ligne', 'date', 'retour'] as const) {
     const valeur = texte(formData, nom)
     if (valeur) champs.set(nom, valeur)
