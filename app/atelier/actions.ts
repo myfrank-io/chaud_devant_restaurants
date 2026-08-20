@@ -50,8 +50,18 @@ async function exigeLaSession(): Promise<void> {
   if (!(await estConnecte())) throw new Error('Session expirée.')
 }
 
+/**
+ * Un champ de formulaire, vide vaut null.
+ *
+ * Les retours a la ligne sont ramenes a « \n » : une zone de texte envoie
+ * « \r\n », comme la norme HTML le demande, et ces \r finissaient en base
+ * puis dans un script. Invisibles a l'ecran, ils cassent tout ce qui compte
+ * des lignes.
+ */
 function texte(formData: FormData, champ: string): string | null {
-  const valeur = String(formData.get(champ) ?? '').trim()
+  const valeur = String(formData.get(champ) ?? '')
+    .replace(/\r\n?/g, '\n')
+    .trim()
   return valeur === '' ? null : valeur
 }
 
@@ -120,7 +130,13 @@ export async function metAJourUneLigneAction(formData: FormData): Promise<void> 
   const nom = texte(formData, 'name')
   if (!id || !nom) return
 
-  await metAJourUneLigne(id, nom, texte(formData, 'intention'), formatChoisi(formData))
+  await metAJourUneLigne(
+    id,
+    nom,
+    texte(formData, 'intention'),
+    formatChoisi(formData),
+    texte(formData, 'deroule')
+  )
   revalidatePath('/atelier/lignes')
 }
 
@@ -366,14 +382,13 @@ export async function importeUnPostDepuisUnLienAction(
   const recetteId = await creeUneRecetteARelire(importee)
   await rafraichitLeSite()
 
-  // La conduite suit la trame du format que cette ligne tourne : une story ne
-  // se decoupe pas comme un carrousel.
+  // La conduite reprend ce que la ligne directrice dit de son tournage, ecrit
+  // a la main. Hors d'une ligne, le script ne porte que le decoupage.
   const ligneId = texte(formData, 'ligne')
-  const format =
-    formatChoisi(formData) ??
-    (ligneId ? ((await listeLesLignes()).find((l) => l.id === ligneId)?.format ?? null) : null)
+  const ligne = ligneId ? (await listeLesLignes()).find((l) => l.id === ligneId) : undefined
+  const format = formatChoisi(formData) ?? ligne?.format ?? null
 
-  const propose = brouillonDePost(importee, format ?? 'reel')
+  const propose = brouillonDePost(importee, ligne?.deroule ?? null)
 
   const champs = new URLSearchParams({
     titre: importee.titre,

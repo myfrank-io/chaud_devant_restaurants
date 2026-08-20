@@ -1,5 +1,3 @@
-import { LIBELLE_FORMAT, type Format } from '@/lib/atelier'
-import { TRAME } from '@/lib/formats'
 import type { RecetteImportee } from '@/lib/lien'
 
 /**
@@ -47,13 +45,21 @@ export type Brouillon = {
   caption: string
 }
 
-export function brouillonDePost(recette: RecetteImportee, format: Format = 'reel'): Brouillon {
+/**
+ * @param deroule Comment ca se tourne, tel qu'ecrit sur la ligne directrice.
+ *   Recopie en tete du script. Absent, le script ne porte que le decoupage :
+ *   mieux vaut pas de trame qu'une trame que personne n'a relue.
+ */
+export function brouillonDePost(
+  recette: RecetteImportee,
+  deroule: string | null = null
+): Brouillon {
   const plat = sansArticle(recette.titre)
   const dose = tire(recette.titre)
 
   return {
     hook: hook(recette, dose),
-    script: script(recette, dose, format),
+    script: script(recette, dose, deroule),
     caption: caption(recette, plat, dose),
   }
 }
@@ -146,41 +152,33 @@ const PLANS_MAX = 6
 /**
  * Ce qui se dit et ce qui se montre, dans l'ordre.
  *
- * La trame vient de `lib/formats.ts` — celle du format que la ligne tourne, et
- * pas toujours celle du reel : une story ne se decoupe pas comme un carrousel.
- * L'avoir sous les yeux pendant qu'on tourne evite de la redecouvrir au
- * montage.
- *
- * Les etapes de la recette deviennent des plans, raccourcies a leur premiere
- * phrase : une conduite se lit d'un coup d'oeil, pas comme un livre.
+ * La trame vient de la ligne directrice, ecrite a la main : c'est celle de ce
+ * fil-la, pas celle d'un format en general. Les etapes de la recette
+ * deviennent des plans en dessous, raccourcies a leur premiere phrase — une
+ * conduite se lit d'un coup d'oeil pendant qu'on tourne, pas comme un livre.
  */
-function script(recette: RecetteImportee, dose: number, format: Format): string {
-  const trame = TRAME[format]
+function script(recette: RecetteImportee, dose: number, deroule: string | null): string {
   const plans = recette.etapes.slice(0, PLANS_MAX).map(premierePhrase).filter(Boolean)
   const restantes = recette.etapes.length - plans.length
 
-  const morceaux: (string | null)[] = [
-    `${LIBELLE_FORMAT[format]} — ${trame.duree}`,
-    '',
-    ...trame.deroule,
-    '',
-  ]
+  const morceaux: (string | null)[] = []
+
+  if (deroule) morceaux.push(deroule.trim(), '')
 
   if (plans.length) {
     morceaux.push(
-      `${trame.unite === 'Story' ? 'Les stories' : `Les ${trame.unite.toLowerCase()}s`}, dans l’ordre :`,
-      ...plans.map((etape, index) => `  ${trame.unite} ${index + 1} — ${etape}`),
+      'Les plans, dans l’ordre :',
+      ...plans.map((etape, index) => `  Plan ${index + 1} — ${etape}`),
       restantes > 0 ? `  (+ ${restantes} étape${restantes > 1 ? 's' : ''}, dans la fiche recette.)` : null
     )
   } else {
-    morceaux.push('À écrire : le découpage, une étape par unité, dans l’ordre du tournage.')
+    morceaux.push('À écrire : le découpage, une étape par plan, dans l’ordre du tournage.')
   }
 
   morceaux.push(
     '',
     `La fin : « Chaud devant. » Puis ${punchline(dose)}`,
     '',
-    trame.regle,
     'Ces étapes viennent du site d’origine, redis-les avec tes mots avant de tourner.'
   )
 

@@ -144,20 +144,23 @@ avec ce qu'elle contenait — on ne jette pas des données pour retirer un champ
 
 ### Comment ça se tourne, dans le dossier
 
-Chaque ligne directrice porte un **format** — reel, carrousel ou story — et affiche le déroulé qui
-va avec, replié : c'est une référence qu'on ouvre en calant un tournage, pas un pavé à scroller à
-chaque visite. Sans format choisi, les trois sont là, parce qu'une ligne qui les mélange a besoin
-des trois.
+Chaque ligne directrice porte un **format** — reel, carrousel ou story — et un **déroulé écrit à la
+main**, une étape par ligne. Ce qui est écrit là part dans le script des posts créés dans ce
+dossier.
 
-Les trames vivent dans [`lib/formats.ts`](./lib/formats.ts). Celle du reel vient du QG 4.3,
-minutage compris ; celles du carrousel et de la story en descendent — mêmes trois plans, même
-« chaud devant » quand le plat arrive sur la table, même légende qui porte la recette et finit sur
-une question fermée. Chacune se termine par la chose qu'on oublie en premier : la vanne toutes les
-8-10 s pour le reel, la question fermée pour le carrousel, le refus du montage pour la story.
+Le déroulé ne se génère pas, et c'est volontaire. Une trame figée par format disait la même chose à
+toutes les lignes, ne disait rien de celle-là en particulier, et partait telle quelle dans un
+script — on aurait fini par tourner d'après un gabarit que personne n'a relu. Le QG 4.3 reste la
+référence pour le reel ; c'est de là qu'on part pour écrire, pas ce qu'on recopie.
 
-Le format suit le geste : le bouton **+ Post** d'un dossier ouvre un post déjà réglé dessus, et un
-import par lien recopie **la trame de ce format** dans le script. Une story ne se découpe pas comme
-un carrousel, et on n'a pas à s'en souvenir.
+Le format suit le geste : le bouton **+ Post** d'un dossier ouvre un post déjà réglé dessus.
+
+Un détail de mise en œuvre qui vaut d'être connu, parce qu'il se reproduira : **React vide les
+champs non contrôlés après une action serveur et les remet à la valeur qu'ils avaient au premier
+rendu**, donc à l'ancienne. Choisir un format l'enregistrait bien en base et l'écran réaffichait
+« ça dépend » juste après — le pire des cas, celui où l'outil ment sur ce qu'il vient de faire. Une
+clé dérivée des valeurs de la ligne force le remontage. Même correctif que sur la fiche d'un post
+pré-rempli.
 
 ### La fiche recette naît avec le post
 
