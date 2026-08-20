@@ -11,7 +11,6 @@ import {
   type Ligne,
   type Post,
 } from '@/lib/atelier'
-import { TRAME } from '@/lib/formats'
 import { isDatabaseConfigured } from '@/lib/db'
 import { jourEnToutesLettres } from '@/lib/mois'
 
@@ -146,7 +145,18 @@ function Dossier({ ligne, posts }: { ligne: Ligne; posts: Post[] }) {
               un titre de dossier coûterait plus que ça ne rapporte. Le trait
               sous les champs reste visible en mobile : sans survol, rien ne
               dirait sinon que ce texte s'edite. */}
-          <form action={metAJourUneLigneAction} className="space-y-2">
+          {/* La cle remonte le formulaire quand la ligne change.
+
+              React vide les champs non controles apres une action serveur, et
+              les remet a la valeur qu'ils avaient au premier rendu — donc a
+              l'ancienne. Sans ca, choisir un format l'enregistrait bien en
+              base et l'ecran affichait « ca depend » juste apres : le pire des
+              cas, celui ou l'outil ment sur ce qu'il vient de faire. */}
+          <form
+            key={`${ligne.name}|${ligne.intention}|${ligne.format}|${ligne.deroule}`}
+            action={metAJourUneLigneAction}
+            className="space-y-2"
+          >
             <input type="hidden" name="id" value={ligne.id} />
             <input
               name="name"
@@ -166,6 +176,7 @@ function Dossier({ ligne, posts }: { ligne: Ligne; posts: Post[] }) {
               <Choix
                 nom="format"
                 libelle="Format"
+                identifiant={`format-${ligne.id}`}
                 valeur={ligne.format}
                 vide="— ça dépend —"
                 options={FORMATS.map((f) => ({ valeur: f, libelle: LIBELLE_FORMAT[f] }))}
@@ -174,6 +185,8 @@ function Dossier({ ligne, posts }: { ligne: Ligne; posts: Post[] }) {
                 Enregistrer
               </Bouton>
             </div>
+
+            <Deroule ligne={ligne} />
           </form>
         </div>
 
@@ -207,8 +220,7 @@ function Dossier({ ligne, posts }: { ligne: Ligne; posts: Post[] }) {
         </div>
       </header>
 
-      <div className="space-y-4 px-4 pb-4">
-        <Deroule format={ligne.format} />
+      <div className="px-4 pb-4">
         <ListePosts posts={posts} />
       </div>
     </section>
@@ -216,46 +228,42 @@ function Dossier({ ligne, posts }: { ligne: Ligne; posts: Post[] }) {
 }
 
 /**
- * Comment ca se tourne, dans le dossier ou l'on prepare.
+ * Comment ca se tourne, ecrit a la main.
  *
- * Replie par defaut : c'est une reference qu'on ouvre quand on cale un
- * tournage, pas un pave a scroller a chaque visite. Sans format choisi, les
- * trois sont la — une ligne qui melange les formats a besoin des trois.
+ * C'etait une trame figee, la meme pour toutes les lignes d'un format. Elle
+ * avait deux defauts : elle ne disait rien de cette ligne-la, et elle partait
+ * telle quelle dans le script d'un post — on aurait fini par tourner d'apres
+ * un gabarit que personne n'a relu.
+ *
+ * Donc un champ libre, une etape par ligne. Ce qui est ecrit ici est ce qui
+ * arrive dans le script d'un post cree dans ce dossier.
+ *
+ * Replie tant que c'est vide : un dossier qu'on vient de creer n'a pas besoin
+ * de montrer un trou.
  */
-function Deroule({ format }: { format: Ligne['format'] }) {
-  const montres = format ? [format] : FORMATS
-
+function Deroule({ ligne }: { ligne: Ligne }) {
   return (
-    <details className="border-2 border-fonte/10 bg-papier/60">
+    <details open={Boolean(ligne.deroule)} className="border-2 border-fonte/10 bg-papier/60">
       <summary className="cursor-pointer px-3 py-2 font-display text-base font-bold text-fonte marker:text-rouge">
         Comment ça se tourne
-        {format ? (
-          <span className="ml-2 font-sans text-sm font-normal text-fonte/50">
-            {LIBELLE_FORMAT[format]}, {TRAME[format].duree}
-          </span>
-        ) : null}
+        {ligne.deroule ? null : (
+          <span className="ml-2 font-sans text-sm font-normal text-fonte/45">à écrire</span>
+        )}
       </summary>
 
-      <div className="space-y-5 px-3 pb-4 pt-1">
-        {montres.map((nom) => (
-          <div key={nom}>
-            {montres.length > 1 ? (
-              <p className="text-xs font-bold uppercase tracking-[0.15em] text-bois">
-                {LIBELLE_FORMAT[nom]} — {TRAME[nom].duree}
-              </p>
-            ) : null}
-            <ol className="mt-1.5 space-y-1.5">
-              {TRAME[nom].deroule.map((etape) => (
-                <li key={etape} className="text-base leading-relaxed text-fonte/75">
-                  {etape}
-                </li>
-              ))}
-            </ol>
-            <p className="mt-2 border-l-4 border-bois pl-3 text-sm leading-relaxed text-fonte/65">
-              {TRAME[nom].regle}
-            </p>
-          </div>
-        ))}
+      <div className="px-3 pb-3">
+        <textarea
+          name="deroule"
+          rows={6}
+          defaultValue={ligne.deroule ?? ''}
+          aria-label={`Comment se tourne ${ligne.name}`}
+          placeholder={"Une étape par ligne.\n\n0-3 s — Le plat fini, on soulève le couvercle.\n3-10 s — Les ingrédients posés sur le bois.\n…"}
+          className="w-full resize-y border-2 border-fonte/15 bg-papier px-3 py-2 font-mono text-sm leading-relaxed text-fonte outline-none transition focus:border-rouge"
+        />
+        <p className="mt-1.5 text-sm text-fonte/55">
+          Ce que tu écris ici part dans le script des posts créés dans ce dossier. Pense à
+          enregistrer.
+        </p>
       </div>
     </details>
   )

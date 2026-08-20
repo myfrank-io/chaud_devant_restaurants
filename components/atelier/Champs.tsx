@@ -51,17 +51,26 @@ export function Choix({
   valeur,
   options,
   vide,
+  /**
+   * A preciser des que le meme champ apparait plusieurs fois sur une page —
+   * une liste de dossiers, par exemple. Sans ca, deux elements partagent un
+   * identifiant et l'etiquette de l'un active le champ de l'autre.
+   */
+  identifiant,
 }: {
   nom: string
   libelle: string
   valeur?: string | null
   options: { valeur: string; libelle: string }[]
   vide?: string
+  identifiant?: string
 }) {
+  const id = identifiant ?? nom
+
   return (
     <div>
-      <Etiquette pour={nom}>{libelle}</Etiquette>
-      <select id={nom} name={nom} defaultValue={valeur ?? ''} className={CADRE}>
+      <Etiquette pour={id}>{libelle}</Etiquette>
+      <select id={id} name={nom} defaultValue={valeur ?? ''} className={CADRE}>
         {vide ? <option value="">{vide}</option> : null}
         {options.map((option) => (
           <option key={option.valeur} value={option.valeur}>

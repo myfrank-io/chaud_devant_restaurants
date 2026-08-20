@@ -45,6 +45,8 @@ export type Ligne = {
   intention: string | null
   /** Le format que cette ligne tourne. Null quand elle les mélange. */
   format: Format | null
+  /** Comment ça se tourne, écrit à la main. Une étape par ligne. */
+  deroule: string | null
   archived: boolean
 }
 
@@ -141,14 +143,19 @@ export async function listeLesLignes(): Promise<Ligne[]> {
     name: string
     intention: string | null
     format: string | null
+    deroule: string | null
     archived_at: Date | null
-  }>('SELECT id, name, intention, format, archived_at FROM lignes ORDER BY position, created_at')
+  }>(
+    `SELECT id, name, intention, format, deroule, archived_at
+       FROM lignes ORDER BY position, created_at`
+  )
 
   return rows.map((r) => ({
     id: r.id,
     name: r.name,
     intention: r.intention,
     format: (FORMATS as readonly string[]).includes(r.format ?? '') ? (r.format as Format) : null,
+    deroule: r.deroule,
     archived: r.archived_at !== null,
   }))
 }
@@ -172,16 +179,15 @@ export async function metAJourUneLigne(
   id: string,
   name: string,
   intention: string | null,
-  format: Format | null
+  format: Format | null,
+  deroule: string | null
 ): Promise<void> {
   const pool = await basePrete()
   if (!pool) throw new Error('DATABASE_URL absent : impossible de modifier une ligne.')
-  await pool.query('UPDATE lignes SET name = $1, intention = $2, format = $3 WHERE id = $4', [
-    name,
-    intention,
-    format,
-    id,
-  ])
+  await pool.query(
+    'UPDATE lignes SET name = $1, intention = $2, format = $3, deroule = $4 WHERE id = $5',
+    [name, intention, format, deroule, id]
+  )
 }
 
 export async function archiveUneLigne(id: string, archivee: boolean): Promise<void> {
